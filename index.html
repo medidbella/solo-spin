@@ -70,13 +70,13 @@
                   <span class="text-white">Remember me</span>
                 </label>
 
-                <a href="#" class="text-[#2A3FA1] text-xl underline decoration-transparent hover:decoration-[#2A3FA1] underline-offset-5 transition">Forget password?</a>
+                <a href="#" class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">Forget password?</a>
             </div>
             <!-- login button -->
-            <button class="bg-[#2A3FA1] text-white mt-6 w-1/2 rounded-4xl p-3 cursor-pointer hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
+            <button class="bg-[#2A3FA1] text-white text-3xl mt-6 w-1/3 rounded-4xl p-3 cursor-pointer hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
                             hover:shadow-[0_6px_20px_rgba(42,63,161,0.6)] hover:scale-[1.04]
                             active:scale-[0.97]
-                            transition-all ease-ou">Login</button>
+                            transition-all ease-out">Login</button>
             <!-- the Or section -->
             <div class="grid grid-cols-3 items-center mt-6 w-1/2">
                 <hr class="border-[#2A3FA1]">
@@ -90,22 +90,17 @@
             </div>
             <div class="mt-7 flex flex-row items-center gap-2">
                 <span class="text-white">First time in this world?</span>
-                <a href="#" class="text-[#2A3FA1] text-xl underline decoration-transparent hover:decoration-[#2A3FA1] underline-offset-5">Enter the world!</a>
+                <a href="#" class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">Enter the world!</a>
             </div>
         </div>
         <!-- image in the right side -->
-         <div class="w-1/2 h-screen">
-            <img src="./loginPageimg.svg" alt="" class="w-full h-full object-cover">
-         </div>
+         <div class="w-1/2 h-screen relative">
+            <!-- Image -->
+            <img src="./loginPageimg.svg" alt="" class="w-full h-full object-cover">        
+            <!-- Dark overlay -->
+            <div class="absolute inset-0 bg-black/50"></div>
+
+        </div>
     </main>
   </body>
 </html>
-
-            <!-- <form action="" class="flex flex-col gap-4">
-                    <input class="p-2 border rounded-xl mt-8 bg-white" type="text" name="email" placeholder="email">
-                    <div class="relative">
-                        <input class="p-2 border rounded-xl w-full bg-white" type="password" name="password" placeholder="password">
-                        
-                    </div>
-                    <button class="bg-[#002D74] rounded-xl py-2 text-white cursor-pointer hover:scale-105 duration-300">Login</button>
-                </form> -->
