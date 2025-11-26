@@ -4,7 +4,7 @@ export function renderLandingPage() : string {
         <section class="relative z-1 flex justify-between items-center h-screen py-0 px-20">
             <div class="max-w-[700px] pt-[120px]">
                 <h1 class="text-[40px] font-['Teachers',sans-serif] font-medium text-[#2A3FA1] leading-[1.2] mb-[60px]"><span class="font-['SoloLeveling',serif] text-[80px] text-[#6e04b6]">From Shadow to Champion</span> <br> Train, evolve, and awaken your hidden strength — the table awaits your power</h1>
-                <button class="bg-linear-to-r from-[#3d1fa2] to-[#6245ff] text-white font-['Press_Start_2P',sans-serif] border-none py-4 px-6 rounded-md shadow-[0_0_15px_#4b1dcb] cursor-pointer hover:shadow-[0_0_25px_#7b35ff]">Start Your Journey</button>
+                <button class="bg-linear-to-r from-[#3d1fa2] to-[#6245ff] text-white font-['Press_Start_2P',sans-serif] border-none py-4 px-6 rounded-md shadow-[0_0_15px_#4b1dcb] cursor-pointer hover:shadow-[0_0_25px_#7b35ff] hover:scale-105">Start Your Journey</button>
             </div>
             <div class="energy-aura"></div>
             <img class="w-[700px] h-auto self-stretch" src="imgs/person.svg" alt="person">
