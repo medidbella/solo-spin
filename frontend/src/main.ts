@@ -1,6 +1,8 @@
+import './style.css';
 import { renderHome } from './pages/Home';
 import { renderSettings } from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
+import { renderLoginPage } from './pages/LoginPage';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -10,7 +12,7 @@ function router() {
 
   switch (path) {
     case '/':
-      app.innerHTML = renderLandingPage();
+      app.innerHTML = renderLoginPage();
       break;
     case '/settings':
       app.innerHTML = renderSettings();
