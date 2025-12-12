@@ -1,11 +1,19 @@
 @import "tailwindcss";
-@font-face
-{
-    font-family: 'SoloLeveling';
-    src: url('./frontend/fonts/solo_level/SoloLevelDemo.otf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+
+@font-face {
+  font-family: "SoloLeveling";
+  src: url("/fonts/SoloLevelDemo.otf") format("opentype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
+
+/* Fallback/override in case Tailwind utility isn't generated or is purged.
+   This forces the SoloLeveling font for debugging. Remove after verification. */
+.font-solo {
+  font-family: "SoloLeveling", serif !important;
+}
+
 .custom-checkbox {
       width: 22px;               /* Bigger size */
       height: 22px;
@@ -31,4 +39,15 @@
 /* Show checkmark when checkbox checked */
 .peer:checked + .custom-checkbox::after {
   opacity: 1;
+}
+
+/* floating img in sign-up page */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
