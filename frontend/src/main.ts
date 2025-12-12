@@ -3,7 +3,7 @@ import { renderHome } from './pages/Home';
 import { renderSettings } from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
-
+import { renderSignUpPage } from './pages/SignUpPage';
 const app = document.getElementById('app') as HTMLDivElement;
 
 function router() {
@@ -12,10 +12,13 @@ function router() {
 
   switch (path) {
     case '/':
+      app.innerHTML = renderLandingPage();
+      break;
+    case '/login':
       app.innerHTML = renderLoginPage();
       break;
-    case '/settings':
-      app.innerHTML = renderSettings();
+    case '/signup':
+      app.innerHTML = renderSignUpPage();
       break;
     default:
       app.innerHTML = '<div class="text-center"><h1 class="text-3xl font-bold text-red-600">404 - Not Found</h1></div>';

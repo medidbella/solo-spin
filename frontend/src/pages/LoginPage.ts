@@ -5,7 +5,7 @@ export function renderLoginPage() : string {
             <div class="mb-0.5">
                 <img src="../../public/imgs/logo.png" alt="Logo">
             </div>
-            <h2 class="text-[#5F3779] text-8xl font-['SoloLeveling',serif]">Welcome back!</h2>
+            <h2 class="text-[#5F3779] text-8xl font-solo">Welcome back!</h2>
             <form action="" class="flex flex-col gap-4 mt-7 w-1/2">
                 <input class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" type="text" name="email" placeholder="user name">
                 <div class="relative">
@@ -52,7 +52,7 @@ export function renderLoginPage() : string {
         <!-- image in the right side -->
          <div class="w-1/2 h-screen relative">
             <!-- Image -->
-            <img src="../../public/imgs/loginPageimg.svg" alt="" class="w-full h-full object-cover">        
+            <img src="../../public/imgs/loginPageimg.svg" alt="" class="w-full h-full object-cover animate-float">        
             <!-- Dark overlay -->
             <div class="absolute inset-0 bg-black/50"></div>
 
