@@ -33,6 +33,8 @@ if [ x${ELASTIC_PASSWORD} == x ]; then
          unzip config/certs/certs.zip -d config/certs;
        fi;
        echo "Setting file permissions"
+       chown -R 1000:1000 /usr/share/elasticsearch/data
+       chown -R 1000:1000 /usr/share/kibana/data
        find config/certs -type d -exec chmod 755 \{\} \;;
        find config/certs -type f -exec chmod 644 \{\} \;;
        echo "Waiting for Elasticsearch availability";
