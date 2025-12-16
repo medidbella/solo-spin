@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {prisma} from "../database.js"
 import bcrypt from "bcrypt";
+import {app} from "../server.js"
+import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 
 function GetRandomAvatarPath():string{
     let image_names = ["avatar1.png", "avatar2.png", "avatar3.png"]
@@ -24,7 +26,7 @@ export const registrationSchema = {
     body: userBodySchema
 }
 
-export async function register(req:FastifyRequest, reply:FastifyReply) {
+export async function register(req:FastifyRequest, res:FastifyReply) {
     const { name, username, email, password } = req.body as
         { name: string; username: string; email: string; password: string };
     try {
@@ -37,24 +39,35 @@ export async function register(req:FastifyRequest, reply:FastifyReply) {
             }})
         if (UserFromDb){ // username or email found in db 
             if (UserFromDb.username == username)
-                return reply.code(409).send({ message: "username already in use."});
+                return res.code(409).send({ message: "username already in use."});
             else if (UserFromDb.email == email)
-                return reply.code(409).send({message: "email already in use."});
+                return res.code(409).send({message: "email already in use."});
         }
         const password_hash:string = await bcrypt.hash(password, process.env.SALT_ROUNDS!)
         const avatar_path = GetRandomAvatarPath();
-        await prisma.user.create({
+        const user = await prisma.user.create({
             data: {
                 name, username, email, password_hash, avatar_path
             },
             select:{
-                id:true, name: true, username:true, email:true, reg_date:true
+                id:true, name: true, username:true, email:true,
+                reg_date:true, refresh_token:true
+            }
+        })
+        SetAccessTokenCookie(res, user.id)
+        SetRefreshTokenCookie(res, {refresh_token: user.refresh_token, id: user.id})
+        await prisma.user.update({
+            where: {
+                id:user.id
+            },
+            data:{
+                refresh_token:user.refresh_token
             }
         })
     }
     catch (error){
         req.log.error(error);
-        return reply.code(500).send({message: "server unexpected error."})
+        return res.code(500).send({message: "server unexpected error."})
     }
-    return reply.code(201).send({ message: "User registered successfully." });
+    return res.code(201).send({ message: "User registered successfully." });
 }
