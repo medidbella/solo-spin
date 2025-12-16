@@ -4,8 +4,6 @@
     "rootDir": "./",
     "outDir": "./dist",
 
-    // Environment Settings
-    // Use NodeNext so TS can resolve ESM packages like fastify correctly
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "es2022",
@@ -13,7 +11,6 @@
     "types": ["node"],
     "esModuleInterop": true,
 
-    // Other Outputs
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -26,5 +23,8 @@
     "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-  }
-}
+  },
+
+  "include": ["./types/*"]
+} 
+

@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../database.js";
 import {app} from "../server.js"
-import { SetJwtTokenCookie } from "./jwt.js";
+import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 import bcrypt from "bcrypt";
 
 
@@ -19,23 +19,31 @@ export const loginSchema = {
 
 export async function login(req:FastifyRequest, res:FastifyReply)
 {
-	const {username, password} = req.body as {username:string, password:string};
+	const {username, password} = req.body as {username: string, password: string};
 	try {
-		const password_hash:string = await bcrypt.hash(password, process.env.SALT_ROUNDS!)
+		const password_hash: string = await bcrypt.hash(password, process.env.SALT_ROUNDS!)
 		const user = await prisma.user.findUnique({
 			where: {
 				username:username,
-				password_hash:password_hash
 			},
 			select:{
 				id:true, name: true, username:true,
-				email:true, reg_date:true
+				email:true, reg_date:true,
+				refresh_token:true, password_hash:true
 			}
 		})
-		if (!user)
+		if (!user || !bcrypt.compare(password_hash, user.password_hash))
 			return res.code(401).send({message: "invalid username or password"})
-		const jwtToken = app.jwt.sign({sub:user.id}, {expiresIn: '15m'})
-		SetJwtTokenCookie(res, jwtToken)
+		SetAccessTokenCookie(res, user.id)
+		SetRefreshTokenCookie(res, {refresh_token: user.refresh_token, id: user.id})
+		prisma.user.update({
+			where: {
+				id:user.id
+			},
+			data:{
+				refresh_token:user.refresh_token
+			}
+		})
 	}
 	catch (error){
 		req.log.error(error)
