@@ -1,12 +1,20 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { prisma } from "../database";
-import { SetAccessTokenCookie, SetRefreshTokenCookie } from "./jwt";
+import { prisma } from "../database.js";
+import { SetAccessTokenCookie, SetRefreshTokenCookie } from "./jwt.js";
+
+function verifyRefreshToken(req:FastifyRequest):number
+{
+	const token = req.cookies.refresh_token
+	if (!token)
+		throw new Error("refreshToken not found")
+	const decoded = req.server.jwt.verify(token, {key: process.env.JWT_REFRESH_SECRET! });
+	return parseInt((decoded as any).sub)
+}
 
 export async function refresh(req:FastifyRequest, res:FastifyReply)
 {
-	try{
-		await req.refreshJwtVerify()
-		const user_id = (req.user as any).sub
+	try {
+		const user_id = verifyRefreshToken(req)
 		const user = await prisma.user.findUnique({
 			where:{
 				id: user_id

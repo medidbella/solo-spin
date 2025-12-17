@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {prisma} from "../database.js"
 import bcrypt from "bcrypt";
-import {app} from "../server.js"
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 
 function GetRandomAvatarPath():string{
@@ -43,7 +42,7 @@ export async function register(req:FastifyRequest, res:FastifyReply) {
             else if (UserFromDb.email == email)
                 return res.code(409).send({message: "email already in use."});
         }
-        const password_hash:string = await bcrypt.hash(password, process.env.SALT_ROUNDS!)
+        const password_hash:string = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS!))
         const avatar_path = GetRandomAvatarPath();
         const user = await prisma.user.create({
             data: {

@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "../database";
+import { prisma } from "../database.js";
 
 export async function logout(req: FastifyRequest, res: FastifyReply)
 {
@@ -7,7 +7,7 @@ export async function logout(req: FastifyRequest, res: FastifyReply)
 	res.clearCookie('refreshToken', {path: "/refresh"})
 
 	try {
-		await req.accessJwtVerify()
+		await req.jwtVerify({key:process.env.JWT_ACCESS_SECRET!})
 		const user = await prisma.user.update({
 			where: {
 				id : (req.user as any).sub

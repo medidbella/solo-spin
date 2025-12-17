@@ -25,6 +25,7 @@
     "isolatedModules": true,
   },
 
-  "include": ["./types/*"]
+  "include": ["./*.ts", "./**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 } 
 
