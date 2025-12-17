@@ -1,9 +1,8 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { app } from "../server.js";
 
 export function SetAccessTokenCookie(res: FastifyReply, user_id: number)
 {
-	const jwtToken = app.access.sign({sub:user_id}, {expiresIn: "15m"})
+	const jwtToken = res.server.jwt.sign({sub:user_id}, {expiresIn: "15m"})
 	res.cookie("accessToken", jwtToken, {
     	domain: 'localhost',
     	path: '/',
@@ -16,7 +15,7 @@ export function SetAccessTokenCookie(res: FastifyReply, user_id: number)
 
 export function SetRefreshTokenCookie(res: FastifyReply, user: {refresh_token :string | null, id :number})
 {
-	const jwtToken = app.refresh.sign({sub:user.id}, {expiresIn: "7d"})
+	const jwtToken = res.server.jwt.sign({sub:user.id}, {expiresIn: "7d", key:process.env.JWT_REFRESH_SECRET!})
 	res.cookie("refreshToken", jwtToken, {
 		domain: 'localhost',
     	path: '/refresh',
@@ -31,11 +30,12 @@ export function SetRefreshTokenCookie(res: FastifyReply, user: {refresh_token :s
 export async function authVerifier(req: FastifyRequest, res: FastifyReply)
 {
 	try {
-		await req.accessJwtVerify();
+		await req.jwtVerify();
 	}
 	catch (err){
 		res.code(401).send({ 
-		message: 'the token is invalid or expired.' 
+		message: 'the token is invalid or expired.',
+		error: err 
     });
 	}
 }
