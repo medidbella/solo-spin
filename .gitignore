@@ -3,3 +3,4 @@
 backend/node_modules
 backend/dist
 *.txt
+.vscode

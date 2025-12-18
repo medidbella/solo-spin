@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { prisma } from "../database.js";
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
+import { TwoFactoLoginController } from "./totp.js";
 import bcrypt from "bcrypt";
-
 
 export const loginSchema = {
 	body: {
@@ -27,21 +27,26 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 			select:{
 				id:true, name: true, username:true,
 				email:true, reg_date:true,
-				refresh_token:true, password_hash:true
+				avatar_path:true,
+				refresh_token:true, password_hash:true,
+				two_factor_secret:true, two_factor_enabled:true
 			}
 		})
 		if (!user || !bcrypt.compare(password, user.password_hash))
 			return res.code(401).send({message: "invalid username or password"})
+		if (user.two_factor_enabled)
+			return TwoFactoLoginController(res, user)
 		SetAccessTokenCookie(res, user.id)
-		SetRefreshTokenCookie(res, {refresh_token: user.refresh_token, id: user.id})
-		prisma.user.update({
+		const token = SetRefreshTokenCookie(res, user.id)
+		await prisma.user.update({
 			where: {
 				id:user.id
 			},
 			data:{
-				refresh_token:user.refresh_token
+				refresh_token:token
 			}
 		})
+		console.log(`login r_token: ${token}`)
 	}
 	catch (error){
 		req.log.error(error)
