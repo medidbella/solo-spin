@@ -17,12 +17,14 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 		})
 		if (!user){
 			return res.code(401).send({
-				message: 'User associated with token not found or account deactivated. Please log in again.'})
+				message: 'User associated with token not found or account deactivated. Please log in again.'
+			})
 		}
 		return res.code(200).send({ message: "Successfully fetched user data.", user});
 	}
 	catch (err){
 		return res.code(500).send({
-			message:"Server unexpected error"})
+			message:"Server unexpected error"
+		})
 	}
 }
