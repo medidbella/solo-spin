@@ -13,9 +13,9 @@ export function SetAccessTokenCookie(res: FastifyReply, user_id: number)
   })
 }
 
-export function SetRefreshTokenCookie(res: FastifyReply, user: {refresh_token :string | null, id :number})
+export function SetRefreshTokenCookie(res: FastifyReply, user_id :number)
 {
-	const jwtToken = res.server.jwt.sign({sub:user.id}, {expiresIn: "7d", key:process.env.JWT_REFRESH_SECRET!})
+	const jwtToken = res.server.jwt.sign({sub:user_id}, {expiresIn: "7d", key:process.env.JWT_REFRESH_SECRET!})
 	res.cookie("refreshToken", jwtToken, {
 		domain: 'localhost',
     	path: '/refresh',
@@ -24,7 +24,7 @@ export function SetRefreshTokenCookie(res: FastifyReply, user: {refresh_token :s
     	sameSite: 'strict',
     	expires: new Date(Date.now() + (7 * 24 * 3600 * 1000))
 	})
-	user.refresh_token = jwtToken
+	return jwtToken;
 }
 
 export async function authVerifier(req: FastifyRequest, res: FastifyReply)

@@ -55,7 +55,7 @@ export async function register(req:FastifyRequest, res:FastifyReply) {
             }
         })
         SetAccessTokenCookie(res, user.id)
-        SetRefreshTokenCookie(res, {refresh_token: user.refresh_token, id: user.id})
+        user.refresh_token = SetRefreshTokenCookie(res, user.id)
         await prisma.user.update({
             where: {
                 id:user.id

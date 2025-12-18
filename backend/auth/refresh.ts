@@ -4,10 +4,11 @@ import { SetAccessTokenCookie, SetRefreshTokenCookie } from "./jwt.js";
 
 function verifyRefreshToken(req:FastifyRequest):number
 {
-	const token = req.cookies.refresh_token
+	const token = req.cookies.refreshToken
 	if (!token)
 		throw new Error("refreshToken not found")
-	const decoded = req.server.jwt.verify(token, {key: process.env.JWT_REFRESH_SECRET! });
+	const decoded = req.server.jwt.verify(token, {key: process.env.JWT_REFRESH_SECRET!});
+	console.log("JWT refresh token is verified successfully")
 	return parseInt((decoded as any).sub)
 }
 
@@ -24,21 +25,24 @@ export async function refresh(req:FastifyRequest, res:FastifyReply)
 				refresh_token: true
 			}
 		})
-		if (!user || !user.refresh_token || req.cookies.refresh_token != user.refresh_token)
+		console.log(`${user?.refresh_token}`)
+		console.log(`${req.cookies.refreshToken}`)
+		if (!user || !user.refresh_token || req.cookies.refreshToken != user.refresh_token)
 			return res.code(401).send({message: "Invalid refresh token"})
 		SetAccessTokenCookie(res, user_id)
-		SetRefreshTokenCookie(res, user)
-		prisma.user.update({
+		const token = SetRefreshTokenCookie(res, user.id)
+		await prisma.user.update({
 			where: {
 				id:user_id
 			},
 			data:{
-				refresh_token: user.refresh_token
+				refresh_token: token
 			}
 		})
 	}
 	catch (error){
-		return res.code(401).send({message: "Refresh failed"})
+		return res.code(401).send({message: "Refresh failed", error})
 	}
 	return res.code(200).send({message: "Tokens refreshed successfully"})
 }
+
