@@ -119,10 +119,13 @@ export function TwoFactoLoginController(res:FastifyReply, user:User)
 }
 export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyReply)
 {
-	const {code, token} = req.body as {code:string, token:string}
+	const {code, mfaToken} = req.body as {code:string, mfaToken:string}
+	console.log(`code: ${code}`)
+	console.log(`token:\n\t${mfaToken}`)
 	try {
-		const decoded = req.server.jwt.verify(token)
-		if ((decoded as any).sub != "2fa_temp")
+		const decoded = req.server.jwt.verify(mfaToken)
+		console.log("token verified successfully")
+		if ((decoded as any).type != "2fa_temp")
 			return (res.code(401).send({message: "Invalid token type"}))
 		const user_id = parseInt((decoded as any).sub)
 		const user = await prisma.user.findFirst({
@@ -151,7 +154,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 		})
 	}
 	catch(error){
-		return res.code(500).send("Server unexpected error")
+		return res.code(500).send({message: "Server unexpected error", error})
 	}
 	return res.code(200).send({message:"user logged in successfully"})
 }

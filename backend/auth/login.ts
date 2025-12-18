@@ -37,15 +37,16 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 		if (user.two_factor_enabled)
 			return TwoFactoLoginController(res, user)
 		SetAccessTokenCookie(res, user.id)
-		SetRefreshTokenCookie(res, {refresh_token: user.refresh_token, id: user.id})
-		prisma.user.update({
+		const token = SetRefreshTokenCookie(res, user.id)
+		await prisma.user.update({
 			where: {
 				id:user.id
 			},
 			data:{
-				refresh_token:user.refresh_token
+				refresh_token:token
 			}
 		})
+		console.log(`login r_token: ${token}`)
 	}
 	catch (error){
 		req.log.error(error)
