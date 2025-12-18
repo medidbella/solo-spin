@@ -7,8 +7,8 @@ import {authVerifier} from './auth/jwt.js';
 import {refresh} from './auth/refresh.js';
 import {me} from "./me.js";
 import {logout} from "./auth/logout.js"
-import { twoFaValidatorSchema, EnableTwoFactoAuth,
-            TwoFactorCodeValidator } from './auth/totp.js';
+import { twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
+            TwoFactorValidator, TwoFactorLoginVerify} from './auth/totp.js';
 
 const app = Fastify({logger:true});
 
@@ -28,14 +28,16 @@ app.post("/login", {schema:loginSchema}, login)
 
 app.get("/me", {preHandler:authVerifier}, me)
 
-app.post("/refresh", refresh) 
+app.post("/refresh", refresh)
 
 app.post("/logout", logout)
 
 app.post("/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
 
 app.post("/2fa/validate", {schema:twoFaValidatorSchema, preHandler: authVerifier},
-            TwoFactorCodeValidator)
+            TwoFactorValidator)
+
+app.post("/2fa/verify", {schema:twoFaVerifySchema}, TwoFactorLoginVerify)
 
 app.listen({ port: 3000 });
 
