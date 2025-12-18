@@ -35,7 +35,8 @@ export async function register(req:FastifyRequest, res:FastifyReply) {
                     { username: username },
                     { email: email }
                 ]
-            }})
+            }
+        })
         if (UserFromDb){ // username or email found in db 
             if (UserFromDb.username == username)
                 return res.code(409).send({ message: "username already in use."});
