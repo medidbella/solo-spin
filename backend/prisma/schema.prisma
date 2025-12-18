@@ -10,16 +10,18 @@ datasource db {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  name          String
-  username      String @unique
-  email         String @unique
-  reg_date      DateTime @default(now())
-  password_hash String
-  avatar_path   String
-  refresh_token String?
-  gamesWon     Game[]   @relation("WinnerRelation")
-  gamesLost    Game[]   @relation("LoserRelation")
+  id                   Int     @id @default(autoincrement())
+  name                 String
+  username             String @unique
+  email                String @unique
+  reg_date             DateTime @default(now())
+  password_hash        String
+  avatar_path          String
+  refresh_token        String?
+  two_factor_enabled   Boolean @default(false)
+  two_factor_secret    String?
+  gamesWon             Game[]   @relation("WinnerRelation")
+  gamesLost            Game[]   @relation("LoserRelation")
 }
 
 model Game {
