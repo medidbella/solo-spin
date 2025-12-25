@@ -14,3 +14,11 @@ class Block{
     }
 }
 
+/* 
+An arrow func that hash a Block uisng all of its data using SHA256 Encryption algorithm 
+*/
+
+var calculateHash = (index, previousHash, timestamp, data) => {
+    return CryptoJS.SHA256(index + previousHash + timestamp + data).toString();
+};
+
