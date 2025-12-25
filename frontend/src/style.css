@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "SoloLeveling";
+  font-family: "solo";
   src: url("/fonts/SoloLevelDemo.otf") format("opentype");
   font-weight: 100 900;
   font-style: normal;

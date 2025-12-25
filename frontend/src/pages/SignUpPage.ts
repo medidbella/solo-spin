@@ -1,26 +1,27 @@
 export function renderSignUpPage() : string {
-  return `
+  return /* html */`
     <main class="min-h-screen flex justify-between ">
         <!-- left image -->
-        <div class="h-screen w-1/2">
+        <div class="h-[900px] w-[900px]">
             <img src="../../public/imgs/SignUpimg.png" 
                  alt="a person takin a raket" 
-                 class="w-full h-full animate-float drop-shadow-[0_0_30px_#2A3FA1]">
+                 class="w-full h-full object-contain animate-float drop-shadow-[0_0_30px_#2A3FA1]">
         </div>
-
+        
         <!-- right text -->
         <div class="w-1/2 flex flex-col items-center">
             <div class="-mt-4">
                 <img src="../../public/imgs/logo.png" alt="solospin logo">
             </div>
 
-            <h2 class="text-white text-8xl -mt-5 font-[SoloLeveling]">
+            <h2 class="text-white text-8xl -mt-5 font-[solo]">
                 Register Now!
             </h2>
-
             <form class="mt-11 w-1/2 flex flex-col gap-4">
                 <input type="text" placeholder="fullname" class="bg-[#5F3779] text-white w-full p-3 rounded-4xl">
                 <input type="text" placeholder="email" class="bg-[#5F3779] text-white w-full p-3 rounded-4xl">
+                <div>
+                </div>
 
                 <div class="relative">
                     <input class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" type="password" name="password" placeholder="password">
@@ -52,5 +53,5 @@ export function renderSignUpPage() : string {
             </div>
         </div>
     </main>
-  `;
+  `;   
 }
