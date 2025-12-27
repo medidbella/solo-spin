@@ -182,5 +182,13 @@ services:
       - ELASTIC_HOSTS=https://es01:9200
     command: logstash -f /usr/share/logstash/pipeline/logstash.conf
     ports:
-      - "5044:5044/udp"
+      - "5044:5044"
     mem_limit: ${LS_MEM_LIMIT}
+  
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/usr/share/filebeat/logs:ro
+    depends_on:
+      - logstash
