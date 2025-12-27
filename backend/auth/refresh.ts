@@ -8,7 +8,7 @@ function verifyRefreshToken(req:FastifyRequest):number
 	if (!token)
 		throw new Error("refreshToken not found")
 	const decoded = req.server.jwt.verify(token, {key: process.env.JWT_REFRESH_SECRET!});
-	console.log("JWT refresh token is verified successfully")
+	// console.log("JWT refresh token is verified successfully")
 	return parseInt((decoded as any).sub)
 }
 
@@ -25,8 +25,8 @@ export async function refresh(req:FastifyRequest, res:FastifyReply)
 				refresh_token: true
 			}
 		})
-		console.log(`${user?.refresh_token}`)
-		console.log(`${req.cookies.refreshToken}`)
+		// console.log(`${user?.refresh_token}`)
+		// console.log(`${req.cookies.refreshToken}`)
 		if (!user || !user.refresh_token || req.cookies.refreshToken != user.refresh_token)
 			return res.code(401).send({message: "Invalid refresh token"})
 		SetAccessTokenCookie(res, user_id)
@@ -45,4 +45,3 @@ export async function refresh(req:FastifyRequest, res:FastifyReply)
 	}
 	return res.code(200).send({message: "Tokens refreshed successfully"})
 }
-

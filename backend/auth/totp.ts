@@ -143,13 +143,13 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 		else if (CheckPossibleErrors(res, code, user))
 			return ;
 		SetAccessTokenCookie(res, user_id)
-		SetRefreshTokenCookie(res, {refresh_token: user!.refresh_token, id: user_id})
+		const token = SetRefreshTokenCookie(res, user_id)
 		prisma.user.update({
 			where: {
 				id:user_id
 			},
 			data:{
-				refresh_token:user!.refresh_token
+				refresh_token:token
 			}
 		})
 	}
