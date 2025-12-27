@@ -192,3 +192,12 @@ services:
       - ./logs:/usr/share/filebeat/logs:ro
     depends_on:
       - logstash
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./logs:/var/log/nginx
+    depends_on:
+      - filebeat
