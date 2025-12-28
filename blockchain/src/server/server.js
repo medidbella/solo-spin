@@ -1,5 +1,7 @@
 import Fastify from 'fastify';
 import { generateNextBlock, getBlockchain, getLatestBlock, getBlock } from '../core/blockchain.js';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const fastify = Fastify({ 
   logger: true,
@@ -54,61 +56,32 @@ fastify.get('/blocks/:index', async (request, reply) => {
 });
 
 // Add new block with tournament/game data
+const logDir = './logs';
+if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+
+const logPath = path.join(logDir, 'blockchain.log');
+
 fastify.post('/blocks', async (request, reply) => {
   try {
     const { score, project, tournamentId, players, winner } = request.body;
-    
-    // Support both simple score-project format and complex tournament format
-    let blockData;
-    if (score !== undefined && project !== undefined) {
-      blockData = { 
-        score, 
-        project, 
-        timestamp: Date.now(),
-        type: 'game_result'
-      };
-    } else if (tournamentId && players && winner) {
-      blockData = {
-        tournamentId,
-        players,
-        winner,
-        timestamp: Date.now(),
-        type: 'tournament_result'
-      };
-    } else {
-      return reply.code(400).send({ 
-        error: 'Invalid data format. Expected either {score, project} or {tournamentId, players, winner}' 
-      });
-    }
+    let blockData = (score !== undefined && project !== undefined) 
+      ? { score, project, timestamp: Date.now(), type: 'game_result' }
+      : { tournamentId, players, winner, timestamp: Date.now(), type: 'tournament_result' };
 
-    const newBlock = generateNextBlock(blockData);
+      const newBlock = generateNextBlock(blockData);
     
-    // Send blockchain event to Logstash
-    try {
-      const logstashEvent = {
-        type: 'blockchain',
-        timestamp: new Date().toISOString(),
-        data: newBlock,
-        source: 'blockchain-api'
-      };
+      const logEntry = JSON.stringify({
+        "@timestamp": new Date().toISOString(),
+        "event_type": "new_block",
+        ...newBlock 
+      }) + '\n';
       
-      // Send to Logstash HTTP input
-      fetch('http://logstash:8080', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(logstashEvent)
-      }).catch(err => fastify.log.warn('Failed to send to Logstash:', err.message));
-    } catch (error) {
-      fastify.log.warn('Error sending to Logstash:', error.message);
-    }
-    
-    fastify.log.info('New block added:', { 
-      index: newBlock.index, 
-      hash: newBlock.hash,
-      data: newBlock.data 
-    });
-    
-    return newBlock;
+      if (!fs.existsSync(path.dirname(logPath))) {
+          fs.mkdirSync(path.dirname(logPath), { recursive: true });
+      }
+      fs.appendFileSync(logPath, logEntry);
+  
+      return newBlock;
   } catch (error) {
     fastify.log.error('Error creating block:', error);
     reply.code(400).send({ error: error.message });
