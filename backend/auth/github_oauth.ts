@@ -1,5 +1,4 @@
 import { FastifyReply, FastifyRequest, FastifyInstance } from "fastify";
-import {authenticator} from 'otplib'
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 import { prisma } from "../database.js";
 import { User } from "@prisma/client";
@@ -17,7 +16,7 @@ declare module 'fastify' {
 export const OauthCallBackSchema = {
   querystring: {
     type: 'object',
-    required: ['code', 'state'], // Fastify ensures these exist
+    required: ['code', 'state'],
     properties: {
       code: { type: 'string' },
       state: { type: 'string' },
@@ -79,8 +78,8 @@ async function FetchGithubUserData(res:FastifyReply, OauthToken:string)
 async function githubOauthAuthenticate(res:FastifyReply, localUser:User, remoteUser:GitHubUser)
 {
 	if (localUser.oauth_provider != "github")
-		return res.status(401).send('email already registered using a different provider')
-	else if (localUser.email == remoteUser.email && localUser.oauth_id != remoteUser.id)
+		return res.status(401).send('email already registered using a different method')
+	else if (localUser.email == remoteUser.email && localUser.oauth_id != remoteUser.id.toString())
 		return res.status(401).send('email already in use')
 	if (localUser.email != remoteUser.email) {
 		await prisma.user.update({
@@ -102,7 +101,6 @@ async function githubOauthAuthenticate(res:FastifyReply, localUser:User, remoteU
 			refresh_token:token
 		}
 	})
-	res.code(200).send("Logged in with github successfully")
 }
 
 async function githubOauthRegistration(res:FastifyReply, remoteUser:GitHubUser)
@@ -112,7 +110,7 @@ async function githubOauthRegistration(res:FastifyReply, remoteUser:GitHubUser)
 			username: remoteUser.login,
 			name: remoteUser.name ? remoteUser.name : remoteUser.login,
 			email: remoteUser.email!,
-			oauth_id: remoteUser.id,
+			oauth_id: remoteUser.id.toString(),
 			oauth_provider: 'github',
 			avatar_path: GetRandomAvatarPath()
 		},
@@ -127,7 +125,6 @@ async function githubOauthRegistration(res:FastifyReply, remoteUser:GitHubUser)
 			refresh_token:token
 		}
 	})
-	res.code(200).send("successfully registered with github")
 }
 
 export async function githubOauthRedirectHandler(this:FastifyInstance, req:FastifyRequest, res:FastifyReply)
@@ -145,15 +142,21 @@ export async function githubOauthRedirectHandler(this:FastifyInstance, req:Fasti
 		const user = await prisma.user.findFirst({
 			where: {
 				OR: [
-					{oauth_id : githubUserData.id},
+					{oauth_id : githubUserData.id.toString()},
 					{email: githubUserData.email!}
 				]
 			},
 		})
-		if (user)
+		if (user) {
 			githubOauthAuthenticate(res, user, githubUserData)
-		else 
+			if (res.sent)
+				return
+			res.code(200).send("Logged in with github successfully")	
+		}
+		else { 
 			githubOauthRegistration(res, githubUserData)
+			res.code(200).send("successfully registered with github")
+		}
 	}
 	catch (error){
 		req.log.error(error)

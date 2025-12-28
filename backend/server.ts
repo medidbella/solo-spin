@@ -12,8 +12,12 @@ import {
   TwoFactorValidator, TwoFactorLoginVerify
 } from './auth/totp.js';
 import fastifyOauth2 from "@fastify/oauth2"
-import { OauthCallBackSchema, githubOauthLogin, githubOauthRedirectHandler} from './auth/oauth.js';
+import { 
+  OauthCallBackSchema, githubOauthLogin,
+  githubOauthRedirectHandler
+} from './auth/github_oauth.js';
 
+import{ googleOauthLogin, googleOauthRedirectHandler} from "./auth/google_oauth.js"
 const app = Fastify({ logger: true });
 
 app.register(fastifyCookie)
@@ -25,6 +29,24 @@ app.register(fastifyJwt, {
     signed: false
   }
 })
+
+app.register(fastifyOauth2, {
+  name: 'googleOAuth2',
+  credentials: {
+    client: {
+      id: process.env.GOOGLE_OAUTH_ID!,
+      secret: process.env.GOOGLE_OAUTH_SECRET!,
+    },
+  auth: {
+    authorizeHost: 'https://accounts.google.com',
+    authorizePath: '/o/oauth2/v2/auth',
+    tokenHost: 'https://oauth2.googleapis.com',
+    tokenPath: '/token'
+  }
+  },
+  callbackUri: "http://localhost:3000/login/google/callback",
+  scope: ['openid', 'profile', 'email']
+});
 
 app.register(fastifyOauth2, {
   name: 'githubOAuth2',
@@ -66,5 +88,9 @@ app.get("/login/github", githubOauthLogin)
 app.get("/login/github/callback",{schema: OauthCallBackSchema} ,githubOauthRedirectHandler)
 
 app.listen({ port: 3000 });
+
+app.get("/login/google", googleOauthLogin)
+
+app.get("/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
 
 export { app }
