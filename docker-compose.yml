@@ -9,13 +9,16 @@ volumes:
     driver: local
 
 networks:
-  default:
-    name: elastic
-    external: false
+  elastic:
+    driver: bridge
+
 
 services:
+  
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - elastic
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
     user: "0"
@@ -86,6 +89,8 @@ services:
       setup:
         condition: service_healthy
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    networks:
+      - elastic
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -133,6 +138,8 @@ services:
       es01:
         condition: service_healthy
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    networks:
+      - elastic    
     labels:
       co.elastic.logs/module: kibana
     volumes:
@@ -167,6 +174,8 @@ services:
       kibana:
         condition: service_healthy
     image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    networks:
+      - elastic    
     labels:
       co.elastic.logs/module: logstash
     # user: root
@@ -187,17 +196,40 @@ services:
   
   filebeat:
     image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    networks:
+      - elastic
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./logs:/usr/share/filebeat/logs:ro
     depends_on:
       - logstash
 
+      
+  blockchain:
+    build:
+      context: ./blockchain
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - PORT=3000
+    depends_on:
+      - es01
+
   nginx:
-    image: nginx:latest
+    build:
+      context: ./ngnix
+      dockerfile: Dockerfile
+    networks:
+      - elastic
     ports:
       - "8080:80"
     volumes:
       - ./logs:/var/log/nginx
     depends_on:
       - filebeat
+      - blockchain
+  
+
