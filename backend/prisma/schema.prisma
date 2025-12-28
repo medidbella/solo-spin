@@ -21,7 +21,7 @@ model User {
   two_factor_enabled   Boolean @default(false)
   two_factor_secret    String?
   oauth_provider       String?
-  oauth_id             Int?
+  oauth_id             String?
   gamesWon             Game[]   @relation("WinnerRelation")
   gamesLost            Game[]   @relation("LoserRelation")
 }
