@@ -9,6 +9,7 @@ import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
 import { renderSecurity } from './pages/Security';
 import { renderChat } from './pages/chat';
+import { renderLeaderBoard } from './pages/leaderBoard';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -38,6 +39,9 @@ function router() {
     case '/chat':
       app.innerHTML = renderChat();
       break;
+    case '/leaderBoard':
+        app.innerHTML = renderLeaderBoard();
+        break;
     default:
       app.innerHTML = '<div class="text-center"><h1 class="text-3xl font-bold text-red-600">404 - Not Found</h1></div>';
   }

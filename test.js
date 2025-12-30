@@ -1,12 +1,8 @@
-function test() 
-{
-    console.log("Test function executed.");
-    return function inner()
-    {
-        console.log("Inner function executed.");
-    }
-}
+Array.prototype.last = function() {
+    const len = this.length;
 
-const testFunction = test();
-console.log(typeof testFunction); // Should log 'function'
-testFunction(); // Should log "Inner function executed."
+    return this.at(len - 1);
+};
+
+arr1 = [1 , [1, 2 , 3], [3, 3, 4] , [8, 8]];
+console.log(arr1.last());
