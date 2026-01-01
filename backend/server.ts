@@ -5,7 +5,7 @@ import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me } from "./me.js";
+import { me } from "./users/me.js";
 import { logout } from "./auth/logout.js"
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
@@ -16,11 +16,23 @@ import {
   OauthCallBackSchema, githubOauthLogin,
   githubOauthRedirectHandler
 } from './auth/github_oauth.js';
-
 import{ googleOauthLogin, googleOauthRedirectHandler} from "./auth/google_oauth.js"
 const app = Fastify({ logger: true });
+import {avatarUploadSchema, GetLoggedUserAvatar, updateUserAvatar} from "./users/avatar.js";
+import fastifyMultipart from '@fastify/multipart';
+import {
+  UserDataUpdateSchema, inputCleaner,
+  updateUserInfo, PasswordUpdateSchema,
+  updateUserPassword
+} from "./users/update_info.js";
 
 app.register(fastifyCookie)
+
+app.register(fastifyMultipart, {
+        limits: {
+            fileSize: 3 * 1024 * 1024,//3 mb size limit
+        }
+});
 
 app.register(fastifyJwt, {
   secret: process.env.JWT_ACCESS_SECRET!,
@@ -91,6 +103,13 @@ app.get("/api/login/google", googleOauthLogin)
 
 app.get("/api/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
 
-app.listen({ port: 3000 });
+app.get("/api/user/avatar", { preHandler: authVerifier }, GetLoggedUserAvatar)
 
-export { app }
+app.post("/api/user/avatar", {schema: avatarUploadSchema, preHandler: authVerifier }, updateUserAvatar)
+
+app.patch("/api/user/update", { preHandler: authVerifier, preValidation: inputCleaner,
+		schema: UserDataUpdateSchema }, updateUserInfo) 
+
+app.patch("/api/user/update_password", { preHandler: authVerifier, schema: PasswordUpdateSchema }, updateUserPassword)
+  
+app.listen({ port: 3000 });

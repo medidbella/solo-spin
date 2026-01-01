@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { prisma } from "../database.js";
+import { prisma } from "../prisma/database.js";
 import { SetAccessTokenCookie, SetRefreshTokenCookie } from "./jwt.js";
 
 function verifyRefreshToken(req:FastifyRequest):number

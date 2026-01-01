@@ -134,3 +134,62 @@ Users get redirected to this route after logging in the google login page.
 
 **Responses:**
 - All the possible responses are demonstrated in a graph (check the tldraw link)
+
+---
+
+## GET `/api/user/avatar`
+Get the logged in user avatar.
+
+- User must have the access token (already authenticated)
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- Otherwise the user will receive -> "200 OK" + the raw image in the response body (content-type: image/png)
+
+---
+
+## POST `/api/user/avatar`
+Change the logged in user avatar picture.
+
+**Request header schema:**
+- properties: { // browser takes care of it when `<form>` is used for the upload
+    'content-type': { type: 'string', pattern: '^multipart/form-data' }
+  }
+- User must have the access token
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- The body of the request has no file -> "400 Bad request"
+- The image is not of type png -> "400 Bad request"
+- Otherwise the user's avatar will be updated -> "200 OK"
+
+---
+
+## PATCH `/api/user/update`
+Update basic user info.
+
+**Request body schema:**
+- name: { type: 'string', minLength: 3 }
+- username: { type: 'string', minLength: 4 }
+- email: { type: 'string', format: 'email' }
+  - Any field can be an empty string meaning the rules min length are only enforced if value not empty, and the empty field will not be updated
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- The new email or user name is already taken -> "409 Conflict"
+- Otherwise the user info will be updated successfully -> "200 OK"
+
+---
+
+## PATCH `/api/user/update_password`
+Change logged in user password.
+
+**Request body schema:**
+- oldPassword: { type: 'string' }
+- newPassword: { type: 'string', minLength: 8 }
+- verifyNewPassword: { type: 'string', minLength: 8 }
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- newPassword and verifyNewPassword are not equal -> "400 Bad request"
+- old password not the same as the user password ->  "401 Unauthorized"
