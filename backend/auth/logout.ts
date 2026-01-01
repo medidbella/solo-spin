@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { prisma } from "../database.js";
+import { prisma } from "../prisma/database.js";
 
 export async function logout(req: FastifyRequest, res: FastifyReply)
 {
