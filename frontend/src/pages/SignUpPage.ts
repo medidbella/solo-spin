@@ -48,7 +48,7 @@ export function renderSignUpPage() : string {
 
             <div class="mt-8 flex flex-row gap-3 text-2xl">
               <span class="text-white">Already a member?</span>
-              <a href="/login" id="login-link" 
+              <a href="/login" id="login-link" data-link
                  class="text-[#2A3FA1] underline underline-offset-4">Login</a>
             </div>
         </div>

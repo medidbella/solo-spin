@@ -1,11 +1,11 @@
 export function renderLoginPage() : string {
-    return `<main class="flex justify-between min-h-screen">
+    return /* html */ `<main class="flex justify-between min-h-screen">
         <!-- form and logo -->
         <div class="w-1/2 flex items-center flex-col">
             <div class="mb-0.5">
                 <img src="../../public/imgs/logo.png" alt="Logo">
             </div>
-            <h2 class="text-[#5F3779] text-8xl font-[solo]">Welcome back!</h2>
+            <h2 class="text-[#f2f2f2] text-8xl font-[solo]">Welcome back!</h2>
             <form action="" class="flex flex-col gap-4 mt-7 w-1/2">
                 <input class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" type="text" name="email" placeholder="user name">
                 <div class="relative">
@@ -46,7 +46,7 @@ export function renderLoginPage() : string {
             </div>
             <div class="mt-7 flex flex-row items-center gap-2">
                 <span class="text-white">First time in this world?</span>
-                <a href="#" class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">Enter the world!</a>
+                <a href="/signup" data-link class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">Enter the world!</a>
             </div>
         </div>
         <!-- image in the right side -->

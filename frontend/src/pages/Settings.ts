@@ -24,14 +24,14 @@ export function renderSettings(): string {
               <h2 class="text-2xl font-bold">Aakouhar</h2>
               <p class="text-gray-300 text-sm mb-8">Full name Full name Full name</p>
               <div class="w-full  flex flex-col gap-3">
-                <button class="bg-[#f2f2f2] font-bold hover:scale-105 duration-300  text-[#441563] flex items-center gap-3 px-6 py-3 cursor-pointer rounded-full">
+                <a href="/settings" data-link class="bg-[#f2f2f2] font-bold hover:scale-105 duration-300  text-[#441563] flex items-center gap-3 px-6 py-3 cursor-pointer rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   Personal information
-                </button>    
-                <button class="bg-[#441563] rounded-full font-bold px-6 py-3 flex items-center gap-3 cursor-pointer hover:scale-105 duration-300 ">
+                </a>    
+                <a href="/security" data-link class="bg-[#441563] rounded-full font-bold px-6 py-3 flex items-center gap-3 cursor-pointer hover:scale-105 duration-300 ">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 Security
-                </button>
+                </a>
               </div>
             </div>
             <!-- second section -->
