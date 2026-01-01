@@ -44,7 +44,7 @@ app.register(fastifyOauth2, {
     tokenPath: '/token'
   }
   },
-  callbackUri: "http://localhost:3000/login/google/callback",
+  callbackUri: "http://localhost:3000/api/login/google/callback",
   scope: ['openid', 'profile', 'email']
 });
 
@@ -62,35 +62,35 @@ app.register(fastifyOauth2, {
       tokenPath: '/login/oauth/access_token'
     }
   },
-  callbackUri: "http://localhost:3000/login/github/callback",
+  callbackUri: "http://localhost:3000/api/login/github/callback",
   scope: ['read:user', 'user:email']
 });
 
-app.post("/register", { schema: registrationSchema }, register)
+app.post("/api/register", { schema: registrationSchema }, register)
 
-app.post("/login", { schema: loginSchema }, login)
+app.post("/api/login", { schema: loginSchema }, login)
 
-app.get("/me", { preHandler: authVerifier }, me)
+app.get("/api/me", { preHandler: authVerifier }, me)
 
-app.post("/refresh", refresh)
+app.post("/api/refresh", refresh)
 
-app.post("/logout", logout)
+app.post("/api/logout", logout)
 
-app.post("/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
+app.post("/api/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
 
-app.post("/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
+app.post("/api/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
   TwoFactorValidator)
 
-app.post("/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
+app.post("/api/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
 
-app.get("/login/github", githubOauthLogin)
+app.get("/api/login/github", githubOauthLogin)
 
-app.get("/login/github/callback",{schema: OauthCallBackSchema} ,githubOauthRedirectHandler)
+app.get("/api/login/github/callback",{schema: OauthCallBackSchema} ,githubOauthRedirectHandler)
+
+app.get("/api/login/google", googleOauthLogin)
+
+app.get("/api/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
 
 app.listen({ port: 3000 });
-
-app.get("/login/google", googleOauthLogin)
-
-app.get("/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
 
 export { app }
