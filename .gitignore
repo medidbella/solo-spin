@@ -3,4 +3,6 @@
 backend/node_modules
 backend/dist
 *.txt
-.vscode
+.vscode.env
+.DS_Store
+*.log
