@@ -13,16 +13,15 @@ export function renderSignUpPage() : string {
             <div class="-mt-4">
                 <img src="../../public/imgs/logo.png" alt="solospin logo">
             </div>
-
             <h2 class="text-white text-8xl -mt-5 font-[solo]">
                 Register Now!
             </h2>
+            <div></div>
+            <!-- the input form of registration -->
             <form class="mt-11 w-1/2 flex flex-col gap-4">
                 <input type="text" placeholder="fullname" class="bg-[#5F3779] text-white w-full p-3 rounded-4xl">
+                <input type="text" placeholder="username" class="bg-[#5F3779] text-white w-full p-3 rounded-4xl">
                 <input type="text" placeholder="email" class="bg-[#5F3779] text-white w-full p-3 rounded-4xl">
-                <div>
-                </div>
-
                 <div class="relative">
                     <input class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" type="password" name="password" placeholder="password">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-eye absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer" viewBox="0 0 16 16">
