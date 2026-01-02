@@ -205,18 +205,18 @@ services:
       - logstash
 
       
-  blockchain:
-    build:
-      context: ./blockchain
-      dockerfile: Dockerfile
-    networks:
-      - elastic
-    volumes:
-      - ./logs:/app/logs
-    environment:
-      - PORT=3000
-    depends_on:
-      - es01
+  # blockchain:
+  #   build:
+  #     context: ./blockchain
+  #     dockerfile: Dockerfile
+  #   networks:
+  #     - elastic
+  #   volumes:
+  #     - ./logs:/app/logs
+  #   environment:
+  #     - PORT=3000
+  #   depends_on:
+  #     - es01
 
   nginx:
     build:
@@ -230,6 +230,6 @@ services:
       - ./logs:/var/log/nginx
     depends_on:
       - filebeat
-      - blockchain
+      # - blockchain
   
 
