@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build": "npx prisma generate && tsc",
+    "build": "tsc",
     "start": "node -r dotenv/config dist/server.js",
     "view_db": "npx prisma studio",
     "dev": "nodemon",
@@ -34,6 +34,7 @@
     "dotenv-cli": "^11.0.0",
     "nodemon": "^3.1.11",
     "prisma": "^7.1.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
