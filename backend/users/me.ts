@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import {prisma} from "./database.js"
+import {prisma} from "../prisma/database.js"
 
 export async function me(req:FastifyRequest, res:FastifyReply)
 {

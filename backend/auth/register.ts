@@ -1,13 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import {prisma} from "../database.js"
+import {prisma} from "../prisma/database.js"
 import bcrypt from "bcrypt";
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
-
-export function GetRandomAvatarPath():string{
-    let image_names = ["avatar1.png", "avatar2.png", "avatar3.png"]
-    let num = Math.floor(Math.random()) % image_names.length + 1;
-    return image_names.at(num)!;
-}
+import {GetRandomAvatarPath} from "../users/avatar.js"
 
 const userBodySchema = {
     type: 'object',

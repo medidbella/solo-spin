@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest, FastifyInstance } from "fastify";
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
-import { prisma } from "../database.js";
+import { prisma } from "../prisma/database.js";
 import { User } from "@prisma/client";
-import { GetRandomAvatarPath } from "./register.js";
+import { GetRandomAvatarPath } from "../users/avatar.js";
 
 declare module 'fastify' {
   interface FastifyInstance {
