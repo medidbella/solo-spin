@@ -22,6 +22,9 @@ model User {
   two_factor_secret    String?
   oauth_provider       String?
   oauth_id             String?
+  
+  sentRequests         Friendship[] @relation("sender")
+  receivedRequests     Friendship[] @relation("receiver")
   gamesWon             Game[]   @relation("WinnerRelation")
   gamesLost            Game[]   @relation("LoserRelation")
 }
@@ -33,7 +36,26 @@ model Game {
   score      String
   match_date DateTime @default(now())
 
-  // relations
   winner User @relation("WinnerRelation", fields: [winner_id], references: [id])
   loser  User @relation("LoserRelation", fields: [loser_id], references: [id])
+}
+
+
+model Friendship {
+  id        Int              @id @default(autoincrement())
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+
+  senderId   Int
+  sender     User @relation("sender", fields: [senderId], references: [id])
+
+  receiverId Int
+  receiver   User @relation("receiver", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
 }

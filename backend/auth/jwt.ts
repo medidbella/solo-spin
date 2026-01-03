@@ -18,7 +18,7 @@ export function SetRefreshTokenCookie(res: FastifyReply, user_id :number)
 	const jwtToken = res.server.jwt.sign({sub:user_id}, {expiresIn: "7d", key:process.env.JWT_REFRESH_SECRET!})
 	res.cookie("refreshToken", jwtToken, {
 		domain: 'localhost',
-    	path: '/refresh',
+    	path: '/api/refresh',
     	httpOnly: true,
     	secure: false, //to allow http CHANGE IT TO true IN PROD (https only)
     	sameSite: 'strict',

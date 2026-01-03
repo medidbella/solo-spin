@@ -17,7 +17,6 @@ import {
   githubOauthRedirectHandler
 } from './auth/github_oauth.js';
 import{ googleOauthLogin, googleOauthRedirectHandler} from "./auth/google_oauth.js"
-const app = Fastify({ logger: true });
 import {avatarUploadSchema, GetLoggedUserAvatar, updateUserAvatar} from "./users/avatar.js";
 import fastifyMultipart from '@fastify/multipart';
 import {
@@ -25,6 +24,13 @@ import {
   updateUserInfo, PasswordUpdateSchema,
   updateUserPassword
 } from "./users/update_info.js";
+import {
+  friendRequestActionSchema, friendRequestSchema,
+  unfriendSchema, sendFriendRequest, listFriendRequests,
+  listFriends, acceptRequest, rejectRequest, removeFriendship
+} from './users/friendship.js'
+
+const app = Fastify({ logger: true });
 
 app.register(fastifyCookie)
 
@@ -111,5 +117,17 @@ app.patch("/api/user/update", { preHandler: authVerifier, preValidation: inputCl
 		schema: UserDataUpdateSchema }, updateUserInfo) 
 
 app.patch("/api/user/update_password", { preHandler: authVerifier, schema: PasswordUpdateSchema }, updateUserPassword)
-  
+
+app.post("/api/friends/request", { preHandler: authVerifier, schema: friendRequestSchema }, sendFriendRequest)
+
+app.get("/api/friends/requests", { preHandler: authVerifier }, listFriendRequests)
+
+app.get("/api/user/friends", { preHandler: authVerifier }, listFriends)
+
+app.post("/api/friends/accept", { preHandler: authVerifier, schema: friendRequestActionSchema }, acceptRequest)
+
+app.post("/api/friends/reject", { preHandler: authVerifier, schema: friendRequestActionSchema }, rejectRequest)
+
+app.delete("/api/friends/:id", { preHandler: authVerifier, schema: unfriendSchema }, removeFriendship)  
+
 app.listen({ port: 3000 });
