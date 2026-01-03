@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { prisma } from "../database.js";
+import { prisma } from "../prisma/database.js";
 import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 import { TwoFactoLoginController } from "./totp.js";
 import bcrypt from "bcrypt";
@@ -32,7 +32,7 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 			// 	two_factor_secret:true, two_factor_enabled:true
 			// }
 		})
-		if (!user || !bcrypt.compare(password, user.password_hash!))
+		if (!user || !await bcrypt.compare(password, user.password_hash!))
 			return res.code(401).send({message: "invalid username or password"})
 		if (user.two_factor_enabled)
 			return TwoFactoLoginController(res, user)
