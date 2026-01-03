@@ -1,5 +1,5 @@
 {
-  "watch": ["types", "auth", "server.ts"],
+  "watch": ["types", "auth", "server.ts", "users", "prisma"],
   "ext": "ts,json",
   "ignore": ["dist/*"],
   "exec": "npx tsx -r dotenv/config server.ts"

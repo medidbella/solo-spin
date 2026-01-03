@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import {authenticator} from 'otplib'
-import { prisma } from "../database.js";
+import { prisma } from "../prisma/database.js";
 import { User } from "@prisma/client";
 import {SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js"
 

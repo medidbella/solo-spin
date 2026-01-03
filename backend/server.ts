@@ -5,7 +5,7 @@ import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me } from "./me.js";
+import { me } from "./users/me.js";
 import { logout } from "./auth/logout.js"
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
@@ -16,11 +16,23 @@ import {
   OauthCallBackSchema, githubOauthLogin,
   githubOauthRedirectHandler
 } from './auth/github_oauth.js';
-
 import{ googleOauthLogin, googleOauthRedirectHandler} from "./auth/google_oauth.js"
 const app = Fastify({ logger: true });
+import {avatarUploadSchema, GetLoggedUserAvatar, updateUserAvatar} from "./users/avatar.js";
+import fastifyMultipart from '@fastify/multipart';
+import {
+  UserDataUpdateSchema, inputCleaner,
+  updateUserInfo, PasswordUpdateSchema,
+  updateUserPassword
+} from "./users/update_info.js";
 
 app.register(fastifyCookie)
+
+app.register(fastifyMultipart, {
+        limits: {
+            fileSize: 3 * 1024 * 1024,//3 mb size limit
+        }
+});
 
 app.register(fastifyJwt, {
   secret: process.env.JWT_ACCESS_SECRET!,
@@ -44,7 +56,7 @@ app.register(fastifyOauth2, {
     tokenPath: '/token'
   }
   },
-  callbackUri: "http://localhost:3000/login/google/callback",
+  callbackUri: "http://localhost:3000/api/login/google/callback",
   scope: ['openid', 'profile', 'email']
 });
 
@@ -62,35 +74,42 @@ app.register(fastifyOauth2, {
       tokenPath: '/login/oauth/access_token'
     }
   },
-  callbackUri: "http://localhost:3000/login/github/callback",
+  callbackUri: "http://localhost:3000/api/login/github/callback",
   scope: ['read:user', 'user:email']
 });
 
-app.post("/register", { schema: registrationSchema }, register)
+app.post("/api/register", { schema: registrationSchema }, register)
 
-app.post("/login", { schema: loginSchema }, login)
+app.post("/api/login", { schema: loginSchema }, login)
 
-app.get("/me", { preHandler: authVerifier }, me)
+app.get("/api/me", { preHandler: authVerifier }, me)
 
-app.post("/refresh", refresh)
+app.post("/api/refresh", refresh)
 
-app.post("/logout", logout)
+app.post("/api/logout", logout)
 
-app.post("/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
+app.post("/api/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
 
-app.post("/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
+app.post("/api/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
   TwoFactorValidator)
 
-app.post("/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
+app.post("/api/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
 
-app.get("/login/github", githubOauthLogin)
+app.get("/api/login/github", githubOauthLogin)
 
-app.get("/login/github/callback",{schema: OauthCallBackSchema} ,githubOauthRedirectHandler)
+app.get("/api/login/github/callback",{schema: OauthCallBackSchema} ,githubOauthRedirectHandler)
 
+app.get("/api/login/google", googleOauthLogin)
+
+app.get("/api/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
+
+app.get("/api/user/avatar", { preHandler: authVerifier }, GetLoggedUserAvatar)
+
+app.post("/api/user/avatar", {schema: avatarUploadSchema, preHandler: authVerifier }, updateUserAvatar)
+
+app.patch("/api/user/update", { preHandler: authVerifier, preValidation: inputCleaner,
+		schema: UserDataUpdateSchema }, updateUserInfo) 
+
+app.patch("/api/user/update_password", { preHandler: authVerifier, schema: PasswordUpdateSchema }, updateUserPassword)
+  
 app.listen({ port: 3000 });
-
-app.get("/login/google", googleOauthLogin)
-
-app.get("/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
-
-export { app }
