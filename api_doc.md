@@ -193,3 +193,111 @@ Change logged in user password.
 - Invalid access token or the user associated with it not found -> "401 Unauthorized"
 - newPassword and verifyNewPassword are not equal -> "400 Bad request"
 - old password not the same as the user password ->  "401 Unauthorized"
+
+---
+
+## POST `/api/friends/request`
+Make logged in user send a friend request to a user.
+
+**Request body schema:**
+- receiver_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- Bad receiver_id format or if equals the logged in user id -> "400 Bad request"
+- receiver_id does not exists in DB -> "404 Not found"
+- receiver already in the user friends list -> "400 Bad request"
+- request already sent -> "409 Conflict"
+- receiver has already sent a request to the user -> "200 OK" + the users will be friends now (automatically accepted)
+- Otherwise -> "201 created" -> a friend request will be stored with a PENDING state
+
+---
+
+## GET `/api/friends/requests`
+List all friend requests sent to the logged in user.
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- No error occurs -> "200 OK" + a JSON response that represents the array of requests in the following format:
+  ```json
+  [
+    {
+      "id": 9,
+      "status": "PENDING",
+      "createdAt": "2026-01-03T14:54:09.306Z",
+      "senderId": 1,
+      "receiverId": 2,
+      "sender": {
+        "id": 1,
+        "username": "midbella",
+        "name": "mohamed"
+      }
+    }
+  ]
+  ```
+  - The array is sorted (desc) by time stamp
+  - The array can be empty
+
+---
+
+## GET `/api/user/friends`
+List all the friends of the logged in user.
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- No error occurs -> "200 OK" + a JSON response that represents the array of friends in the following format:
+  ```json
+  [
+    {
+      "id": 1,
+      "username": "midbella",
+      "name": "mohamed",
+      "friendshipId": 9
+    }
+  ]
+  ```
+  - The array is sorted (desc) by time stamp
+  - The array can be empty
+
+---
+
+## POST `/api/friends/accept`
+Accept a pending friend request.
+
+**Request body schema:**
+- request_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid access token -> "401 Unauthorized"
+- Friend request not found -> "404 Not found"
+- The request receiver id is not the user id -> "403 Forbidden"
+- Friend request already accepted -> "400 Bad request"
+- All good -> "200 OK" + the request sender will be a friend of the user
+
+---
+
+## POST `/api/friends/reject`
+Reject a pending user friend request.
+
+**Request body schema:**
+- request_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid access token -> "401 Unauthorized"
+- Friend request not found -> "404 Not found"
+- The request receiver id is not the user id -> "403 Forbidden"
+- Friend request already accepted -> "400 Bad request"
+- All good -> "200 OK" + the request will be rejected (will be deleted)
+
+---
+
+## DELETE `/api/friends/:id`
+Delete a user from your friend list by id.
+
+**Request param schema:**
+- id: { type: 'integer', pattern: '^[0-9]+$' } // all digits
+
+**Responses:**
+- Invalid access token -> "401 Unauthorized"
+- The user has no friend with same id -> "404 not found"
+- Otherwise the friendship will be removed -> "200 OK"
