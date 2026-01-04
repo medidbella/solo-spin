@@ -217,7 +217,6 @@ services:
       - ./logs:/var/log/nginx
     depends_on:
       - filebeat
-      # - blockchain
   
   backend:
     build:
@@ -226,8 +225,10 @@ services:
     networks:
       - elastic
     environment:
-      - DATABASE_URL=file:/app/db/dev.db
+      - DATABASE_URL=${DATABASE_URL}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - SALT_ROUNDS=${SALT_ROUNDS}
       - GOOGLE_OAUTH_ID=${GOOGLE_OAUTH_ID}
       - GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET}
       - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
