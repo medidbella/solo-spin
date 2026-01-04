@@ -21,8 +21,7 @@ up:
 down:
 	@$(COMPOSE) down
 
-dev :
-	@$(COMPOSE) up --build
+dev:
 	@echo "$(CYAN)--- Streaming all logs (Ctrl+C to stop) ---$(RESET)"
 	$(COMPOSE) logs -f --tail=100
 
