@@ -14,7 +14,7 @@ import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
 import { renderProfilesPage } from './pages/profiles';
-
+import { setupSignupLogic } from './pages/SignUpPage';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -31,6 +31,7 @@ function router(path: string) {
       break;
     case '/signup':
        app.innerHTML = renderSignUpPage(); 
+       setupSignupLogic();
       //  app.innerHTML = `<h1 class='text-white'>Sign Up Page (Coming Soon)</h1>`; // Placeholder
        break;
     case '/home':
