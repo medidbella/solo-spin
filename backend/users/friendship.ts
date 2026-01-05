@@ -1,13 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {prisma} from "../prisma/database.js"
 
-// POST,/api/friends/request,Send a new friend request (requires receiverId)
-// GET,/api/friends/requests,List all PENDING requests for the logged-in user
-// GET,/api/user/friends,List all logged in user friends
-// POST,/api/friends/accept,Update a request status to ACCEPTED (requires requestId)
-// POST,/api/friends/reject,Remove a request (requires requestId)
-// DELETE,/api/friends/:id,Remove an existing friend (Unfriend)
-
 export const friendRequestSchema = {
 	body: {
 		type: 'object',
@@ -35,15 +28,47 @@ export const unfriendSchema = {
 		type: 'object',
 		required: ["id"],
 		properties: {
-			id: { type: 'integer', pattern: '^[0-9]+$'}//all digits
+			id: { type: 'integer', minimum: 1}
 		},
 		additionalProperties: false
 	}
 }
 
+export const friendBlockSchema = {
+	body: {
+		type: 'object',
+		required: ["friend_id"],
+		properties: {
+			friend_id: { type: 'integer', minimum: 1 }
+		},
+		additionalProperties: false
+	}
+}
+
+export async function getRelation(user_id1:number, user_id2:number)
+{
+	const relation = await prisma.friendship.findFirst({
+			where: {
+				AND: [
+					{
+						OR: [
+							{ senderId: user_id1, receiverId: user_id2 },
+							{ senderId: user_id2, receiverId: user_id1 }
+						]
+					},
+					{ status: 'ACCEPTED' }
+				]
+			},
+			select:{
+				blockerId:true,
+				id: true
+			}
+		});
+	return relation
+}
+
 async function checkRequestDuplicateRequest(res:FastifyReply, sender_id:number, receiver_id: number)
 {
-	console.log(`looking for a request where\nsender_id = ${receiver_id}, receiver_id = ${sender_id}`)
 	const request = await prisma.friendship.findFirst({
 		where:{
 			senderId: receiver_id,
@@ -162,12 +187,13 @@ export async function listFriends(req:FastifyRequest, res:FastifyReply)
     		    id: friend.id,
     		    username: friend.username,
     		    name: friend.name,
-    		    friendshipId: friendship.id
+    		    friendshipId: friendship.id,
+				blockedBy: friendship.blockerId
     		};
 		});
     	return res.send(formattedFriends);
 	}	
-	catch{
+	catch {
 		return res.code(500).send({msg: "Server unexpected Error"})
 	}
 }
@@ -235,19 +261,7 @@ export async function removeFriendship(req:FastifyRequest, res:FastifyReply)
 	const friend_id = parseInt(id)
 
 	try {
-		const relation = await prisma.friendship.findFirst({
-			where: {
-				AND: [
-					{
-						OR: [
-							{ senderId: user_id, receiverId: friend_id },
-							{ senderId: friend_id, receiverId: user_id }
-						]
-					},
-					{ status: 'ACCEPTED' }
-				]
-			}
-		});
+		const relation = await getRelation(user_id, friend_id)
 		if (!relation)
 			return res.code(404).send({ message: "Friend relation not found" });
 		await prisma.friendship.delete({
@@ -258,4 +272,58 @@ export async function removeFriendship(req:FastifyRequest, res:FastifyReply)
 		return res.code(500).send({ message: "Server unexpected Error" });
 	}
 	return res.code(200).send({ message: "Friend removed successfully" });
+}
+
+export async function blockFriend(req:FastifyRequest, res:FastifyReply)
+{
+	const user_id = (req.user as any).sub
+	const { friend_id } = req.body as { friend_id: number };
+	try {
+		const relation = await getRelation(user_id, friend_id)
+		if (!relation)
+			return res.code(404).send({ message: "Friend relation not found"});	
+		if (relation.blockerId == user_id)
+			return res.code(400).send({message: "User has already been blocked"})
+		else if (relation.blockerId == friend_id)
+			return res.code(400).send({message: "User has already blocked you"})
+		await prisma.friendship.update({
+			where:{
+				id: relation.id
+			},
+			data:{
+				blockerId: user_id
+			}
+		})
+	}
+	catch (error) {
+		return res.code(500).send({ message: "Server unexpected Error" });
+	}
+	return res.code(200).send({message: "Blocked the user successfully"})
+}
+
+export async function unBlockFriend(req:FastifyRequest, res:FastifyReply)
+{
+	const user_id = (req.user as any).sub
+	const { friend_id } = req.body as { friend_id: number };
+	try {
+		const relation = await getRelation(user_id, friend_id)
+		if (!relation)
+			return res.code(404).send({ message: "Friend relation not found"});
+		else if (!relation.blockerId)
+			return res.code(400).send({ message: "User is not blocked" });
+		else if (relation.blockerId == friend_id)
+			return res.code(403).send({message: "You cannot unblock a user who has blocked you"})
+		await prisma.friendship.update({
+			where:{
+				id: relation.id
+			},
+			data:{
+				blockerId: null
+			}
+		})
+	}
+	catch (error) {
+		return res.code(500).send({ message: "Server unexpected Error" });
+	}
+	return res.code(200).send({message: "user unblocked successfully"})
 }

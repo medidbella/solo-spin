@@ -27,6 +27,8 @@ model User {
   receivedRequests     Friendship[] @relation("receiver")
   gamesWon             Game[]   @relation("WinnerRelation")
   gamesLost            Game[]   @relation("LoserRelation")
+  sentMessages         DirectMessage[] @relation("SentMessages")
+  receivedMessages     DirectMessage[] @relation("ReceivedMessages")
 }
 
 model Game {
@@ -40,22 +42,39 @@ model Game {
   loser  User @relation("LoserRelation", fields: [loser_id], references: [id])
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
 
 model Friendship {
   id        Int              @id @default(autoincrement())
   status    FriendshipStatus @default(PENDING)
   createdAt DateTime         @default(now())
 
+  blockerId  Int?
   senderId   Int
   sender     User @relation("sender", fields: [senderId], references: [id])
 
   receiverId Int
   receiver   User @relation("receiver", fields: [receiverId], references: [id])
+  messages   DirectMessage[]
 
   @@unique([senderId, receiverId])
 }
 
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
+model DirectMessage {
+  id           Int      @id @default(autoincrement())
+  content      String
+  sentAt       DateTime @default(now())
+  isRead       Boolean  @default(false)
+
+  friendshipId Int
+  friendship   Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+
+  senderId     Int
+  sender       User       @relation("SentMessages", fields: [senderId], references: [id])
+  
+  receiverId   Int
+  receiver     User       @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }
