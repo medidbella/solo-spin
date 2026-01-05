@@ -16,6 +16,7 @@ RESET        := \033[0m
 
 # --- ORCHESTRATION CONFIGURATION ---
 COMPOSE_BASE := docker compose -f ./docker-compose.yml
+# COMPOSE_OVERRIDE := docker compose -f ./docker-compose.override.yml
 COMPOSE      := $(COMPOSE_BASE)
 
 # --- ANALYTICS CONFIGURATION ---
@@ -51,7 +52,7 @@ help: ## Show this help message
 
 dev: ## Initialize development environment with Hot Module Replacement
 	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
-	@$(COMPOSE) up -d
+	@$(COMPOSE_BASE) -f ./docker-compose.override.yml up -d
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 prod: ## Execute production-grade build and deployment
