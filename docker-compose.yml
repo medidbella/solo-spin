@@ -8,6 +8,7 @@ volumes:
   logstashdata01:
     driver: local
 
+
 networks:
   elastic:
     driver: bridge
@@ -204,19 +205,6 @@ services:
     depends_on:
       - logstash
 
-      
-  # blockchain:
-  #   build:
-  #     context: ./blockchain
-  #     dockerfile: Dockerfile
-  #   networks:
-  #     - elastic
-  #   volumes:
-  #     - ./logs:/app/logs
-  #   environment:
-  #     - PORT=3000
-  #   depends_on:
-  #     - es01
 
   nginx:
     build:
@@ -230,6 +218,34 @@ services:
       - ./logs:/var/log/nginx
     depends_on:
       - filebeat
-      # - blockchain
   
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - SALT_ROUNDS=${SALT_ROUNDS}
+      - GOOGLE_OAUTH_ID=${GOOGLE_OAUTH_ID}
+      - GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET}
+      - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
+      - GITHUB_OAUTH_SECRET=${GITHUB_OAUTH_SECRET}
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - ./backend/avatars:/app/avatars
+      - ./backend/dev.db:/app/dev.db
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    depends_on:
+      - backend
