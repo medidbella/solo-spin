@@ -130,4 +130,6 @@ app.post("/api/friends/reject", { preHandler: authVerifier, schema: friendReques
 
 app.delete("/api/friends/:id", { preHandler: authVerifier, schema: unfriendSchema }, removeFriendship)  
 
-app.listen({ port: 3000 });
+app.listen({ port: 3000,
+  host: '0.0.0.0'
+ });

@@ -21,6 +21,7 @@ export const registrationSchema = {
 }
 
 export async function register(req:FastifyRequest, res:FastifyReply) {
+    console.log("Register endpoint called");
     const { name, username, email, password } = req.body as
         { name: string; username: string; email: string; password: string };
     try {
