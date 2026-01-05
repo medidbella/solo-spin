@@ -30,7 +30,3 @@ RUN npx prisma generate
 EXPOSE 3000
 
 CMD ["node", "dist/server.js"]
-
-#should map a host dir to /app/avatars
-
-# also map the location of dev.db to /app/dev.db
