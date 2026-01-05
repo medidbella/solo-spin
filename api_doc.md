@@ -295,9 +295,102 @@ Reject a pending user friend request.
 Delete a user from your friend list by id.
 
 **Request param schema:**
-- id: { type: 'integer', pattern: '^[0-9]+$' } // all digits
+- id: { type: 'integer', minimum: 1} // all digits
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
 - The user has no friend with same id -> "404 not found"
 - Otherwise the friendship will be removed -> "200 OK"
+
+---
+
+## POST `/api/friends/block`
+Make the logged in user block another one (no further messages can be sent between users).
+
+**Request body schema:**
+- friend_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid token -> "401 Unauthorized"
+- friend_id is not in the user friends list (you can only block your friends) -> "404 Not found"
+- The friend_id user has already been blocked -> "400 Bad request"
+- The friend has already blocked the user -> "400 Bad request"
+- When no errors are faced -> "200 OK", successful block meaning the users can not exchange messages
+
+---
+
+## POST `/api/friends/unblock`
+Unblock an already blocked friend.
+
+**Request body schema:**
+- friend_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid token -> "401 Unauthorized"
+- friend_id is not in the user friends list (you can only unblock your friends) -> "404 Not found"
+- The friend is not blocked -> "400 Bad request"
+- The friend is the one who blocked the user -> "403 Forbidden"
+- When no errors are faced -> "200 OK", successful unblocked meaning the users can now exchange messages
+
+---
+
+# Internal Routes
+
+The internal routes are only accessible by the chat and game containers (inside the docker network).
+A secret must be added in all internal requests as a header named: `x-internal-secret`. This secret is shared between containers. If no correct secret header is found a "404 Not found" response is sent.
+
+---
+
+## POST `/internal/messages`
+Make a user send a message to another (they must be friends).
+
+**Request body schema:**
+- sender_id: { type: 'integer', minimum: 1 }
+- receiver_id: { type: 'integer', minimum: 1 }
+- content: { type: 'string', minLength: 1, maxLength: 2000 }
+
+**Responses:**
+- The two users are not friends -> "403 Forbidden"
+- One of the users has blocked the other -> "400 Bad Request"
+- No errors -> "200 OK", the message is now stored
+
+---
+
+## GET `/internal/messages`
+Fetch all messages between two users.
+
+**Request query string schema:**
+- user1_id: { type: 'integer', minimum: 1 }
+- user2_id: { type: 'integer', minimum: 1 }
+  - Example: `url:3000/internal/messages?user1_id=1&user2_id=2`
+
+**Responses:**
+- The users are not friends -> "404 Not found"
+- Otherwise -> "200 OK" + a JSON in the body in the following form:
+  ```json
+  [
+    {
+      "id": 1,
+      "content": "hello",
+      "sentAt": "2026-01-05T15:51:35.287Z",
+      "isRead": true,
+      "friendshipId": 11,
+      "senderId": 1,
+      "receiverId": 2
+    }
+    // ...
+  ]
+  ```
+
+---
+
+## PATCH `/internal/messages/seen`
+Mark all the messages between users as seen.
+
+**Request body schema:**
+- user_id: { type: 'integer', minimum: 1 }
+- peer_id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- The users are not friends -> "404 Not found"
+- All good -> "200 OK", all the messages status is set to seen

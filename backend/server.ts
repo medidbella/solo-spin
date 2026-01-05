@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
 import { register, registrationSchema } from "./auth/register.js";
@@ -27,8 +27,14 @@ import {
 import {
   friendRequestActionSchema, friendRequestSchema,
   unfriendSchema, sendFriendRequest, listFriendRequests,
-  listFriends, acceptRequest, rejectRequest, removeFriendship
+  listFriends, acceptRequest, rejectRequest, removeFriendship,
+  friendBlockSchema, blockFriend, unBlockFriend
 } from './users/friendship.js'
+import {
+  storeMessageSchema, listMessagesSchema,
+  listMessages, storeMessage, 
+  markConversationSeen, markConversationSeenSchema
+} from './users/messages.js'
 
 const app = Fastify({ logger: true });
 
@@ -84,6 +90,17 @@ app.register(fastifyOauth2, {
   scope: ['read:user', 'user:email']
 });
 
+const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET;
+
+app.addHook('onRequest', async (req:FastifyRequest, res:FastifyReply) => {
+  if (req.url.startsWith('/internal')) {
+    const key = req.headers['x-internal-secret'];
+    if (key !== INTERNAL_SECRET) {
+      return res.code(404).send();
+    }
+  }
+});
+
 app.post("/api/register", { schema: registrationSchema }, register)
 
 app.post("/api/login", { schema: loginSchema }, login)
@@ -130,4 +147,15 @@ app.post("/api/friends/reject", { preHandler: authVerifier, schema: friendReques
 
 app.delete("/api/friends/:id", { preHandler: authVerifier, schema: unfriendSchema }, removeFriendship)  
 
-app.listen({ port: 3000 });
+app.post("/api/friends/block", {preHandler: authVerifier, schema: friendBlockSchema}, blockFriend)
+
+app.post("/api/friends/unblock", {preHandler: authVerifier, schema: friendBlockSchema}, unBlockFriend)
+
+app.post("/internal/messages", {schema: storeMessageSchema}, storeMessage)
+
+app.get("/internal/messages", {schema: listMessagesSchema}, listMessages)
+
+app.patch("/internal/messages/seen", {schema: markConversationSeenSchema}, markConversationSeen) 
+
+app.listen({ port: 3000, host: '0.0.0.0'});
+
