@@ -8,6 +8,7 @@ volumes:
   logstashdata01:
     driver: local
 
+
 networks:
   elastic:
     driver: bridge
@@ -236,6 +237,9 @@ services:
       - ELASTICSEARCH_HOSTS=https://es01:9200
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - ./backend/avatars:/app/avatars
+      - ./backend/dev.db:/app/dev.db
 
   frontend:
     build:
