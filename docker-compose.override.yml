@@ -1,0 +1,20 @@
+services:
+  backend:
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/dev.db:/app/dev.db
+      - ./backend/avatars:/app/avatars
+    command: >
+      sh -c "npx prisma generate && npm run dev"
+
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  nginx:
+    volumes:
+      - ./logs:/var/log/nginx
+      - ./ngnix/certs:/etc/nginx/certs:ro

@@ -4,14 +4,15 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [tailwindcss()],
   server: {
+    watch: {
+      usePolling: true,
+    },
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
     hmr: {
-      clientPort: 8080, 
-    },
-    watch: {
-      usePolling: true,
+      protocol: 'wss',
+      clientPort: 8443, 
     },
   },
 });

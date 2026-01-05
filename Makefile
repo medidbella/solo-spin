@@ -1,39 +1,113 @@
+# ==============================================================================
+# SOLO-SPIN SYSTEM MANAGEMENT INTERFACE
+# Build, Deploy, and Monitor ELK + Full-Stack Environment
+# ==============================================================================
+
 include .env
 export
 
-CYAN  = \033[0;36m
-GREEN = \033[0;32m
-RESET = \033[0m
+# --- TERMINAL COLORS ---
+CYAN         := \033[0;36m
+GREEN        := \033[0;32m
+YELLOW       := \033[0;33m
+RED          := \033[0;31m
+BOLD         := \033[1m
+RESET        := \033[0m
 
-COMPOSE := docker compose -f ./docker-compose.yml
-DIR := dashboards
-FILE := $(DIR)/dashboard.ndjson
-URL := http://localhost:$(if $(KIBANA_PORT),$(KIBANA_PORT),5601)
+# --- ORCHESTRATION CONFIGURATION ---
+COMPOSE_BASE := docker compose -f ./docker-compose.yml
+COMPOSE      := $(COMPOSE_BASE)
 
-AUTH := -u elastic:$(ELASTIC_PASSWORD)
-HEAD := -H "kbn-xsrf:true" -H "Content-Type:application/json"
-BODY := '{"type":["dashboard","visualization","lens","index-pattern","search","map","tag","config"],"includeReferencesDeep":true}'
-all: up
+# --- ANALYTICS CONFIGURATION ---
+DASH_DIR     := dashboards
+DASH_FILE    := $(DASH_DIR)/dashboard.ndjson
+KIBANA_URL   := http://localhost:$(or $(KIBANA_PORT),5601)
+KIBANA_AUTH  := -u elastic:$(ELASTIC_PASSWORD)
+KIBANA_HEAD  := -H "kbn-xsrf:true" -H "Content-Type:application/json"
+KIBANA_BODY  := '{"type":["dashboard","visualization","lens","index-pattern","search","map","tag","config"],"includeReferencesDeep":true}'
 
-up:
-	@$(COMPOSE) up -d --build
+.DEFAULT_GOAL := help
 
-down:
+# ==============================================================================
+# SYSTEM INITIALIZATION & HELP
+# ==============================================================================
+
+help: ## Show this help message
+	@echo "  ____   ___  _      ___        ____  ____  ____  _   _ "
+	@echo " / ___| / _ \| |    / _ \      / ___||  _ \|_ _|| \ | |"
+	@echo " \___ \| | | | |   | | | |_____\___ \| |_) || | |  \| |"
+	@echo "  ___) | |_| | |___| |_| |_____|___) |  __/ | | | |\  |"
+	@echo " |____/ \___/|_____|\___/     |____/|_|   |___||_| \_|"
+	@echo ""
+	@echo "$(BOLD)System Management Utility$(RESET)"
+	@echo "Usage: make $(CYAN)[target]$(RESET)"
+	@echo ""
+	@echo "$(BOLD)COMMAND REFERENCE:$(RESET)"
+	@grep -Eh '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-15s$(RESET) %s\n", $$1, $$2}'
+
+# ==============================================================================
+# LIFECYCLE MANAGEMENT
+# ==============================================================================
+
+dev: ## Initialize development environment with Hot Module Replacement
+	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
+	@$(COMPOSE) up -d
+	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
+
+prod: ## Execute production-grade build and deployment
+	@echo "$(CYAN)[INFO] Executing production build sequence...$(RESET)"
+	@$(COMPOSE_BASE) up -d --build
+	@echo "$(GREEN)[SUCCESS] Production stack deployed.$(RESET)"
+
+down: ## Terminate all active service containers
+	@echo "$(RED)[WARN] Terminating services...$(RESET)"
 	@$(COMPOSE) down
 
-dev:
-	@echo "$(CYAN)--- Streaming all logs (Ctrl+C to stop) ---$(RESET)"
-	$(COMPOSE) logs -f --tail=100
+clean: ## Purge persistent volumes, local images, and SSL artifacts
+	@echo "$(RED)[DANGER] Irreversible purge: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
+	@read -p "Confirm destructive action? [y/N] " ans && [ $${ans:-N} = y ]
+	@$(COMPOSE) down -v --rmi local
+	@rm -rf nginx_certs/*.crt nginx_certs/*.key
+	@echo "$(GREEN)[INFO] System purged.$(RESET)"
 
-init:
-	@mkdir -p $(DIR)
+# ==============================================================================
+# OBSERVABILITY & DIAGNOSTICS
+# ==============================================================================
 
-get: init
-	@curl -s -f -X POST "$(URL)/api/saved_objects/_export" $(AUTH) $(HEAD) -d $(BODY) > $(FILE)
-	@echo "Saved to $(FILE)"
+logs: ## Aggregate and stream logs from all active containers
+	@echo "$(CYAN)[INFO] Streaming system logs...$(RESET)"
+	@$(COMPOSE) logs -f --tail=100
 
-set: init
-	curl -s -X POST "$(URL)/api/saved_objects/_import?overwrite=true" $(AUTH) -H "kbn-xsrf:true" --form file=@$(FILE) >/dev/null; \
-	echo "✅ Restored."
+ps: ## Display operational status of system services
+	@$(COMPOSE) ps
 
-.PHONY: all up down init get set logs logs-backend-pretty
+# ==============================================================================
+# DATA PERSISTENCE & SCHEMA MANAGEMENT
+# ==============================================================================
+
+db-gen: ## Regenerate Prisma ORM client artifacts
+	@$(COMPOSE) exec backend npx prisma generate
+
+db-push: ## Synchronize database schema with current Prisma definition
+	@$(COMPOSE) exec backend npx prisma db push
+
+db-studio: ## Launch Prisma Studio administrative interface
+	@$(COMPOSE) exec backend npx prisma studio
+
+# ==============================================================================
+# ANALYTICS ASSETS (KIBANA)
+# ==============================================================================
+
+db-export: ## Export Kibana saved objects to local filesystem
+	@mkdir -p $(DASH_DIR)
+	@echo "$(YELLOW)[INFO] Exporting analytics metadata...$(RESET)"
+	@curl -s -f -X POST "$(KIBANA_URL)/api/saved_objects/_export" $(KIBANA_AUTH) $(KIBANA_HEAD) -d $(KIBANA_BODY) > $(DASH_FILE)
+	@echo "$(GREEN)[SUCCESS] Assets written to $(DASH_FILE)$(RESET)"
+
+db-import: ## Import Kibana saved objects from local filesystem
+	@mkdir -p $(DASH_DIR)
+	@echo "$(YELLOW)[INFO] Restoring analytics metadata...$(RESET)"
+	@curl -s -X POST "$(KIBANA_URL)/api/saved_objects/_import?overwrite=true" $(KIBANA_AUTH) -H "kbn-xsrf:true" --form file=@$(DASH_FILE) > /dev/null
+	@echo "$(GREEN)[SUCCESS] Assets restored.$(RESET)"
+
+.PHONY: help dev prod down clean logs ps db-gen db-push db-studio db-export db-import
