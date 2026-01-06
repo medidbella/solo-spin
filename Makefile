@@ -46,6 +46,40 @@ help: ## Show this help message
 	@echo "$(BOLD)COMMAND REFERENCE:$(RESET)"
 	@grep -Eh '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-15s$(RESET) %s\n", $$1, $$2}'
 
+
+# ==============================================================================
+# SYSTEM BOOTSTRAP (NEW)
+# ==============================================================================
+
+init: ## First-time setup: Configures .env, permissions, and certs
+	@echo "$(BOLD)Bootstrapping Solo-Spin Environment...$(RESET)"
+	
+	@# 1. Handle .env file
+	@if [ ! -f .env ]; then \
+		echo "$(YELLOW)[INFO] .env not found. Creating from .env.example...$(RESET)"; \
+		if [ -f .env.example ]; then \
+			cp .env.example .env; \
+			echo "$(GREEN)[OK] .env created. Please update secrets if needed.$(RESET)"; \
+		else \
+			echo "$(RED)[ERROR] .env.example not found!$(RESET)"; \
+			exit 1; \
+		fi \
+	else \
+		echo "$(CYAN)[INFO] .env already exists. Skipping.$(RESET)"; \
+	fi
+
+	@# 2. Setup Logs Directory & Permissions
+	@echo "$(YELLOW)[INFO] Configuring log directories and permissions...$(RESET)"
+	@mkdir -p logs
+	@chmod 777 logs
+	@touch logs/.gitkeep
+	@echo "$(GREEN)[OK] Logs directory ready.$(RESET)"
+
+	@# 3. Generate ELK Certs
+	@echo "$(YELLOW)[INFO] Generating SSL Certificates (this may take a moment)...$(RESET)"
+	@$(COMPOSE_BASE) up setup
+	@echo "$(GREEN)[SUCCESS] Initialization complete. Run 'make dev' to start.$(RESET)"
+	
 # ==============================================================================
 # LIFECYCLE MANAGEMENT
 # ==============================================================================
