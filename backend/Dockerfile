@@ -19,7 +19,7 @@ COPY entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-RUN npm install --omit=dev
+RUN npm install
 RUN npx prisma generate
 
 EXPOSE 3000
