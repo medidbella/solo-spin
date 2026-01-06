@@ -1,19 +1,24 @@
 #!/bin/sh
 
-echo "Starting Backend Container..."
+echo " Starting Backend Container..."
 
-# 1. Check & Install Node Modules
+# 1. SMART DEPENDENCY CHECK
 if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules)" ]; then
-    echo " Installing dependencies..."
+    echo " node_modules missing or empty. Installing dependencies..."
     npm install
+
+elif [ ! -f "node_modules/.bin/nodemon" ]; then
+    echo "⚠️  Volume out of sync! Nodemon missing. Updating dependencies..."
+    npm install
+
+else
+    echo " Dependencies look good."
 fi
 
-# 2. Generate Prisma Client
 echo " Generating Prisma Client..."
 npx prisma generate
 
-# 3. Push Schema to Database
-echo " Applying DB Schema..."
+echo "  Applying DB Schema..."
 npx prisma db push
 
 # 4. Start Server
