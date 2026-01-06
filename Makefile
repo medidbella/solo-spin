@@ -3,7 +3,7 @@
 # Build, Deploy, and Monitor ELK + Full-Stack Environment
 # ==============================================================================
 
-include .env
+-include .env
 export
 
 # --- TERMINAL COLORS ---
@@ -56,30 +56,42 @@ init: ## First-time setup: Configures .env, permissions, and certs
 	
 	@# 1. Handle .env file
 	@if [ ! -f .env ]; then \
-		echo "$(YELLOW)[INFO] .env not found. Creating from .env.example...$(RESET)"; \
-		if [ -f .env.example ]; then \
-			cp .env.example .env; \
-			echo "$(GREEN)[OK] .env created. Please update secrets if needed.$(RESET)"; \
+		echo "$(YELLOW)[INFO] .env not found. Creating from env.sample...$(RESET)"; \
+		if [ -f env.sample ]; then \
+			cp env.sample .env; \
+			echo "$(GREEN)[OK] .env created.$(RESET)"; \
 		else \
-			echo "$(RED)[ERROR] .env.example not found!$(RESET)"; \
+			echo "$(RED)[ERROR] env.sample not found!$(RESET)"; \
 			exit 1; \
 		fi \
 	else \
 		echo "$(CYAN)[INFO] .env already exists. Skipping.$(RESET)"; \
 	fi
 
-	@# 2. Setup Logs Directory & Permissions
-	@echo "$(YELLOW)[INFO] Configuring log directories and permissions...$(RESET)"
-	@mkdir -p logs
-	@chmod 777 logs
-	@touch logs/.gitkeep
-	@echo "$(GREEN)[OK] Logs directory ready.$(RESET)"
+	@# 2. Fix Configuration Permissions (CRITICAL FOR FILEBEAT)
+	@echo "$(YELLOW)[INFO] Securing configuration files (chmod go-w)...$(RESET)"
+	@chmod go-w filebeat.yml
+	@if [ -f logstash.yml ]; then chmod go-w logstash.yml; fi
+	@echo "$(GREEN)[OK] Config security applied.$(RESET)"
 
-	@# 3. Generate ELK Certs
-	@echo "$(YELLOW)[INFO] Generating SSL Certificates (this may take a moment)...$(RESET)"
+	@# 3. PREPARE DATABASE FILE (Docker Mount Fix)
+	@echo "$(YELLOW)[INFO] Initializing database file to prevent Docker directory mount issue...$(RESET)"
+	@if [ ! -f backend/dev.db ]; then \
+		touch backend/dev.db; \
+		echo "$(GREEN)[OK] Empty dev.db created.$(RESET)"; \
+	else \
+		echo "$(CYAN)[INFO] dev.db already exists.$(RESET)"; \
+	fi
+
+	@# 4. Generate Certs
+	@echo "$(YELLOW)[INFO] Generating SSL Certificates...$(RESET)"
 	@$(COMPOSE_BASE) up setup
-	@echo "$(GREEN)[SUCCESS] Initialization complete. Run 'make dev' to start.$(RESET)"
-	
+	@echo ""
+	@echo "$(GREEN)[SUCCESS] Initialization complete.$(RESET)"
+	@echo "$(RED)[ACTION REQUIRED] Check your new .env file and update credentials!$(RESET)"
+	@echo "$(YELLOW)[INFO] Then run 'make dev' to start.$(RESET)"
+
+
 # ==============================================================================
 # LIFECYCLE MANAGEMENT
 # ==============================================================================
