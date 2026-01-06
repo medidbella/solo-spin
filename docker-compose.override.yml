@@ -5,7 +5,8 @@ services:
       - /app/node_modules
       - ./backend/dev.db:/app/dev.db
       - ./backend/avatars:/app/avatars
-    command: sh -c "npx prisma generate && npm run dev"
+    command: >
+      sh -c "npm install && npx prisma generate && npm run dev"
 
   frontend:
     volumes:
