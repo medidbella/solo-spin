@@ -228,6 +228,7 @@ services:
     volumes:
       - ./backend/avatars:/app/avatars
       - ./backend/dev.db:/app/dev.db
+      - ./logs:/app/logs
 
   frontend:
     build:

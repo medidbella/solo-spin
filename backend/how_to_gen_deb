@@ -2,6 +2,3 @@
 
 2 # then run 
 npm install && npx prisma generate && npx prisma db push 
-
-
-
