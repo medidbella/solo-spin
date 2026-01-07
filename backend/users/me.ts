@@ -12,7 +12,11 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 			select:{
 				id: true,
 				name: true, username: true,
-				email:true, reg_date:true
+				email:true, reg_date:true,
+				experience_points:true, 
+				level: true,
+				games_lost: true, 
+				games_won: true
 			}
 		})
 		if (!user){

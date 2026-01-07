@@ -35,6 +35,7 @@ import {
   listMessages, storeMessage, 
   markConversationSeen, markConversationSeenSchema
 } from './users/messages.js'
+import {storeGameSchema, storeGameResult} from './users/games.js'
 
 
 
@@ -195,6 +196,8 @@ app.post("/internal/messages", {schema: storeMessageSchema}, storeMessage)
 app.get("/internal/messages", {schema: listMessagesSchema}, listMessages)
 
 app.patch("/internal/messages/seen", {schema: markConversationSeenSchema}, markConversationSeen) 
+
+app.post("/internal/games", {schema: storeGameSchema}, storeGameResult)
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 
