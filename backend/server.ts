@@ -67,21 +67,6 @@ const app = Fastify({
   } 
 });
 
-// Route باش تجرب الـ Logs
-app.get('/api/test-logs', async (req, reply) => {
-  // 1. Log عادي (Info) مع معلومات إضافية (Structured Logging)
-  req.log.info({ user_id: 42, action: 'payment' }, 'User initiated a payment');
-
-  // 2. Log ديال التحذير (Warn)
-  req.log.warn('Warning: Response time is slower than usual');
-
-  // 3. Log ديال الخطأ (Error) - لاحظ كيفاش كنعطيو ليه Object ديال Error
-  const fakeError = new Error('Database Connection Failed');
-  req.log.error(fakeError, 'CRITICAL: Unable to save data');
-
-  return { status: 'Logs sent to Kibana!' };
-});
-
 app.register(fastifyCookie)
 
 app.register(fastifyMultipart, {
