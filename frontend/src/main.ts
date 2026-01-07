@@ -15,7 +15,7 @@ import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
 import { renderProfilesPage } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
-
+import { setUpLoginLogic } from './pages/LoginPage';
 const app = document.getElementById('app') as HTMLDivElement;
 
 // 1. ROUTER FUNCTION
@@ -28,6 +28,7 @@ function router(path: string) {
       break;
     case '/login':
       app.innerHTML = renderLoginPage();
+      setUpLoginLogic();
       break;
     case '/signup':
        app.innerHTML = renderSignUpPage(); 
