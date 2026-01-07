@@ -1,7 +1,0 @@
-1 # create .env file using env.sample as template
-
-2 # then run 
-npm install && npx prisma generate && npx prisma db push 
-
-
-
