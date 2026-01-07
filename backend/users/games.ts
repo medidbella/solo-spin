@@ -1,10 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {prisma} from "../prisma/database.js"
 
-const xpPerGameWin = 150
-const firsLevelXp = 300
-const xpPerGoalDifference = 25 // score '5-0' -> 5 * 25 = 125
-const xpIncreaseFactor = 1.25
+const  xpPerGameWin = 150
+const  xpPerGoalDifference = 25 // score '5-0' -> 5 * 25 = 125
+export const firstLevelXp = 300
+export const xpIncreaseFactor = 1.25
 
 export const storeMatchSchema = {
 	body: {
@@ -44,9 +44,9 @@ export const gameLeaderboardSchema = {
 
 async function updateUserStats(user:any, winner_score:number, loser_score:number, loser_id:number)
 {
-	let requiredLevelUpXp = firsLevelXp * Math.pow(xpIncreaseFactor, user.level)
+	let requiredLevelUpXp = firstLevelXp * Math.pow(xpIncreaseFactor, user.level)
 	if (user.level == 0)
-		requiredLevelUpXp = firsLevelXp
+		requiredLevelUpXp = firstLevelXp
 	// console.log(`level ${user.level} requires ${requiredLevelUpXp} XP`)
 	const xpBonus = (winner_score - loser_score) * xpPerGoalDifference
 	user.experience_points += xpPerGameWin + xpBonus
