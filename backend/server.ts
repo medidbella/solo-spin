@@ -35,7 +35,11 @@ import {
   listMessages, storeMessage, 
   markConversationSeen, markConversationSeenSchema
 } from './users/messages.js'
-import {storeGameSchema, storeGameResult} from './users/games.js'
+import {
+  storeMatchSchema, storeMatchResult,
+  gameHistorySchema, gameLeaderboardSchema,
+  getGameHistory, getLeaderboard
+} from './users/games.js'
 
 const app = Fastify({ logger: true });
 
@@ -158,7 +162,11 @@ app.get("/internal/messages", {schema: listMessagesSchema}, listMessages)
 
 app.patch("/internal/messages/seen", {schema: markConversationSeenSchema}, markConversationSeen) 
 
-app.post("/internal/games", {schema: storeGameSchema}, storeGameResult)
+app.post("/internal/games", {schema: storeMatchSchema}, storeMatchResult)
+
+app.get("/api/leaderboard", {preHandler:authVerifier, schema:gameLeaderboardSchema}, getLeaderboard)
+
+app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 

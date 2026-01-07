@@ -16,7 +16,10 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 				experience_points:true, 
 				level: true,
 				games_lost: true, 
-				games_won: true
+				games_won: true,
+				goals_scored:true,
+				goals_conceded:true,
+				total_xp_points:true
 			}
 		})
 		if (!user){
