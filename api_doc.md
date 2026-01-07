@@ -394,3 +394,19 @@ Mark all the messages between users as seen.
 **Responses:**
 - The users are not friends -> "404 Not found"
 - All good -> "200 OK", all the messages status is set to seen
+
+---
+
+## POST `/internal/games/`
+Store a game result and update user stats.
+
+**Request body schema:**
+- winner_id: { type: 'integer', minimum: 1 }
+- loser_id: { type: 'integer', minimum: 1 }
+- winner_score: { type: 'integer', minimum: 1 }
+- loser_score: { type: 'integer', minimum: 0 }
+
+**Responses:**
+- winner_score is not greater than loser_score or winner_id equals loser_id -> "400 Bad request"
+- winner/loser id not found in the DB -> "404 Not found"
+- Otherwise the game will be scored and the winner + user stats will be updated -> "200 OK"
