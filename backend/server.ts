@@ -1,17 +1,17 @@
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
+import fastifyOauth2 from "@fastify/oauth2"
 import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me } from "./users/me.js";
+import { me, getUserProfile, fetchUserDataSchema} from "./users/profile.js";
 import { logout } from "./auth/logout.js"
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
   TwoFactorValidator, TwoFactorLoginVerify
 } from './auth/totp.js';
-import fastifyOauth2 from "@fastify/oauth2"
 import { 
   OauthCallBackSchema, githubOauthLogin,
   githubOauthRedirectHandler
@@ -135,6 +135,8 @@ app.post("/api/register", { schema: registrationSchema }, register)
 app.post("/api/login", { schema: loginSchema }, login)
 
 app.get("/api/me", { preHandler: authVerifier }, me)
+
+app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
 
 app.post("/api/refresh", refresh)
 
