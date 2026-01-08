@@ -110,6 +110,23 @@ export function setUpLoginLogic() {
     const loginForm = document.getElementById('login-form') as HTMLFormElement;
     const LoginButton = document.getElementById('loginButton') as HTMLButtonElement;
 
+    const googleButton = document.getElementById('google-login');
+    const githubButton = document.getElementById('github-login');
+
+    if (googleButton)
+    {
+      googleButton.addEventListener('click', () => {
+        window.location.href = '/api/login/google';
+      });
+    }
+
+    if (githubButton)
+    {
+      githubButton.addEventListener('click', () => {
+        window.location.href = '/api/login/github';
+      })
+    }
+
     if (!loginForm) return;
 
     //handel toggle password logic

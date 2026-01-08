@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node -r dotenv/config dist/server.js",
     "view_db": "npx prisma studio",
-    "dev": "nodemon",
+    "dev": "npx nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
