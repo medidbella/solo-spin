@@ -4,7 +4,7 @@ export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
 export type Side = 'right' | 'left'
 export type PlayerState =
-  | 'INIT'                 // Player created, nothing chosen yet
+    'INIT'                 // Player created, nothing chosen yet
   | 'GAME_MODE_SELECTED'   // local / remote chosen
   | 'PLAY_MODE_SELECTED'   // friend / random chosen
   | 'FRIEND_NAME_SELECTED' // friend name entered
@@ -12,6 +12,22 @@ export type PlayerState =
   | 'READY'                // fully configured
   | 'PLAYING'              // game loop running
   | 'FINISHED';            // game ended
+
+  
+export enum GameMessageTypes {
+	CONNECT = 'CONNECT',             // client → server: request connection
+	MOVE = 'MOVE',                   // client → server: paddle movement
+	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
+	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
+	CLOSE = "CLOSE"
+}
+
+export type WsMessageType =
+    GameMessageTypes.CONNECT
+  | GameMessageTypes.CONNECTION_SUCCESS
+  | GameMessageTypes.CONNECTION_FAILED
+  | GameMessageTypes.MOVE
+  | GameMessageTypes.CLOSE;
 
 export interface Ball {
 	x: number;				// Current x position of the ball on the game board.
