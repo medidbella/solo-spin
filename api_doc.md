@@ -1,8 +1,8 @@
 # Solo Spin Backend API Documentation
 
 This document describes the API endpoints for the Solo Spin backend. Please follow the request and response formats as described.
-
 ---
+if any request does not follow its defined schema a response with status : "400 Bad request" will be sent and the error details are mentioned in the body  
 
 ## POST `/api/register`
 Add a new user to the application.
@@ -410,3 +410,62 @@ Store a game result and update user stats.
 - winner_score is not greater than loser_score or winner_id equals loser_id -> "400 Bad request"
 - winner/loser id not found in the DB -> "404 Not found"
 - Otherwise the game will be scored and the winner + user stats will be updated -> "200 OK"
+
+---
+
+# Leaderboard and Games History Endpoints
+
+---
+
+## GET `/api/leaderboard`
+Fetch top ranked users based on total XP gained.
+
+**Request query schema:**
+- limit: { type: 'integer', minimum: 1 }
+  - Example: `https://ip:443/api/leaderboard?limit=2`
+
+**Responses:**
+- Invalid token -> "401 Unauthorized"
+- Otherwise -> "200 OK" and a sorted list of users will be sent in the response body in this form:
+  ```json
+  [
+    {
+      "id": 1,
+      "username": "midbella",
+      "total_xp_points": 1175
+    },
+    {
+      "id": 2,
+      "username": "aakouhar",
+      "total_xp_points": 175
+    }
+    // at most 'limit' number of elements
+  ]
+  ```
+
+---
+
+## GET `/api/games/history`
+Get the last few games.
+
+**Request query schema:**
+- limit: { type: 'integer', minimum: 1 }
+  - Example: `https://ip:443/api/games/history?limit=2`
+
+**Responses:**
+- Invalid access token -> "403 Unauthorized"
+- Otherwise -> "200 OK" + the body will contain at most the last 'limit' games, example:
+  ```json
+  [
+    {
+      "loser_id": 1,
+      "winner_id": 2,
+      "score": "5-4"
+    },
+    {
+      "loser_id": 2,
+      "winner_id": 1,
+      "score": "5-0"
+    }
+  ]
+  ```
