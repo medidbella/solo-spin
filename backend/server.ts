@@ -43,7 +43,7 @@ import {
 
 
 
-const app = Fastify({ 
+const app = Fastify({
   logger: {
     transport: {
       targets: [
@@ -97,7 +97,7 @@ app.register(fastifyOauth2, {
     tokenPath: '/token'
   }
   },
-  callbackUri: "http://localhost:3000/api/login/google/callback",
+  callbackUri: "https://localhost:8443/api/login/google/callback",
   scope: ['openid', 'profile', 'email']
 });
 
@@ -115,7 +115,7 @@ app.register(fastifyOauth2, {
       tokenPath: '/login/oauth/access_token'
     }
   },
-  callbackUri: "http://localhost:3000/api/login/github/callback",
+  callbackUri: "https://localhost:8443/api/login/github/callback",
   scope: ['read:user', 'user:email']
 });
 
