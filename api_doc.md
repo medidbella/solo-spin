@@ -139,7 +139,8 @@ Redirect the user to the github login page url + proper Oauth queries. Nothing i
 Users get redirected to this route after logging in the github login page.
 
 **Responses:**
-- All the possible responses are demonstrated in a graph (check the tldraw link)
+-  if any error occurs the user is redirected back to the app login page with a query variable named error that is assigned the cause the problem, the front end should display it to the user.
+-  on success (logged in or registered with the provider) the user is redirected to the home page and jwt tokens are assigned
 
 ---
 
@@ -155,7 +156,8 @@ Redirect the user to the google login page url + proper Oauth queries. Nothing i
 Users get redirected to this route after logging in the google login page.
 
 **Responses:**
-- All the possible responses are demonstrated in a graph (check the tldraw link)
+-  if any error occurs the user is redirected back to the app login page with a query variable named error that is assigned the cause the problem, the front end should display it to the user.
+-  on success (logged in or registered with the provider) the user is redirected to the home page and jwt tokens are assigned
 
 ---
 

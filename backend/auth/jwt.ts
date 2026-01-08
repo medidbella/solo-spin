@@ -7,8 +7,8 @@ export function SetAccessTokenCookie(res: FastifyReply, user_id: number)
     	domain: 'localhost',
     	path: '/',
     	httpOnly: true,
-    	secure: false, //to allow http CHANGE IT TO true IN PROD (https only)
-    	sameSite: 'strict',
+    	secure: true,
+    	sameSite: 'lax',
     	expires: new Date(Date.now() + (15 * 60 * 1000))
   })
 }
@@ -20,8 +20,8 @@ export function SetRefreshTokenCookie(res: FastifyReply, user_id :number)
 		domain: 'localhost',
     	path: '/api/refresh',
     	httpOnly: true,
-    	secure: false, //to allow http CHANGE IT TO true IN PROD (https only)
-    	sameSite: 'strict',
+    	secure: true,
+    	sameSite: 'lax',
     	expires: new Date(Date.now() + (7 * 24 * 3600 * 1000))
 	})
 	return jwtToken;
