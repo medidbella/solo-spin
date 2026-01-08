@@ -52,6 +52,28 @@ Fetch all user data. Only a valid access token is required.
 
 ---
 
+## GET `/api/user/:id`
+Get a user's details by their ID.
+
+**Request param schema:**
+- id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid access token -> "403 Unauthorized"
+- User not found -> "404 Not found"
+- Otherwise -> "200 OK" + the body will be in this format:
+  ```json
+  {
+    "user": {
+      "username": "midbella",
+      "name": "mohamed",
+      "total_xp_points": 1175,
+      "level": 3,
+      "experience_points": 31
+    },
+    "levelProgress": 5.29
+  }
+
 ## POST `/api/refresh`
 Used when access token is expired to get a new one. Only a valid refresh token is required.
 
