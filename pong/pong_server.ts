@@ -22,7 +22,7 @@ registerPongRoutes(server);
 const start = async () => {
 	try {
 		// Start listening for HTTP requests
-        const port = Number(process.env.PORT) || 3002;
+        const port = Number(process.env.PONG_PORT) || 3002;
         const host: string = "0.0.0.0";
 		await server.listen({ port, host });
 		console.log(`✅ Game service is running on http://0.0.0.0:${port}`);

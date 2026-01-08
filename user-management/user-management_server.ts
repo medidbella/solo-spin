@@ -135,7 +135,7 @@ server.post<{ Body: LoginBody }>('/api/user-management/login', async (request, r
 // Start Server
 const start = async () => {
 	try {
-		const port = Number(process.env.PORT) || 3001;
+		const port = Number(process.env.USR_MANAGEMENT_PORT) || 3001;
 		await server.listen({ port, host: '0.0.0.0' });
 		console.log(`User Management running on http://0.0.0.0:${port}`);
 	} catch (err) {
