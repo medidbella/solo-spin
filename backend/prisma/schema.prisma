@@ -24,10 +24,11 @@ model User {
   oauth_id             String?
   level                Int @default(0)
   experience_points    Int @default(0)
+  total_xp_points      Int @default(0)
   games_lost           Int @default(0)
   games_won            Int @default(0)
-  // goals_scored       Int @default(0)
-  // goals_conceded     Int @default(0) 
+  goals_scored         Int @default(0)
+  goals_conceded       Int @default(0)
 
   sentRequests         Friendship[] @relation("sender")
   receivedRequests     Friendship[] @relation("receiver")

@@ -1,17 +1,17 @@
 import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
+import fastifyOauth2 from "@fastify/oauth2"
 import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me } from "./users/me.js";
+import { me, getUserProfile, fetchUserDataSchema} from "./users/profile.js";
 import { logout } from "./auth/logout.js"
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
   TwoFactorValidator, TwoFactorLoginVerify
 } from './auth/totp.js';
-import fastifyOauth2 from "@fastify/oauth2"
 import { 
   OauthCallBackSchema, githubOauthLogin,
   githubOauthRedirectHandler
@@ -35,11 +35,15 @@ import {
   listMessages, storeMessage, 
   markConversationSeen, markConversationSeenSchema
 } from './users/messages.js'
-import {storeGameSchema, storeGameResult} from './users/games.js'
+import {
+  storeMatchSchema, storeMatchResult,
+  gameHistorySchema, gameLeaderboardSchema,
+  getGameHistory, getLeaderboard
+} from './users/games.js'
 
 
 
-const app = Fastify({ 
+const app = Fastify({
   logger: {
     transport: {
       targets: [
@@ -61,21 +65,6 @@ const app = Fastify({
       ]
     }
   } 
-});
-
-// Route باش تجرب الـ Logs
-app.get('/api/test-logs', async (req, reply) => {
-  // 1. Log عادي (Info) مع معلومات إضافية (Structured Logging)
-  req.log.info({ user_id: 42, action: 'payment' }, 'User initiated a payment');
-
-  // 2. Log ديال التحذير (Warn)
-  req.log.warn('Warning: Response time is slower than usual');
-
-  // 3. Log ديال الخطأ (Error) - لاحظ كيفاش كنعطيو ليه Object ديال Error
-  const fakeError = new Error('Database Connection Failed');
-  req.log.error(fakeError, 'CRITICAL: Unable to save data');
-
-  return { status: 'Logs sent to Kibana!' };
 });
 
 app.register(fastifyCookie)
@@ -108,7 +97,7 @@ app.register(fastifyOauth2, {
     tokenPath: '/token'
   }
   },
-  callbackUri: "http://localhost:3000/api/login/google/callback",
+  callbackUri: "https://localhost:8443/api/login/google/callback",
   scope: ['openid', 'profile', 'email']
 });
 
@@ -126,7 +115,7 @@ app.register(fastifyOauth2, {
       tokenPath: '/login/oauth/access_token'
     }
   },
-  callbackUri: "http://localhost:3000/api/login/github/callback",
+  callbackUri: "https://localhost:8443/api/login/github/callback",
   scope: ['read:user', 'user:email']
 });
 
@@ -146,6 +135,8 @@ app.post("/api/register", { schema: registrationSchema }, register)
 app.post("/api/login", { schema: loginSchema }, login)
 
 app.get("/api/me", { preHandler: authVerifier }, me)
+
+app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
 
 app.post("/api/refresh", refresh)
 
@@ -197,7 +188,11 @@ app.get("/internal/messages", {schema: listMessagesSchema}, listMessages)
 
 app.patch("/internal/messages/seen", {schema: markConversationSeenSchema}, markConversationSeen) 
 
-app.post("/internal/games", {schema: storeGameSchema}, storeGameResult)
+app.post("/internal/games", {schema: storeMatchSchema}, storeMatchResult)
+
+app.get("/api/leaderboard", {preHandler:authVerifier, schema:gameLeaderboardSchema}, getLeaderboard)
+
+app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 
