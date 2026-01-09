@@ -33,12 +33,12 @@ export async function googleOauthLogin(req:FastifyRequest, res:FastifyReply)
 	return res.redirect(googleUrl);
 }
 
-async function googleOauthAuthenticate(res:FastifyReply, localUser:User, remoteUser:GoogleUser)
+async function googleOauthAuthenticate(res:FastifyReply, localUser:User, remoteUser:GoogleUser, host:string)
 {
 	if (localUser.oauth_provider != "google")
-		return res.status(401).send('email already registered using a different provider')
+		return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('email already registered using a different provider')}`)
 	else if (localUser.email == remoteUser.email && localUser.oauth_id != remoteUser.sub)
-		return res.status(401).send('email already in use')
+		return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('email already in use')}`)
 	if (localUser.email != remoteUser.email) {
 		await prisma.user.update({
 			where:{
@@ -89,15 +89,14 @@ export async function googleOauthRedirectHandler(this:FastifyInstance, req:Fasti
 {
 	const { code, state, error } = req.query as { code: string, state: string, error?: string };
 	if (error)
-      return res.code(403).send(`Authorization failed: ${error}`)
-
+	  return res.redirect(`https://${req.host}:8443/login?error=${encodeURIComponent(error)}`)
 	try {
 		const tokenResult = await this.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(req);
     	const idToken = tokenResult.token.id_token;
 		const googleUserData = req.server.jwt.decode(idToken) as GoogleUser
 		// console.log(googleUserData)
 		if (!googleUserData.email_verified)
-			res.code(401).send("google user email is unverified")
+	  return res.redirect(`https://${req.host}:8443/login?error=${encodeURIComponent("google user email is unverified")}`)
 		const user = await prisma.user.findFirst({
 			where: {
 				OR: [
@@ -107,18 +106,18 @@ export async function googleOauthRedirectHandler(this:FastifyInstance, req:Fasti
 			},
 		})
 		if (user){
-			googleOauthAuthenticate(res, user, googleUserData)
+			googleOauthAuthenticate(res, user, googleUserData, req.host)
 			if (res.sent)
 				return
-			res.code(200).send("Logged in with google successfully")
+			res.redirect(`https://localhost:8443/home`)
 		}
 		else {
 			googleOauthRegistration(res, googleUserData)
-			res.code(200).send("successfully registered with google")
+			res.redirect(`https://localhost:8443/home`)
 		}
 	}
 	catch (error){
 		req.log.error(error)
-		res.code(500).send("oauth setup failed")
+		res.redirect(`https://${req.host}:8443/login?error=${encodeURIComponent("oauth setup failed")}`)
 	}
 }

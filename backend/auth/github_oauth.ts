@@ -47,7 +47,7 @@ export async function githubOauthLogin(req:FastifyRequest, res:FastifyReply)
 	return res.redirect(githubUrl);
 }
 
-async function FetchGithubUserData(res:FastifyReply, OauthToken:string)
+async function FetchGithubUserData(res:FastifyReply, OauthToken:string, host:string)
 {
 	const userFetchRes = await fetch('https://api.github.com/user', {
 		headers: {
@@ -56,7 +56,7 @@ async function FetchGithubUserData(res:FastifyReply, OauthToken:string)
 		}
 	})
 	if (!userFetchRes.ok)
-		throw new Error(`Failed to fetch user data`)
+		return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent(`Failed to fetch user data from github`)}`)
 	let githubUserData = await userFetchRes.json() as GitHubUser
 	if (!githubUserData.email) {
 		const emailFetchRes = await fetch('https://api.github.com/user/emails', {
@@ -66,21 +66,21 @@ async function FetchGithubUserData(res:FastifyReply, OauthToken:string)
 			}
 		})
 		if (!emailFetchRes.ok)
-			throw new Error(`Failed to fetch user email`)
+			return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('Failed to fetch user email from github')}`)
 		const emailDetails = await emailFetchRes.json() as GitHubEmail[]
 		githubUserData.email = emailDetails.find((elm) => elm.primary && elm.verified)?.email || null
 		if (!githubUserData.email)
-			return res.status(400).send('No Github verified primary email found')
+			return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('No Github verified primary email found')}`)
 	}
 	return githubUserData
 }
 
-async function githubOauthAuthenticate(res:FastifyReply, localUser:User, remoteUser:GitHubUser)
+async function githubOauthAuthenticate(res:FastifyReply, localUser:User, remoteUser:GitHubUser, host:string)
 {
 	if (localUser.oauth_provider != "github")
-		return res.status(401).send('email already registered using a different method')
+		return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('email already registered using a different provider')}`)
 	else if (localUser.email == remoteUser.email && localUser.oauth_id != remoteUser.id.toString())
-		return res.status(401).send('email already in use')
+		return res.redirect(`https://${host}:8443/login?error=${encodeURIComponent('email already in use')}`)
 	if (localUser.email != remoteUser.email) {
 		await prisma.user.update({
 			where:{
@@ -131,12 +131,11 @@ export async function githubOauthRedirectHandler(this:FastifyInstance, req:Fasti
 {
 	const { code, state, error } = req.query as { code: string, state: string, error?: string };
 	if (error)
-      return res.code(403).send(`Authorization failed: ${error}`)
-
+	  return res.redirect(`https://${req.host}:8443/login?error=${encodeURIComponent(error)}`)
 	try {
 		const tokenResult = await this.githubOAuth2.getAccessTokenFromAuthorizationCodeFlow(req);
     	const accessToken = tokenResult.token.access_token;
-		const githubUserData = await FetchGithubUserData(res, accessToken)
+		const githubUserData = await FetchGithubUserData(res, accessToken, req.host)
 		if (res.sent)
 			return
 		const user = await prisma.user.findFirst({
@@ -148,18 +147,18 @@ export async function githubOauthRedirectHandler(this:FastifyInstance, req:Fasti
 			},
 		})
 		if (user) {
-			githubOauthAuthenticate(res, user, githubUserData)
+			githubOauthAuthenticate(res, user, githubUserData, req.host)
 			if (res.sent)
 				return
-			res.code(200).send("Logged in with github successfully")	
+			res.redirect(`https://localhost:8443/home`)
 		}
 		else { 
 			githubOauthRegistration(res, githubUserData)
-			res.code(200).send("successfully registered with github")
+			res.redirect(`https://localhost:8443/home`)
 		}
 	}
 	catch (error){
 		req.log.error(error)
-		res.code(500).send("oauth setup failed")
+		res.redirect(`https://${req.host}:8443/login?error=${encodeURIComponent("oauth setup failed")}`)
 	}
 }
