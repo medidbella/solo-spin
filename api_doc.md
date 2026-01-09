@@ -185,7 +185,22 @@ Change the logged in user avatar picture.
 - Invalid access token or the user associated with it not found -> "401 Unauthorized"
 - The body of the request has no file -> "400 Bad request"
 - The image is not of type png -> "400 Bad request"
+- More than one file is uploaded in the multipart request -> "400 Bad request"
+- File larger than the 3Mb limit -> "400 Bad request"
 - Otherwise the user's avatar will be updated -> "200 OK"
+
+---
+
+## GET `/api/avatar/:id`
+Get user avatar by id.
+
+**Request param schema:**
+- id: { type: 'integer', minimum: 1 }
+
+**Responses:**
+- Invalid access token -> "403 Unauthorized"
+- User not found -> "404 Not found"
+- Otherwise -> "200 OK" + the body will contain the .png image
 
 ---
 
