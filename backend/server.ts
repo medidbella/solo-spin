@@ -17,7 +17,11 @@ import {
   githubOauthRedirectHandler
 } from './auth/github_oauth.js';
 import{ googleOauthLogin, googleOauthRedirectHandler} from "./auth/google_oauth.js"
-import {avatarUploadSchema, GetLoggedUserAvatar, updateUserAvatar} from "./users/avatar.js";
+import {
+  avatarUploadSchema, GetLoggedUserAvatar, 
+  updateUserAvatar, fetchAvatarSchema, GetUserAvatar
+}
+from "./users/avatar.js";
 import fastifyMultipart from '@fastify/multipart';
 import {
   UserDataUpdateSchema, inputCleaner,
@@ -72,6 +76,7 @@ app.register(fastifyCookie)
 app.register(fastifyMultipart, {
         limits: {
             fileSize: 3 * 1024 * 1024,//3 mb size limit
+            files: 1
         }
 });
 
@@ -158,6 +163,8 @@ app.get("/api/login/google", googleOauthLogin)
 app.get("/api/login/google/callback",{schema: OauthCallBackSchema} ,googleOauthRedirectHandler)
 
 app.get("/api/user/avatar", { preHandler: authVerifier }, GetLoggedUserAvatar)
+
+app.get("/api/avatar/:id", {preHandler: authVerifier, schema: fetchAvatarSchema}, GetUserAvatar)
 
 app.post("/api/user/avatar", {schema: avatarUploadSchema, preHandler: authVerifier }, updateUserAvatar)
 
