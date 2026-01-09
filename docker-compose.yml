@@ -9,7 +9,7 @@ services:
     depends_on:
       - frontend
       - user-management
-      - pong
+      - games
     networks:
       - transcendence-network
   
@@ -36,9 +36,9 @@ services:
     networks:
       - transcendence-network
 
-  pong:
-    build: ./pong
-    container_name: pong
+  games:
+    build: ./games
+    container_name: games
     ports:
       - "3002:3002"
     networks:

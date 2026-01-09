@@ -1,13 +1,13 @@
 
 // 1. IMPORT YOUR VIEWS AND ITS LOGICS
-import { renderSignUpPage, setupSignupLogic } from './game-frontend/renders/signup';
-import { renderLoginPage, setUpLoginLogic } from './game-frontend/renders/login';
-import { renderHomePage } from './game-frontend/renders/home'; // The "Start Play" page
-import { renderGameModePage } from './game-frontend/renders/game_mode'; // New: Choose Local/Remote
-import { renderPlayModePage } from './game-frontend/renders/play_mode'; // New: Choose Random/Friend
-import { renderFriendSetUpPage } from './game-frontend/renders/friend_setup'; // New: Enter Friend Name
-import { renderWaitingRoomPage } from './game-frontend/renders/waiting-room'; // New: Waiting Room
-import { renderGamePlayPage } from './game-frontend/renders/game_play'; // The actual game
+import { renderSignUpPage, setupSignupLogic } from './game-related/renders/signup';
+import { renderLoginPage, setUpLoginLogic } from './game-related/renders/login';
+import { renderHomePage } from './game-related/renders/home'; // The "Start Play" page
+import { renderGameModePage } from './game-related/renders/game_mode'; // New: Choose Local/Remote
+import { renderPlayModePage } from './game-related/renders/play_mode'; // New: Choose Random/Friend
+import { renderFriendSetUpPage } from './game-related/renders/friend_setup'; // New: Enter Friend Name
+import { renderWaitingRoomPage } from './game-related/renders/waiting-room'; // New: Waiting Room
+import { renderGamePlayPage } from './game-related/renders/game_play'; // The actual game
 
 
 const app = document.getElementById('app') as HTMLDivElement;
@@ -57,7 +57,7 @@ function router(path: string) {
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/pong/game-mode':
+    case '/games/games/pong/game-mode':
     	// Choose Local vs Remote
 		innerHTML = renderGameModePage();
 		if (!innerHTML) {
@@ -68,7 +68,7 @@ function router(path: string) {
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/pong/play-mode':
+    case '/games/pong/play-mode':
     	// Choose Friend vs Random
 		innerHTML = renderPlayModePage();
 		if (!innerHTML) {
@@ -79,7 +79,7 @@ function router(path: string) {
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/pong/friend-match':
+    case '/games/pong/friend-match':
     	// Enter Friend's Name
 		innerHTML = renderFriendSetUpPage();
 		if (!innerHTML) {
@@ -90,23 +90,23 @@ function router(path: string) {
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/pong/waiting-room':
+    case '/games/pong/waiting-room':
     	// Waiting room
 		innerHTML = renderWaitingRoomPage();
 		if (!innerHTML) {
 			console.log(" ERROR: can't read the file, try again!!");
-			router('/pong/waiting-room');
+			router('/games/pong/waiting-room');
 			break
 		}
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/pong/game-play':
+    case '/games/pong/game-play':
     	// The actual pong canvas
 		innerHTML = renderGamePlayPage();
 		if (!innerHTML) {
 			console.log(" ERROR: can't read the file, try again!!");
-			router('/pong/game-play');
+			router('/games/pong/game-play');
 			break
 		}
     	app.innerHTML = innerHTML;
@@ -145,8 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
   	router(window.location.pathname);
 });
 
-
-
-
+export { router };
 
 // notice that my teammate who's responsible for frontend set up something called components like header and side bar, i don't know 

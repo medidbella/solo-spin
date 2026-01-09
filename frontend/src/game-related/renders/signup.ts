@@ -1,20 +1,11 @@
 
-// import * as fs from 'fs'; // Import the file system module
+
+import { router } from '../../main';
+import { gameSocket } from '../services/gameNetwork';
 
 import signUpContent from '../pages/signup.html?raw';
 
 export function renderSignUpPage() {
-    // const filePath: string = '../public/pages/signup.html';
-    // let content: string | undefined;
-    // try {
-        // Read the file synchronously with 'utf-8' encoding
-        // content = fs.readFileSync(filePath, 'utf-8');
-        // console.log("File content:", content);
-    // } catch (error) {
-        // console.error("Error reading file:", error);
-    // }
-    // return content;
-
     return signUpContent;
 }
 
@@ -51,8 +42,17 @@ export function setupSignupLogic() {
 
             if (response.ok) {
                 // Success! 
-                console.log("Response Ok:", data);
-                // TODO: Redirect user or show success message
+                console.log("Sign up Successful:", data);
+                
+                // 1. Connect the WebSocket (it stays alive now!)
+                gameSocket.connect();
+
+                // 2. Update the URL
+                window.history.pushState(null, '', '/home');
+
+                // 3. Soft navigate to the home page
+                router('/home');
+
             } else {
                 // 2. Update error text from server response
                 errorMessage.textContent = data.error || 'Signup failed';

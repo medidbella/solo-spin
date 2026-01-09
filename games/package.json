@@ -1,12 +1,12 @@
 {
-    "name": "pong-server",
+    "name": "games-server",
     "version": "1.0.0",
-    "description": "Real-time Pong Game Server",
-    "main": "pong_server.ts",
+    "description": "Real-time Games Server",
+    "main": "games_server.ts",
     "scripts": {
-      "dev": "ts-node pong_server.ts",
+      "dev": "ts-node games_server.ts",
       "build": "tsc",
-      "start": "node dist/pong_server.js"
+      "start": "node dist/games_server.js"
     },
     "dependencies": {
       "fastify": "^4.21.0",

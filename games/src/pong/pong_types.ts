@@ -1,5 +1,7 @@
 
-export type GameState = 'waiting' | 'playing' | 'finished';
+import { GameState } from '../game_manager/gamesTypes';
+
+// export type GameState = 'waiting' | 'playing' | 'finished';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
 export type Side = 'right' | 'left'
@@ -14,20 +16,20 @@ export type PlayerState =
   | 'FINISHED';            // game ended
 
   
-export enum GameMessageTypes {
-	CONNECT = 'CONNECT',             // client → server: request connection
-	MOVE = 'MOVE',                   // client → server: paddle movement
-	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
-	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
-	CLOSE = "CLOSE"
-}
+// export enum GameMessageTypes {
+// 	CONNECT = 'CONNECT',             // client → server: request connection
+// 	MOVE = 'MOVE',                   // client → server: paddle movement
+// 	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
+// 	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
+// 	CLOSE = "CLOSE"
+// }
 
-export type WsMessageType =
-    GameMessageTypes.CONNECT
-  | GameMessageTypes.CONNECTION_SUCCESS
-  | GameMessageTypes.CONNECTION_FAILED
-  | GameMessageTypes.MOVE
-  | GameMessageTypes.CLOSE;
+// export type WsMessageType =
+//     GameMessageTypes.CONNECT
+//   | GameMessageTypes.CONNECTION_SUCCESS
+//   | GameMessageTypes.CONNECTION_FAILED
+//   | GameMessageTypes.MOVE
+//   | GameMessageTypes.CLOSE;
 
 export interface Ball {
 	x: number;				// Current x position of the ball on the game board.
@@ -53,7 +55,7 @@ export interface PlayerInput { // represent player input.
 	down: boolean;
 }
   
-export interface Player {
+export interface PongPlayer {
 
 	id?: string;							// unique identifier for this player
 	name: string;						// player name
@@ -73,12 +75,12 @@ export interface Player {
 	input?: PlayerInput; // up/down
 	side?: Side;
 
-	gameSessionId?: string;
+	pongSessionId?: string;
 
 	// '?': makes a property optional, may exist or may not on the object
 }
 
-export interface GameSession {
+interface PongSession {
 	// A GameSession is one running match of Pong between two players.
 	// server creates one gameSession for each match.
 	// the session will be destroyed after the match ends.
@@ -88,7 +90,7 @@ export interface GameSession {
 	state: GameState;		// ('waiting' | 'playing' | 'finished')
 	gameMode?: GameMode;		// (local | remote)
 	sessionId?: string;		// identifies this match
-	players: Player[];		// exactly 2 Player objects (1 per player)
+	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
 	ball: Ball;				// shared ball objetc instance
 }
 
@@ -97,7 +99,7 @@ export interface GameSession {
 type State = 'waiting' | 'playing' | 'paused' | 'finished';
 type Winner = 'player1' | 'player2' | 'none';
 
-interface LocalGameSession {
+interface LocalPongSession {
 	sessionId: string;
     state: State;
   
@@ -128,7 +130,7 @@ interface LocalGameSession {
 
 }
 
-interface GameConstants {
+interface PongConstants {
 	// World rules
 	CANVAS_WIDTH: number,
 	CANVAS_HEIGHT: number,
@@ -143,11 +145,11 @@ interface GameConstants {
 
 
 interface PongGameConfig {
-	gameConstants: GameConstants,
+	PongConstants: PongConstants,
 	sessionId: string;
 	canvas?: HTMLCanvasElement;
 	player1: string;
 	player2: string;
 }
 
-export  { PongGameConfig, GameConstants, LocalGameSession };
+export  { PongGameConfig, PongConstants, PongSession, LocalPongSession };

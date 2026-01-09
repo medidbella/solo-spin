@@ -1,12 +1,16 @@
 
 import loginContent from '../pages/login.html?raw';
 
-export function renderLoginPage() {
+import { gameSocket } from '../services/gameNetwork';
+
+import { router } from '../../main';
+
+function renderLoginPage() {
 
     return loginContent;
 }
 
-export function setUpLoginLogic() {
+function setUpLoginLogic() {
     const form = document.getElementById('loginForm') as HTMLFormElement;
     const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
 
@@ -38,8 +42,15 @@ export function setUpLoginLogic() {
 
             if (response.ok) {
                 console.log("Login Successful:", data);
-                // Redirect to the dashboard/game page
-                window.location.href = '/'; 
+
+                // // 1. Connect the WebSocket (it stays alive now!)
+                // gameSocket.connect();
+
+                // // 2. Update the URL
+                // window.history.pushState(null, '', '/home');
+
+                // // 3. Soft navigate to the home page
+                router('/home');
             } else {
                 errorMessage.textContent = data.error || 'Login failed';
                 errorMessage.classList.remove('hidden');
@@ -50,3 +61,5 @@ export function setUpLoginLogic() {
         }
     });
 }
+
+export { renderLoginPage, setUpLoginLogic };
