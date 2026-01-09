@@ -3,9 +3,9 @@ export function renderSignUpPage() : string {
     <main class="min-h-screen flex items-center justify-center lg:justify-between bg-dark-background">
         <!-- the left side (image) -->
         <div class="hidden lg:flex w-1/2 h-screen items-center justify-center bg-opacity-10 relative">
-            <img src="/imgs/sung.png" 
+            <img src="/imgs/piro-removebg-preview.png" 
                  alt="Character holding a racket" 
-                 class="max-w-[100%] max-h-[100%] object-contain  drop-shadow-[0_0_40px_#2A3FA1]">
+                 class="max-w-[100%] max-h-[100%] object-contain  ">
         </div>
         <!-- the right side (form and links and logo) -->
         
