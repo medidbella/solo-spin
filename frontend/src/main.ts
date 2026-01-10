@@ -3,11 +3,13 @@
 import { renderSignUpPage, setupSignupLogic } from './game-related/renders/signup';
 import { renderLoginPage, setUpLoginLogic } from './game-related/renders/login';
 import { renderHomePage } from './game-related/renders/home'; // The "Start Play" page
-import { renderGameModePage } from './game-related/renders/game_mode'; // New: Choose Local/Remote
-import { renderPlayModePage } from './game-related/renders/play_mode'; // New: Choose Random/Friend
-import { renderFriendSetUpPage } from './game-related/renders/friend_setup'; // New: Enter Friend Name
-import { renderWaitingRoomPage } from './game-related/renders/waiting-room'; // New: Waiting Room
-import { renderGamePlayPage } from './game-related/renders/game_play'; // The actual game
+// import { renderGameModePage } from './game-related/renders/game_mode'; // New: Choose Local/Remote
+// import { renderPlayModePage } from './game-related/renders/play_mode'; // New: Choose Random/Friend
+// import { renderFriendSetUpPage } from './game-related/renders/friend_setup'; // New: Enter Friend Name
+// import { renderWaitingRoomPage } from './game-related/renders/waiting-room'; // New: Waiting Room
+// import { renderGamePlayPage } from './game-related/renders/game_play'; // The actual game
+
+import { handlePongRoutes } from './game-related/services/handle_pong_routes';
 
 
 const app = document.getElementById('app') as HTMLDivElement;
@@ -17,13 +19,13 @@ function router(path: string) {
 	let innerHTML: string | undefined
 	app.innerHTML = ''; // Clear the current view
 
-  switch (path) {
-    case '/':
+  switch (true) {
+    case path === '/':
         router('/signup');
 		break;
 
     // --- USER MANAGEMENT (Temporary) ---
-    case '/signup':
+    case path === '/signup':
 		innerHTML = renderSignUpPage();
 		if (!innerHTML) {
 			console.log(" ERROR: can't read the file, try again!!");
@@ -34,7 +36,7 @@ function router(path: string) {
     	setupSignupLogic(); // Attaches event listeners for the form
     	break;
 
-	case '/login':
+	case path === '/login':
 		innerHTML = renderLoginPage();
 		if (!innerHTML) {
 			console.log(" ERROR: can't read the file, try again!!");
@@ -45,8 +47,8 @@ function router(path: string) {
 		setUpLoginLogic();
 		break;
 
-    // --- GAME FLOW START ---
-    case '/home': 
+    // --- HOME: selecting the game (pong/sudoku) ---
+    case path === '/home': 
     	// This is your "Start Play" page
 		innerHTML = renderHomePage();
 		if (!innerHTML) {
@@ -57,60 +59,77 @@ function router(path: string) {
     	app.innerHTML = innerHTML;
     	break;
 
-    case '/games/games/pong/game-mode':
-    	// Choose Local vs Remote
-		innerHTML = renderGameModePage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./game-mode');
-			break
-		}
-    	app.innerHTML = innerHTML;
-    	break;
+    // --- GAME FLOW START ---
+	case path.startsWith("/games/pong/"):
+		// pong routes
+		innerHTML = handlePongRoutes(path);
+		if (innerHTML === 'none')
+			app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
+		else if (innerHTML)
+			app.innerHTML = innerHTML;
+		break;
 
-    case '/games/pong/play-mode':
-    	// Choose Friend vs Random
-		innerHTML = renderPlayModePage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./play-mode');
-			break
-		}
-    	app.innerHTML = innerHTML;
-    	break;
+	// case path.startsWith("/games/sudoku/"):
+	// 	innerHTML = handleSudokuRoutes(path);
+	// 	if (innerHTML === 'none')
+	// 		app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
+	// 	break;
 
-    case '/games/pong/friend-match':
-    	// Enter Friend's Name
-		innerHTML = renderFriendSetUpPage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./friend-match');
-			break
-		}
-    	app.innerHTML = innerHTML;
-    	break;
 
-    case '/games/pong/waiting-room':
-    	// Waiting room
-		innerHTML = renderWaitingRoomPage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('/games/pong/waiting-room');
-			break
-		}
-    	app.innerHTML = innerHTML;
-    	break;
+    // case '/games/games/pong/game-mode':
+    // 	// Choose Local vs Remote
+	// 	innerHTML = renderGameModePage();
+	// 	if (!innerHTML) {
+	// 		console.log(" ERROR: can't read the file, try again!!");
+	// 		router('./game-mode');
+	// 		break
+	// 	}
+    // 	app.innerHTML = innerHTML;
+    // 	break;
 
-    case '/games/pong/game-play':
-    	// The actual pong canvas
-		innerHTML = renderGamePlayPage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('/games/pong/game-play');
-			break
-		}
-    	app.innerHTML = innerHTML;
-    	break;
+    // case '/games/pong/play-mode':
+    // 	// Choose Friend vs Random
+	// 	innerHTML = renderPlayModePage();
+	// 	if (!innerHTML) {
+	// 		console.log(" ERROR: can't read the file, try again!!");
+	// 		router('./play-mode');
+	// 		break
+	// 	}
+    // 	app.innerHTML = innerHTML;
+    // 	break;
+
+    // case '/games/pong/friend-match':
+    // 	// Enter Friend's Name
+	// 	innerHTML = renderFriendSetUpPage();
+	// 	if (!innerHTML) {
+	// 		console.log(" ERROR: can't read the file, try again!!");
+	// 		router('./friend-match');
+	// 		break
+	// 	}
+    // 	app.innerHTML = innerHTML;
+    // 	break;
+
+    // case '/games/pong/waiting-room':
+    // 	// Waiting room
+	// 	innerHTML = renderWaitingRoomPage();
+	// 	if (!innerHTML) {
+	// 		console.log(" ERROR: can't read the file, try again!!");
+	// 		router('/games/pong/waiting-room');
+	// 		break
+	// 	}
+    // 	app.innerHTML = innerHTML;
+    // 	break;
+
+    // case '/games/pong/game-play':
+    // 	// The actual pong canvas
+	// 	innerHTML = renderGamePlayPage();
+	// 	if (!innerHTML) {
+	// 		console.log(" ERROR: can't read the file, try again!!");
+	// 		router('/games/pong/game-play');
+	// 		break
+	// 	}
+    // 	app.innerHTML = innerHTML;
+    // 	break;
 
     default:
     	app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
@@ -148,3 +167,4 @@ document.addEventListener('DOMContentLoaded', () => {
 export { router };
 
 // notice that my teammate who's responsible for frontend set up something called components like header and side bar, i don't know 
+

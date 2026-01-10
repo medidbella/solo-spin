@@ -12,4 +12,4 @@
     },
     "include": ["**/*.ts"],              // Include all TS files
     "exclude": ["node_modules"]
-  }
+}

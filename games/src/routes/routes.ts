@@ -1,8 +1,10 @@
 
 import { FastifyInstance } from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
-
 import { SocketStream } from '@fastify/websocket';
+
+// import { registerNewPlayer } from '../game_manager/games_utiles';
+import { wsHandler } from '../ws/ws_handler';
 
 function registerGamesPlayers(server: FastifyInstance) {
 	
@@ -10,33 +12,43 @@ function registerGamesPlayers(server: FastifyInstance) {
    server.get('/ws/games/', { websocket: true }, (connection: SocketStream, req: FastifyRequest) => {
 		console.log("📝 /register-player WS hit");
 
-		// regardless of what the object actually is.
-        const debugConnection = connection as any;
+		wsHandler(connection, req);
 
-        console.log("Constructor Name:", debugConnection.constructor.name);
+		// // regardless of what the object actually is.
+        // const debugConnection = connection as any;
+
+        // console.log("Constructor Name:", debugConnection.constructor.name);
         
-        // Now this won't cause a compile error
-        if (debugConnection.headers) {
-            console.log("Headers:", debugConnection.headers);
-        }
+        // // Now this won't cause a compile error
+        // if (debugConnection.headers) {
+        //     console.log("Headers:", debugConnection.headers);
+        // }
 		
-		// 'connection.socket' is the actual WebSocket object we use to talk
-		const socket = connection.socket;
+		// // 'connection.socket' is the actual WebSocket object we use to talk
+		// const socket = connection.socket;
 
-		console.log('🔌 New WebSocket connection established');
-		console.log('🔌 Connection state:', socket.readyState);
-		console.log('🔌 Protocol:', socket.protocol);
+		// console.log('🔌 New WebSocket connection established');
+		// console.log('🔌 Connection state:', socket.readyState);
+		// console.log('🔌 Protocol:', socket.protocol);
 
-		socket.on('message', (data: any) => {
-			console.log("received data:", data);
-		});
+		// const playerId: string = req.cookies.playerId as string;
+		// if (!playerId) {
+		// 	console.log(" Need ID !!!");
+		// } else {
+		// 	registerNewPlayer(playerId, socket);
+		// 	console.log(`create new player ID: ${playerId}`);
+		// }
 
-		const response = {
-			message: 'Hello from the server!!',
-		};
+		// socket.on('message', (data: any) => {
+		// 	console.log("received data:", data);
+		// });
+
+		// const response = {
+		// 	message: 'Hello from the server!!',
+		// };
 		
-		console.log('📤 Sending AUTH_SUCCESS:', response);
-		socket.send(JSON.stringify(response));
+		// console.log('📤 Sending AUTH_SUCCESS:', response);
+		// socket.send(JSON.stringify(response));
 		
 
 

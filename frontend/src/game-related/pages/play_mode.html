@@ -1,44 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pong – Local Game</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body { margin: 0; overflow: hidden; }
-    #gameCanvas {
-      background: #0a0520;
-      border: 3px solid #4f46e5;
-      box-shadow: 0 0 30px rgba(79,70,229,.5);
-    }
-    .score-box {
-      background: rgba(15,8,40,.8);
-      border: 2px solid #4f46e5;
-    }
-  </style>
-</head>
-
-<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
+<div class="w-full min-h-screen flex flex-col items-center justify-center bg-gray-900 p-4 overflow-hidden">
+    
   <h1 class="text-4xl font-bold text-purple-400 mb-4">Local Pong</h1>
 
   <div class="relative">
-    <div class="score-box absolute left-0 top-6 px-6 py-3 rounded-r-lg -translate-x-full">
-      <p id="player1Name" class="text-white text-sm">Player 1</p>
-      <p id="player1Score" class="text-white text-3xl font-bold">0</p>
-    </div>
+      
+      <div class="absolute left-0 top-6 px-6 py-3 rounded-r-lg -translate-x-full bg-[#0f0828]/80 border-2 border-[#4f46e5]">
+          <p id="player1Name" class="text-white text-sm">Player 1</p>
+          <p id="player1Score" class="text-white text-3xl font-bold">0</p>
+      </div>
 
-    <div class="score-box absolute right-0 top-6 px-6 py-3 rounded-l-lg translate-x-full">
-      <p id="player2Name" class="text-white text-sm text-right">Player 2</p>
-      <p id="player2Score" class="text-white text-3xl font-bold text-right">0</p>
-    </div>
+      <div class="absolute right-0 top-6 px-6 py-3 rounded-l-lg translate-x-full bg-[#0f0828]/80 border-2 border-[#4f46e5]">
+          <p id="player2Name" class="text-white text-sm text-right">Player 2</p>
+          <p id="player2Score" class="text-white text-3xl font-bold text-right">0</p>
+      </div>
 
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
+      <canvas 
+          id="gameCanvas" 
+          width="800" 
+          height="500"
+          class="bg-[#0a0520] border-[3px] border-[#4f46e5] shadow-[0_0_30px_rgba(79,70,229,0.5)]"
+      ></canvas>
   </div>
 
   <p class="mt-6 text-gray-400 text-sm">Player 1: W / S &nbsp;|&nbsp; Player 2: ↑ / ↓</p>
-
-  <script type="module" src="/pong/scripts/game_play.js"></script>
-</body>
-</html>
+</div>

@@ -18,6 +18,8 @@ services:
     container_name: frontend
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -37,7 +39,9 @@ services:
       - transcendence-network
 
   games:
-    build: ./games
+    build:
+      context: .
+      dockerfile: ./games/Dockerfile
     container_name: games
     ports:
       - "3002:3002"

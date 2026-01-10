@@ -5,6 +5,11 @@ import { gameSocket } from '../services/gameNetwork';
 
 import signUpContent from '../pages/signup.html?raw';
 
+const port = import.meta.env.VITE_NGINX_PORT;
+const host = import.meta.env.VITE_HOST;
+
+// const url = `http://${host}:${port}`;
+
 export function renderSignUpPage() {
     return signUpContent;
 }

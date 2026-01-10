@@ -1,5 +1,5 @@
 
-import { GamesPlayer } from './gamesTypes';
+import { GamesPlayer } from './games_types';
 
 const onlinePlayersRooom = new Map<string, GamesPlayer>(); // online players (can be playing or not, but they are online in our website)
 
