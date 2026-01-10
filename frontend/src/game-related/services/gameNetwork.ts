@@ -1,10 +1,12 @@
 
 
+
 // 1. Define the possible "Labels" for your messages
 export type WSMsgType = 
     | 'CONNECT' 
     | 'CONNECT_SUCCESS' 
-    | 'CONNECT_ERROR' 
+    | 'CONNECT_ERROR'
+    | 'SELECT_GAME' // Client -> Server (player tells the server which game to play) 
     | 'GAME_INPUT'   // Client -> Server (Player did something)
     | 'GAME_STATE';  // Server -> Client (Update the screen)
 
@@ -17,8 +19,8 @@ export type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
 export interface WSConnectMessage {
     type: 'CONNECT';
     payload: {
-        game: GameType;
-        username: string;
+        // game: GameType;
+        // username: string;
     };
 }
 
@@ -38,6 +40,14 @@ export interface WSConnectError {
 }
 
 // --- GAME MESSAGES (The Fun Part) ---
+
+// Selecting a Game
+// export interface WSSelectGameMessage {
+//     type: 'SELECT_GAME';
+//     payload: {
+//         game: GameType;
+//     }
+// }
 
 // A. PONG
 export interface WSPongInput {
@@ -64,6 +74,7 @@ export interface WSSudokuInput {
 export type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
 export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState updates later
 
+///////////////////////////////////////////////////////////////////////////
 
 // Access the variables using import.meta.env
 const port = import.meta.env.VITE_NGINX_PORT;
@@ -78,10 +89,7 @@ class GameNetwork {
     private createWSConnectMessage(): ClientMessage {
         const message: ClientMessage = {
             type: 'CONNECT',
-            payload: {
-                game: 'pong',       // Or a variable like this.gameType
-                username: 'Player1' // Or a variable like this.username
-            }
+            payload: { }
         };
 
         return message;

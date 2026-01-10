@@ -14,7 +14,7 @@ enum GameMessageTypes {
 }
 
 type WsMessageType =
-		GameMessageTypes.CONNECT
+	GameMessageTypes.CONNECT
 	| GameMessageTypes.CONNECTION_SUCCESS
 	| GameMessageTypes.CONNECTION_FAILED
 	| GameMessageTypes.EVENT

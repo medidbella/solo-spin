@@ -1,9 +1,10 @@
 
-// 1. Define the possible "Labels" for your messages
+// 1. Define the possible "Labels" for your ws messages
 export type WSMsgType = 
     | 'CONNECT' 
     | 'CONNECT_SUCCESS' 
-    | 'CONNECT_ERROR' 
+    | 'CONNECT_ERROR'
+    | 'SELECT_GAME' // Client -> Server (player tells the server which game to play) 
     | 'GAME_INPUT'   // Client -> Server (Player did something)
     | 'GAME_STATE';  // Server -> Client (Update the screen)
 
@@ -16,8 +17,8 @@ export type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
 export interface WSConnectMessage {
     type: 'CONNECT';
     payload: {
-        game: GameType;
-        username: string;
+        // game: GameType;
+        // username: string;
     };
 }
 
@@ -37,6 +38,14 @@ export interface WSConnectError {
 }
 
 // --- GAME MESSAGES (The Fun Part) ---
+
+// Selecting a Game
+// export interface WSSelectGameMessage {
+//     type: 'SELECT_GAME';
+//     payload: {
+//         game: GameType;
+//     }
+// }
 
 // A. PONG
 export interface WSPongInput {
@@ -62,3 +71,16 @@ export interface WSSudokuInput {
 // This is what you use in your socket.onmessage function!
 export type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
 export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState updates later
+
+
+// --------- Define the possible "Labels" for your http connections --------
+
+export type GameMode = 'local' | 'remote';
+export type PlayMode = 'friend' | 'random';
+export type GameState = 'waiting' | 'playing' | 'finished';
+
+export interface HttpPongSetupReq {
+    gameMode: GameMode;      // 'local' | 'remote'
+    playMode: PlayMode;      // 'random' | 'friend'
+    friendId?: string;       // Optional: only needed if playMode === 'friend'
+}

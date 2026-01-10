@@ -1,9 +1,10 @@
 
-import { GameState } from '../game_manager/gamesTypes';
+// import { GameState } from '../game_manager/gamesTypes';
+import { GameMode, PlayMode, GameState } from '../../../shared/types';
 
 // export type GameState = 'waiting' | 'playing' | 'finished';
-export type GameMode = 'local' | 'remote';
-export type PlayMode = 'friend' | 'random';
+// export type GameMode = 'local' | 'remote';
+// export type PlayMode = 'friend' | 'random';
 export type Side = 'right' | 'left'
 export type PlayerState =
     'INIT'                 // Player created, nothing chosen yet

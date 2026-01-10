@@ -3,64 +3,85 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { SocketStream } from '@fastify/websocket';
 
 import { registerNewPlayer } from '../game_manager/games_utiles';
-import { ClientMessage  } from '../../../shared/types'
+import { ClientMessage, ServerMessage  } from '../../../shared/types'
 
+function connectPlayer(playerId: string, socket: WebSocket) {
+    console.log(` player id ==> ${playerId}`);
+    console.log(`👤 New User wants to be Regitered`);
+    registerNewPlayer(playerId, socket);
+}
+
+function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
+    console.log(`🎮 Move received:`, parsedMessage.payload);
+        // Handle game move...
+}
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
-
-    // // regardless of what the object actually is.
-    // const debugConnection = connection as any;
-
-    // console.log("Constructor Name:", debugConnection.constructor.name);
-    
-    // // Now this won't cause a compile error
-    // if (debugConnection.headers) {
-    //     console.log("Headers:", debugConnection.headers);
-    // }
-    
-    // 'connection.socket' is the actual WebSocket object we use to talk
-    const socket = connection.socket;
-
     console.log('🔌 New WebSocket connection established');
-    // console.log('🔌 Connection state:', socket.readyState);
-    // console.log('🔌 Protocol:', socket.protocol);
 
-    // const playerId: string = req.cookies.playerId as string;
-    // if (!playerId) {
-    //     console.log(" Need ID !!!");
-    // } else {
-    //     registerNewPlayer(playerId, socket);
-    //     console.log(`create new player ID: ${playerId}`);
-    // }
+    const socket = connection.socket;
+    const playerId: string = req.cookies.playerId as string;
+
+    // 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
+    if (!playerId) {
+        console.warn("❌ Connection rejected: Missing cookie ID");
+        const errorMsg: ServerMessage = {
+            type: 'CONNECT_ERROR',
+            payload: { error: 'Authentication missing. Please log in.' }
+        };
+        socket.send(JSON.stringify(errorMsg));
+        socket.close(); // Close connection
+        return;
+    }
+
+
 
     socket.on('message', (rawData: any) => {
         try {
             // 1. Convert Buffer to String
             const messageString = rawData.toString();
-            console.log("📩 Raw received:", messageString);
-    
+
             // 2. Parse JSON
-            const parsedMessage = JSON.parse(messageString) as ClientMessage;
-    
+            // We use 'any' temporarily to safely check if it's an object
+            const parsedMessage: any = JSON.parse(messageString);
+
+            // 🛡️ SAFETY CHECK: Ensure it's a valid object and not null
+            if (!parsedMessage || typeof parsedMessage !== 'object') {
+                throw new Error("Invalid message format: Not an object");
+            }
+
             // 3. Handle based on type
+            // Now we can safely cast to ClientMessage because we know it's an object
             switch (parsedMessage.type) {
                 case 'CONNECT':
-                    console.log(`👤 User ${parsedMessage.payload.username} wants to play ${parsedMessage.payload.game}`);
-                    // Handle connection logic...
+                    connectPlayer(playerId, socket);
                     break;
                     
                 case 'GAME_INPUT':
-                    console.log(`🎮 Move received:`, parsedMessage.payload);
-                    // Handle game move...
+                    pongGameMovements(playerId, parsedMessage);
                     break;
-    
+
                 default:
-                    console.warn("⚠️ Unknown message type:", parsedMessage);
+                    console.warn(`⚠️ Unknown message type received: ${parsedMessage.type}`);
+                    // 🗣️ Feedback to Client: "I don't understand this type"
+                    if (socket.readyState === socket.OPEN) {
+                        socket.send(JSON.stringify({ 
+                            type: 'ERROR', 
+                            payload: { error: `Unknown message type: ${parsedMessage.type}` } 
+                        }));
+                    }
             }
     
         } catch (error) {
-            console.error("❌ Failed to parse message:", error);
-            // Optional: Send an error back to client
+            console.error("❌ Failed to process message:", error);
+            
+            // 🗣️ Feedback to Client: "Your JSON was bad"
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'ERROR',
+                    payload: { error: "Invalid JSON or Malformed Request" }
+                }));
+            }
         }
     });
 
