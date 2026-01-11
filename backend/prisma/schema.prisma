@@ -22,6 +22,7 @@ model User {
   two_factor_secret    String?
   oauth_provider       String?
   oauth_id             String?
+  achievement_string   String?
   level                Int @default(0)
   experience_points    Int @default(0)
   total_xp_points      Int @default(0)

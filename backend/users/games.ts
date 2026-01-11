@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { updateUserAchievements } from "./achievements.js";
 import {prisma} from "../prisma/database.js"
 
 const  xpPerGameWin = 150
@@ -42,43 +43,48 @@ export const gameLeaderboardSchema = {
 	}
 }
 
-async function updateUserStats(user:any, winner_score:number, loser_score:number, loser_id:number)
+async function updateUserStats(winner:any, winner_score:number, loser_score:number, loser:any)
 {
-	let requiredLevelUpXp = firstLevelXp * Math.pow(xpIncreaseFactor, user.level)
-	if (user.level == 0)
+	let leveledUp = false
+	let requiredLevelUpXp = firstLevelXp * Math.pow(xpIncreaseFactor, winner.level)
+	if (winner.level == 0)
 		requiredLevelUpXp = firstLevelXp
 	// console.log(`level ${user.level} requires ${requiredLevelUpXp} XP`)
 	const xpBonus = (winner_score - loser_score) * xpPerGoalDifference
-	user.experience_points += xpPerGameWin + xpBonus
-	user.total_xp_points += xpPerGameWin + xpBonus
+	winner.experience_points += xpPerGameWin + xpBonus
+	winner.total_xp_points += xpPerGameWin + xpBonus
 	// console.log(`User ${user.id} gained ${xpPerGameWin + xpBonus} XP`)
-	if (user.experience_points > requiredLevelUpXp) {
-		user.level++
-		user.experience_points -= requiredLevelUpXp
+	if (winner.experience_points > requiredLevelUpXp) {
+		winner.level++
+		leveledUp = true
+		winner.experience_points -= requiredLevelUpXp
 		// console.log(`User ${user.id} leveled up to level ${user.level}`)
 		// console.log(` current xp :${user.experience_points}`)
 	}
+	updateUserAchievements(winner, leveledUp, loser, winner_score, loser_score)
 	await prisma.user.update({
 		where:{
-			id:user.id
+			id:winner.id
 		},
 		data :{
-			level: user.level, 
-			experience_points: user.experience_points,
-			total_xp_points: user.total_xp_points,
-			goals_scored: winner_score,
-			goals_conceded: loser_score,
-			games_won: {increment: 1}
+			level: winner.level, 
+			experience_points: winner.experience_points,
+			total_xp_points: winner.total_xp_points,
+			goals_scored: {increment: winner_score},
+			goals_conceded: {increment: loser_score},
+			games_won: {increment: 1},
+			achievement_string: winner.achievement_string
 		}
 	})
 	await prisma.user.update({
 		where:{
-			id:loser_id
+			id:loser.id
 		},
 		data:{
-			goals_conceded: winner_score,
-			goals_scored: loser_score,
-			games_lost: {increment: 1}
+			goals_conceded: {increment: winner_score},
+			goals_scored: {increment: loser_score},
+			games_lost: {increment: 1},
+			achievement_string: loser.achievement_string
 		}
 	})
 }
@@ -104,12 +110,25 @@ export async function storeMatchResult(req:FastifyRequest, res:FastifyReply)
 						id:true,
 						level: true,
 						experience_points: true,
-						total_xp_points: true
+						total_xp_points: true,
+						games_won: true,
+						games_lost: true,
+						goals_scored: true,
+						achievement_string: true
+					}
+				},
+				loser: {
+					select: {
+						id:true,
+						games_won: true,
+						games_lost: true,
+						goals_scored: true,
+						achievement_string: true
 					}
 				}
 			}
 		})
-		await updateUserStats(game.winner, winner_score , loser_score, loser_id)
+		await updateUserStats(game.winner, winner_score , loser_score, game.loser)
 	}
 	catch (error:any) {
 		if (error.code === 'P2003'){

@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {prisma} from "../prisma/database.js"
 import { firstLevelXp , xpIncreaseFactor} from "./games.js"
+import {decodeUserAchievementString} from './achievements.js'
 
 export const fetchUserDataSchema = {
 	params:{
@@ -31,7 +32,8 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 				games_won: true,
 				goals_scored:true,
 				goals_conceded:true,
-				total_xp_points:true
+				total_xp_points:true,
+				achievement_string: true,
 			}
 		})
 		if (!user){
@@ -39,9 +41,12 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 				message: 'User associated with token not found or account deactivated. Please log in again.'
 			})
 		}
-		return res.code(200).send({ message: "Successfully fetched user data.", user});
+		const achievements = decodeUserAchievementString(user.achievement_string!)
+		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
+		return res.code(200).send({user, levelProgress, achievements});
 	}
 	catch (err){
+		console.log(err)
 		return res.code(500).send({message:"Server unexpected error"})
 	}
 }
@@ -67,13 +72,15 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 				name: true,
 				total_xp_points: true,
 				level: true,
-				experience_points: true
+				experience_points: true, 
+				achievement_string: true
 			}
 		})
 		if (!user)
 			return res.code(404).send({message: `no user found with id: ${id}`})
+		const achievements = decodeUserAchievementString(user.achievement_string!)
 		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
-		return res.code(200).send({user, levelProgress})
+		return res.code(200).send({user, levelProgress, achievements})
 
 	}
 	catch (error){
