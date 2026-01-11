@@ -41,12 +41,26 @@ Fetch all user data. Only a valid access token is required.
 - If no token found or its invalid ->  "401 Unauthorized"
 - If the token user id is not found in db -> "401 Unauthorized"
 - When all good all the user DB stored data will be sent as JSON example:
-  ```
-  "user": {
+  ```json
+  {
+    "user": {
       "id": 2,
       "name": "ali",
       "username": "aakouhar",
-      .....
+      // ... other user fields ...
+    },
+    "levelProgress": 46.58,
+    "achievements": [
+      {
+        "code": "3-1",
+        "title": "reached level 3"
+      },
+      {
+        "code": "2-1",
+        "title": "played 10 games"
+      }
+      // ...rest of achievements
+    ]
   }
   ```
 
@@ -71,8 +85,22 @@ Get a user's details by their ID.
       "level": 3,
       "experience_points": 31
     },
-    "levelProgress": 5.29
+    "levelProgress": 5.29,
+    "achievements": [
+      {
+        "code": "2-1",
+        "title": "played 10 games"
+      },
+      {
+        "code": "2-2",
+        "title": "played 25 games"
+      }
+      // ...rest of achievements
+    ]
   }
+  ```
+
+---
 
 ## POST `/api/refresh`
 Used when access token is expired to get a new one. Only a valid refresh token is required.
