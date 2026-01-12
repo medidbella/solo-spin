@@ -7,6 +7,7 @@ RUN rm /etc/nginx/nginx.conf
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
+COPY terms-of-service.html /usr/share/nginx/html/terms-of-service.html
 RUN chmod +x /entrypoint.sh
 
 # Create custom error pages directory
