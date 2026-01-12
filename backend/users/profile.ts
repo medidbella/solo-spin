@@ -14,6 +14,19 @@ export const fetchUserDataSchema = {
 	}
 }
 
+function cleanUserObject(user:any)
+{
+	return ({
+		id: user.id,
+		name: user.name, username: user.username,
+		email: user.email,
+		level: user.level,
+		games_lost: user.games_lost, 
+		games_won: user.games_won,
+		score: user.total_xp_points,
+	})
+}
+
 export async function me(req:FastifyRequest, res:FastifyReply)
 {
 	try {
@@ -43,7 +56,7 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 		}
 		const achievements = decodeUserAchievementString(user.achievement_string!)
 		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
-		return res.code(200).send({user, levelProgress, achievements});
+		return res.code(200).send({user:cleanUserObject(user), levelProgress, achievements});
 	}
 	catch (err){
 		console.log(err)
@@ -80,7 +93,13 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 			return res.code(404).send({message: `no user found with id: ${id}`})
 		const achievements = decodeUserAchievementString(user.achievement_string!)
 		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
-		return res.code(200).send({user, levelProgress, achievements})
+		const clean_user = {
+			username: user.username,
+			name: user.name,
+			score: user.total_xp_points,
+			level: user.level,
+		}
+		return res.code(200).send({user:clean_user, levelProgress, achievements})
 
 	}
 	catch (error){
