@@ -2,19 +2,40 @@
 // import * as fs from 'fs'; // Import the file system module
 
 import playModeContent from '../pages/play_mode.html?raw';
+import { gameClient } from '../services/game_client';
 
-export function renderPlayModePage() {
-	// const filePath: string = '../public/pages/play_mode.html';
-	// let content: string | undefined;
-	// try {
-	// 	// Read the file synchronously with 'utf-8' encoding
-	// 	content = fs.readFileSync(filePath, 'utf-8');
-	// 	// console.log("File content:", content);
-	// } catch (error) {
-	// 	console.error("Error reading file:", error);
-	// }
-	// return content;
+import { router } from '../../main';
 
+function renderPlayModePage() {
 	return playModeContent;
+}
+
+function setPlayModeLogic() {
+
+	const playFriendBtn = document.getElementById('playFriendBtn') as HTMLButtonElement;
+	const playRandomBtn = document.getElementById('playRandomBtn') as HTMLButtonElement;
+	const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+
+	if (!playFriendBtn || !playRandomBtn || !errorMessage) { return; }
+
+	// 1. play with Friend event listener
+	playFriendBtn.addEventListener('click', () => {
+		console.log('🎮 User selected: Play with Friend');
+		gameClient.setPlayMode('friend');
+		// MOVED INSIDE: Navigate immediately after setting state
+
+        router('/games/pong/friend-name');
+	});
+
+	// 2. Play Random event listener
+	playRandomBtn.addEventListener('click', () => {
+		console.log('🎮 User selected: Play Random');
+		gameClient.setPlayMode('random');
+
+        // router('/games/pong/witing-room');
+	});
+
 
 }
+
+export { setPlayModeLogic, renderPlayModePage };

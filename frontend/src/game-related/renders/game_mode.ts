@@ -1,21 +1,39 @@
 
-// import * as fs from 'fs'; // Import the file system module
+
 import gameModeContent from '../pages/game_mode.html?raw';
+import { gameClient } from '../services/game_client';
 
-export function renderGameModePage() {
-	// const filePath: string = '../public/pages/game_mode.html';
-	// let content: string | undefined;
-	// try {
-	// 	// Read the file synchronously with 'utf-8' encoding
-	// 	content = fs.readFileSync(filePath, 'utf-8');
-	// 	// console.log("File content:", content);
-	// } catch (error) {
-	// 	console.error("Error reading file:", error);
-	// }
-	// return content;
+import { router } from '../../main';
 
+function renderGameModePage() {
 	return gameModeContent;
 }
 
-// const content = renderGameModePage();
-// console.log(content);
+function setGameModeLogic() {
+
+	const localModeBtn = document.getElementById('localModeBtn') as HTMLButtonElement;
+	const remoteModeBtn = document.getElementById('remoteModeBtn') as HTMLButtonElement;
+	const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+
+	if (!localModeBtn || !remoteModeBtn || !errorMessage) { return; }
+
+	// 1. local Game event listener
+	localModeBtn.addEventListener('click', () => {
+		console.log('🎮 User selected: Local Game');
+		gameClient.setGameMode('local');
+
+		// NAVIGATE HERE, only after clicking
+        router('/games/pong/friend-name');
+	});
+
+	// 2. local Game event listener
+	remoteModeBtn.addEventListener('click', () => {
+		console.log('🎮 User selected: Remote Game');
+		gameClient.setGameMode('remote');
+
+		router('/games/pong/play-mode');
+	});
+	
+}
+
+export { renderGameModePage, setGameModeLogic };

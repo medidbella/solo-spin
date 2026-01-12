@@ -1,7 +1,7 @@
 
 import loginContent from '../pages/login.html?raw';
 
-import { gameSocket } from '../services/gameNetwork';
+import { gameClient } from '../services/game_client';
 
 // import { ClientMessage } from '@shared/types';
 
@@ -45,13 +45,17 @@ function setUpLoginLogic() {
             if (response.ok) {
                 console.log("Login Successful:", data);
 
-                // 1. Connect the WebSocket (it stays alive now!)
-                gameSocket.connect();
+                // 1. set player name
+                gameClient.setPlayerName(nameInput.value);
 
-                // 2. Update the URL
+                // 2. Connect the WebSocket (it stays alive now!)
+                console.log(`  ===>>> trying to connect WS <<====`);
+                gameClient.wsConnectionsHandler.connect();
+
+                // 3. Update the URL
                 window.history.pushState(null, '', '/home');
 
-                // 3. Soft navigate to the home page
+                // 4. Soft navigate to the home page
                 router('/home');
             } else {
                 errorMessage.textContent = data.error || 'Login failed';

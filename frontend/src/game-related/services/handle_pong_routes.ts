@@ -1,62 +1,76 @@
 
-import { renderGameModePage } from '../renders/game_mode'; // New: Choose Local/Remote
-import { renderPlayModePage } from '../renders/play_mode'; // New: Choose Random/Friend
-import { renderFriendSetUpPage } from '../renders/friend_setup'; // New: Enter Friend Name
-import { renderWaitingRoomPage } from '../renders/waiting-room'; // New: Waiting Room
-import { renderGamePlayPage } from '../renders/game_play'; // The actual game
+import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
+import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
+import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
+// import { renderWaitingRoomPage } from '../renders/waiting-room'; // New: Waiting Room
+// import { renderGamePlayPage } from '../renders/game_play'; // The actual game
 
 
-import { router } from '../../main';
+// import { router } from '../../main';
 
-export function handlePongRoutes(path: string) {
+export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 	
+	// console.log(`==>> Games Route Detected {${path}} <<==`);
 	switch (path) {
 
+		// CASE 1: Game Mode Selection
 		case '/games/pong/game-mode':
-			// Choose Local vs Remote
 			innerHTML = renderGameModePage();
 			if (!innerHTML) {
 				console.log(" ERROR: can't read the file, try again!!");
-				router('/games/games/pong/game-mode');
+				// router('/games/games/pong/game-mode');
+				return ;
 			}
-			return innerHTML;
-			
+			// return innerHTML;
+
+			app.innerHTML = innerHTML; // 1. Render HTML
+            setGameModeLogic();        // 2. Attach Listeners immediately
+            break;
+
+		// CASE 2: Play Mode Selection	
 		case '/games/pong/play-mode':
-			// Choose Friend vs Random
+			// console.log( "  ====>> play mode detected <<===");
 			innerHTML = renderPlayModePage();
 			if (!innerHTML) {
 				console.log(" ERROR: can't read the file, try again!!");
-				router('/games/pong/play-mode');
+				// router('/games/pong/play-mode');
+				return ;
 			}
-			return innerHTML;
+			// return innerHTML;
+			app.innerHTML = innerHTML; // 1. Render HTML
+            setPlayModeLogic();        // 2. Attach Listeners immediately
+            break;
 		
-		case '/games/pong/friend-match':
+		case '/games/pong/friend-name':
 			// Enter Friend's Name
-			innerHTML = renderFriendSetUpPage();
+			innerHTML = renderFriendNamePage();
 			if (!innerHTML) {
 				console.log(" ERROR: can't read the file, try again!!");
-				router('/games/pong/friend-match');
+				// router('/games/pong/friend-match');
+				return ;
 			}
-			return innerHTML;
+			app.innerHTML = innerHTML;
+			setFriendNameLogic();
+			break;
 			
-		case '/games/pong/waiting-room':
-			// Waiting room
-			innerHTML = renderWaitingRoomPage();
-			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
-				router('/games/pong/waiting-room');
-			}
-			return innerHTML;
+		// case '/games/pong/waiting-room':
+		// 	// Waiting room
+		// 	innerHTML = renderWaitingRoomPage();
+		// 	if (!innerHTML) {
+		// 		console.log(" ERROR: can't read the file, try again!!");
+		// 		router('/games/pong/waiting-room');
+		// 	}
+		// 	return innerHTML;
 		
-		case '/games/pong/game-play':
-			// The actual pong canvas
-			innerHTML = renderGamePlayPage();
-			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
-				router('/games/pong/game-play');
-			}
-			return innerHTML;
+		// case '/games/pong/game-play':
+		// 	// The actual pong canvas
+		// 	innerHTML = renderGamePlayPage();
+		// 	if (!innerHTML) {
+		// 		console.log(" ERROR: can't read the file, try again!!");
+		// 		router('/games/pong/game-play');
+		// 	}
+		// 	return innerHTML;
 
 		default:
 			return "none";

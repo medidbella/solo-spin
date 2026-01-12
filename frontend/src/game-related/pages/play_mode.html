@@ -1,26 +1,27 @@
-<div class="w-full min-h-screen flex flex-col items-center justify-center bg-gray-900 p-4 overflow-hidden">
+<div class="w-full min-h-screen flex items-center justify-center bg-gray-900">
     
-  <h1 class="text-4xl font-bold text-purple-400 mb-4">Local Pong</h1>
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
+        <h1 class="text-3xl font-bold text-white mb-8 text-center">
+            Select Opponent
+        </h1>
 
-  <div class="relative">
-      
-      <div class="absolute left-0 top-6 px-6 py-3 rounded-r-lg -translate-x-full bg-[#0f0828]/80 border-2 border-[#4f46e5]">
-          <p id="player1Name" class="text-white text-sm">Player 1</p>
-          <p id="player1Score" class="text-white text-3xl font-bold">0</p>
-      </div>
+        <div class="space-y-4">
+            <button 
+                id="playFriendBtn"
+                class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-md transition duration-200"
+            >
+                Play with Friend
+            </button>
 
-      <div class="absolute right-0 top-6 px-6 py-3 rounded-l-lg translate-x-full bg-[#0f0828]/80 border-2 border-[#4f46e5]">
-          <p id="player2Name" class="text-white text-sm text-right">Player 2</p>
-          <p id="player2Score" class="text-white text-3xl font-bold text-right">0</p>
-      </div>
+            <button 
+                id="playRandomBtn"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition duration-200"
+            >
+                Play Random
+            </button>
+        </div>
 
-      <canvas 
-          id="gameCanvas" 
-          width="800" 
-          height="500"
-          class="bg-[#0a0520] border-[3px] border-[#4f46e5] shadow-[0_0_30px_rgba(79,70,229,0.5)]"
-      ></canvas>
-  </div>
-
-  <p class="mt-6 text-gray-400 text-sm">Player 1: W / S &nbsp;|&nbsp; Player 2: ↑ / ↓</p>
+        <div id="errorMessage" class="mt-4 text-red-400 text-sm text-center"></div>
+    
+    </div>
 </div>

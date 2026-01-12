@@ -2,7 +2,7 @@
 // 1. IMPORT YOUR VIEWS AND ITS LOGICS
 import { renderSignUpPage, setupSignupLogic } from './game-related/renders/signup';
 import { renderLoginPage, setUpLoginLogic } from './game-related/renders/login';
-import { renderHomePage } from './game-related/renders/home'; // The "Start Play" page
+import { renderHomePage, setHomeLogic } from './game-related/renders/home'; // The "Start Play" page
 // import { renderGameModePage } from './game-related/renders/game_mode'; // New: Choose Local/Remote
 // import { renderPlayModePage } from './game-related/renders/play_mode'; // New: Choose Random/Friend
 // import { renderFriendSetUpPage } from './game-related/renders/friend_setup'; // New: Enter Friend Name
@@ -17,9 +17,14 @@ const app = document.getElementById('app') as HTMLDivElement;
 // 2. ROUTER FUNCTION
 function router(path: string) {
 	let innerHTML: string | undefined
-	app.innerHTML = ''; // Clear the current view
+	// app.innerHTML = ''; // Clear the current view
 
-  switch (true) {
+	// Clear view for root paths only (optional, depends on my preference)
+    if (!path.startsWith('/games/')) {
+        app.innerHTML = ''; 
+    }
+
+  	switch (true) {
     case path === '/':
         router('/signup');
 		break;
@@ -57,16 +62,13 @@ function router(path: string) {
 			break;
 		}
     	app.innerHTML = innerHTML;
+		setHomeLogic();
     	break;
 
     // --- GAME FLOW START ---
 	case path.startsWith("/games/pong/"):
 		// pong routes
-		innerHTML = handlePongRoutes(path);
-		if (innerHTML === 'none')
-			app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
-		else if (innerHTML)
-			app.innerHTML = innerHTML;
+		handlePongRoutes(path, app);
 		break;
 
 	// case path.startsWith("/games/sudoku/"):
@@ -167,4 +169,3 @@ document.addEventListener('DOMContentLoaded', () => {
 export { router };
 
 // notice that my teammate who's responsible for frontend set up something called components like header and side bar, i don't know 
-
