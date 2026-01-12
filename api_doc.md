@@ -44,12 +44,16 @@ Fetch all user data. Only a valid access token is required.
   ```json
   {
     "user": {
-      "id": 2,
-      "name": "ali",
-      "username": "aakouhar",
-      // ... other user fields ...
+        "id": 2,
+        "name": "ali",
+        "username": "aakouhar",
+        "email": "aliakouhar@gmail.com",
+        "level": 3,
+        "games_lost": 91,
+        "games_won": 1,
+        "score": 175// total xp collected
     },
-    "levelProgress": 46.58,
+    "levelProgress": 46.58,//level progress percentage
     "achievements": [
       {
         "code": "3-1",
@@ -79,13 +83,12 @@ Get a user's details by their ID.
   ```json
   {
     "user": {
-      "username": "midbella",
-      "name": "mohamed",
-      "total_xp_points": 1175,
-      "level": 3,
-      "experience_points": 31
+        "username": "midbella",
+        "name": "mohamed",
+        "score": 1175,//total xp collected
+        "level": 3
     },
-    "levelProgress": 5.29,
+    "levelProgress": 5.29,//level progress percentage
     "achievements": [
       {
         "code": "2-1",
