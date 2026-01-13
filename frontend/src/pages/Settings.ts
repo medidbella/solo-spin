@@ -40,13 +40,8 @@ export function renderSettings(): string {
               <form class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div class="space-y-2">
-                  <label class="block text-sm font-semibold ml-1">First name:</label>
+                  <label class="block text-sm font-semibold ml-1">name:</label>
                   <input type="text" placeholder="your first name" class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
-                </div>
-
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold ml-1">Last name:</label>
-                  <input type="text" placeholder="your last name" class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
                 </div>
 
                 <div class="space-y-2">
@@ -59,18 +54,6 @@ export function renderSettings(): string {
                   <input type="email" placeholder="your email" class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
                 </div>
 
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold ml-1">Age:</label>
-                  <input type="number" placeholder="23" class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
-                </div>
-
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold ml-1">Gender:</label>
-                  <select class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm text-gray-300 outline-none transition-all appearance-none">
-                    <option>male</option>
-                    <option>female</option>
-                  </select>
-                </div>
               </form>
               <div class="flex justify-end mt-12">
                 <button class="bg-[#233596] shadow-[-5px_-5px_0px_#441563] cursor-pointer text-white font-semibold py-3 px-8 hover:scale-105 duration-300">

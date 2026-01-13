@@ -22,11 +22,11 @@ export function renderSignUpPage() : string {
             <form id="signupForm" class="w-full max-w-md flex flex-col gap-6">
                 
                 <div class="flex flex-col gap-1">
-                    <label for="fullname" class="sr-only">Full Name</label>
+                    <label for="name" class="sr-only">Name</label>
                     <input type="text" 
-                           id="fullname"
+                           id="name"
                            name="name" 
-                           placeholder="Full Name" 
+                           placeholder="Name" 
                            required
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
