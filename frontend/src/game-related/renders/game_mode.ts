@@ -3,10 +3,16 @@
 import gameModeContent from '../pages/game_mode.html?raw';
 import { gameClient } from '../services/game_client';
 
-import { router } from '../../main';
+import { withLayout } from './layout';
+
+// import { router } from '../../main';
+
+import { navigateTo } from '../services/handle_pong_routes';
 
 function renderGameModePage() {
-	return gameModeContent;
+	// return gameModeContent;
+
+	return withLayout(gameModeContent);
 }
 
 function setGameModeLogic() {
@@ -21,17 +27,21 @@ function setGameModeLogic() {
 	localModeBtn.addEventListener('click', () => {
 		console.log('🎮 User selected: Local Game');
 		gameClient.setGameMode('local');
+        gameClient.setPlayerState('GAME_MODE_SELECTED');
 
 		// NAVIGATE HERE, only after clicking
-        router('/games/pong/friend-name');
+        // router('/games/pong/friend-name');
+        navigateTo('/games/pong/friend-name');
 	});
 
 	// 2. local Game event listener
 	remoteModeBtn.addEventListener('click', () => {
 		console.log('🎮 User selected: Remote Game');
 		gameClient.setGameMode('remote');
+        gameClient.setPlayerState('GAME_MODE_SELECTED');
 
-		router('/games/pong/play-mode');
+		// router('/games/pong/play-mode');
+		navigateTo('/games/pong/play-mode');
 	});
 	
 }

@@ -1,9 +1,18 @@
 
 import friendNameContent from '../pages/friend_name.html?raw';
 import { gameClient } from '../services/game_client';
+// import type { HttpSetupResponse } from "@shared/types";
+
+import { withLayout } from './layout';
+
+import { navigateTo } from '../services/handle_pong_routes';
+// import { renderWaitingPage, setWaitingPageLogic } from './waiting';
+// import { router } from 'src/main';
 
 function renderFriendNamePage(): string | undefined {
-	return friendNameContent;
+	// return friendNameContent;
+        return withLayout(friendNameContent);
+
 }
 
 function setFriendNameLogic() {
@@ -22,12 +31,16 @@ function setFriendNameLogic() {
         return;
     }
 
-	// 3. (Optional) Customize UI based on mode
-    if (titleElement) {
-        titleElement.textContent = mode === 'remote' ? "Challenge Online User" : "Name Local Player 2";
+    // 3. Customize UI based on mode (Title AND Button)
+    if (mode === 'remote') {
+        if (titleElement) titleElement.textContent = "Challenge Online User";
+        startGameBtn.textContent = "Send Invite"; // <--- Update Button Text
+    } else {
+        if (titleElement) titleElement.textContent = "Name Local Player 2";
+        startGameBtn.textContent = "Start Game";  // <--- Update Button Text
     }
 
-	// 3. Event Listener
+	// 4. Event Listener
     startGameBtn.addEventListener('click', (e) => {
 	
 		e.preventDefault(); // Prevent form submission if inside a form tag
@@ -39,6 +52,10 @@ function setFriendNameLogic() {
             errorMessage.innerText = "⚠️ Please enter a name.";
             return;
         }
+
+        // Set Freind Name & State
+        gameClient.setFriendName(friendName);
+        gameClient.setPlayerState('FRIEND_NAME_SELECTED');
 
 
 		// --- REMOTE SPECIFIC LOGIC ---
@@ -63,17 +80,13 @@ function setFriendNameLogic() {
                 errorMessage.innerText = "⚠️ Player 2 must have a different name.";
                 return;
             }
-
-            // Action: Start Local Game immediately
-            console.log(`💻 [LOCAL] Starting game vs: ${friendName}`);
-            
-            // Example: startGameLocal(myName, friendName);
+            // 2. RENDER WAITING PAGE IMMEDIATELY
+            navigateTo('/games/pong/waiting');
         }
 
 		// Clear errors if successful
         errorMessage.innerText = "";
 	});
-
 }
 
 export { renderFriendNamePage, setFriendNameLogic}
