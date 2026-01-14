@@ -14,6 +14,7 @@ import { renderProfile } from './pages/Profile';
 import { renderProfilesPage } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
+import { setupHeaderLogic } from './components/Header.ts';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -38,26 +39,32 @@ async function router(path: string) {
        
     case '/home':
       app.innerHTML = renderHome();
+      setupHeaderLogic();
       break;
       
     case '/settings':
       app.innerHTML = renderSettings();
+      setupHeaderLogic();
       break;
       
     case '/security':
       app.innerHTML = renderSecurity();
+      setupHeaderLogic();
       break;
       
     case '/chat':
       app.innerHTML = renderChat();
+      setupHeaderLogic();
       break;
       
     case '/leaderBoard':
         app.innerHTML = renderLeaderBoard();
+        setupHeaderLogic();
         break;
         
     case '/game':
       app.innerHTML = renderGamePage();
+      setupHeaderLogic();
       break;
 
     case '/profile':
@@ -69,10 +76,12 @@ async function router(path: string) {
         console.error("Failed to load profile", error);
         app.innerHTML = '<div class="text-red-500 text-center mt-20">Error loading profile</div>';
       }
+      setupHeaderLogic();
       break;
 
     case '/profiles':
       app.innerHTML = renderProfilesPage();
+      setupHeaderLogic();
       break;
 
     default:
