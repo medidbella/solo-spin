@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id                   Int     @id @default(autoincrement())
+  name                 String
+  username             String @unique
+  email                String @unique
+  reg_date             DateTime @default(now())
+  password_hash        String?
+  avatar_path          String
+  refresh_token        String?
+  two_factor_enabled   Boolean @default(false)
+  two_factor_secret    String?
+  oauth_provider       String?
+  oauth_id             String?
+  achievement_string   String?
+  level                Int @default(0)
+  experience_points    Int @default(0)
+  total_xp_points      Int @default(0)
+  games_lost           Int @default(0)
+  games_won            Int @default(0)
+  goals_scored         Int @default(0)
+  goals_conceded       Int @default(0)
+
+  sentRequests         Friendship[] @relation("sender")
+  receivedRequests     Friendship[] @relation("receiver")
+  gamesWon             Game[]   @relation("WinnerRelation")
+  gamesLost            Game[]   @relation("LoserRelation")
+  sentMessages         DirectMessage[] @relation("SentMessages")
+  receivedMessages     DirectMessage[] @relation("ReceivedMessages")
+}
+
+model Game {
+  id         Int      @id @default(autoincrement())
+  winner_id  Int
+  loser_id   Int
+  score      String
+  match_date DateTime @default(now())
+
+  winner User @relation("WinnerRelation", fields: [winner_id], references: [id])
+  loser  User @relation("LoserRelation", fields: [loser_id], references: [id])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Friendship {
+  id        Int              @id @default(autoincrement())
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+
+  blockerId  Int?
+  senderId   Int
+  sender     User @relation("sender", fields: [senderId], references: [id])
+
+  receiverId Int
+  receiver   User @relation("receiver", fields: [receiverId], references: [id])
+  messages   DirectMessage[]
+
+  @@unique([senderId, receiverId])
+}
+
+model DirectMessage {
+  id           Int      @id @default(autoincrement())
+  content      String
+  sentAt       DateTime @default(now())
+  isRead       Boolean  @default(false)
+
+  friendshipId Int
+  friendship   Friendship @relation(fields: [friendshipId], references: [id], onDelete: Cascade)
+
+  senderId     Int
+  sender       User       @relation("SentMessages", fields: [senderId], references: [id])
+  
+  receiverId   Int
+  receiver     User       @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}

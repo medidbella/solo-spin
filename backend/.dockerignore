@@ -1,0 +1,7 @@
+dist/
+node_modules/
+api_doc.mv
+avatars/
+.env
+dev.db
+env.sample
