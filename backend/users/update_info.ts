@@ -84,7 +84,7 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 		{ oldPassword: string; newPassword: string; verifyNewPassword: string };
 
 	if (newPassword !== verifyNewPassword) {
-		return res.code(400).send({ message: "New password and verification do not match.", StatusCode: 401});
+		return res.code(400).send({ message: "New password and verification do not match.", StatusCode: 400});
 	}
 	try {
 		const user = await prisma.user.findUnique({
@@ -94,7 +94,7 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 		if (!user || !(await bcrypt.compare(oldPassword, user.password_hash!))) {
 			return res.code(401).send({ message: "Old password is incorrect.", StatusCode: 401});
 		}
-		const newHashedPassword = await bcrypt.hash(newPassword, process.env.SALT_ROUNDS!);
+		const newHashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUNDS!) || 10);
 		await prisma.user.update({
 			where: { id: userId },
 			data: { password_hash: newHashedPassword }

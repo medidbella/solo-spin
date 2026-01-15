@@ -94,6 +94,10 @@ export interface Achievement {
   title: string;
 }
 
+export interface GeneralSuccessRes{
+  message: string
+}
+
 // User info in GET /api/me response
 export interface CurrentUser {
   id: number;
