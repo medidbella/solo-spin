@@ -51,7 +51,8 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 		})
 		if (!user){
 			return res.code(401).send({
-				message: 'User associated with token not found or account deactivated. Please log in again.'
+				message: 'User associated with token not found or account deactivated. Please log in again.',
+				statusCode: 401
 			})
 		}
 		const achievements = decodeUserAchievementString(user.achievement_string!)
@@ -59,8 +60,8 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send({user:cleanUserObject(user), levelProgress, achievements});
 	}
 	catch (err){
-		console.log(err)
-		return res.code(500).send({message:"Server unexpected error"})
+		req.log.error(err);
+		return res.code(500).send({message:"Server unexpected error", statusCode: 500})
 	}
 }
 
@@ -90,7 +91,7 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 			}
 		})
 		if (!user)
-			return res.code(404).send({message: `no user found with id: ${id}`})
+			return res.code(404).send({message: `no user found with id: ${id}`, statusCode: 404})
 		const achievements = decodeUserAchievementString(user.achievement_string!)
 		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
 		const clean_user = {
@@ -103,6 +104,34 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 
 	}
 	catch (error){
-		return res.code(500).send({message:"Server unexpected error"})
+		req.log.error(error);
+		return res.code(500).send({message:"Server unexpected error", statusCode: 500})
+	}
+}
+
+export async function personalInfos(req:FastifyRequest, res:FastifyReply)// route "/api/personal-info"
+{
+	try {
+		const user_id = (req.user as any).sub;
+		const user = await prisma.user.findUnique({
+			where:{
+				id: user_id
+			},
+			select:{
+				name: true, username: true,
+				email:true,
+			}
+		})
+		if (!user){
+			return res.code(401).send({
+				message: 'User associated with token not found or account deactivated. Please log in again.',
+				StatusCode: 401
+			})
+		}
+		return res.code(200).send(user);
+	}
+	catch (err){
+		console.log(err)
+		return res.code(500).send({message:"Server unexpected error", StatusCode: 500})
 	}
 }

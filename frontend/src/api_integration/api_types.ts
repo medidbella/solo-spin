@@ -1,9 +1,8 @@
 // ==================== Requests Payloads ====================
 
-export interface ApiResponse<T = void> {
-    message?: string;
-    error?: string;
-    data?: T;
+export interface ApiErrorResponse {
+    message: string;
+    StatusCode: string;
 }
 
 // POST /api/register
@@ -33,9 +32,9 @@ export interface TwoFAVerifyRequest {
 
 // PATCH /api/user/update
 export interface UpdateUserRequest {
-  name?: string;
-  username?: string;
-  email?: string;
+  name: string;
+  username: string;
+  email: string;
 }
 
 // PATCH /api/user/update_password
@@ -89,11 +88,6 @@ export interface DeleteFriendParams {
 
 // ==================== Response Types ====================
 
-// Common error response
-export interface ErrorResponse {
-  message: string;
-}
-
 // Achievement type used in multiple responses
 export interface Achievement {
   code: string;
@@ -110,6 +104,13 @@ export interface CurrentUser {
   games_lost: number;
   games_won: number;
   score: number;
+}
+
+// user info in GET /api/personal-info response
+export interface UserInfo {
+  name: string,
+  username: string,
+  email: string
 }
 
 // GET /api/me response

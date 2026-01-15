@@ -47,15 +47,16 @@ export async function GetUserAvatar(req: FastifyRequest, res:FastifyReply)
 			}
 		})
 		if (!user)
-			return res.code(404).send({message: "user not found"})
+			return res.code(404).send({message: "user not found", statusCode: 404})
 		else if (!fs.existsSync(user.avatar_path))
-    		return res.code(404).send({error: 'Avatar not found'});
+			return res.code(404).send({error: 'Avatar not found', statusCode: 404});
 		res.header('Content-type', 'image/png')
 		const stream = fs.createReadStream(user!.avatar_path)
 		return res.send(stream)
 	}
 	catch (error){
-		res.code(500).send({message: "Server unexpected error"})
+		req.log.error(error);
+		res.code(500).send({message: "Server unexpected error", statusCode: 500})
 	}
 }
 
@@ -73,17 +74,19 @@ export async function GetLoggedUserAvatar(req: FastifyRequest, res:FastifyReply)
 		})
 		if (!user){
 			return res.code(401).send({
-				message: 'User associated with token not found or account deactivated. Please log in again.'
+				message: 'User associated with token not found or account deactivated. Please log in again.',
+				statusCode: 401
 			})
 		}
 		else if (!fs.existsSync(user.avatar_path))
-    		return res.code(404).send({error: 'Avatar not found'});
+			return res.code(404).send({error: 'Avatar not found', statusCode: 404});
 		res.header('Content-Type', 'image/png');
 		const stream = fs.createReadStream(user.avatar_path);
 		return res.send(stream);
 	}
 	catch (error){
-		res.code(500).send({message: "Server unexpected error"})
+		req.log.error(error);
+		res.code(500).send({message: "Server unexpected error", statusCode: 500})
 	}
 }
 
@@ -101,32 +104,33 @@ export async function updateUserAvatar(req: FastifyRequest, res:FastifyReply)
 		})
 		if (!user){
 			return res.code(401).send({
-				message: 'User associated with token not found or account deactivated. Please log in again.'
+				message: 'User associated with token not found or account deactivated. Please log in again.',
+				statusCode: 401
 			})
 		}
 		const data = await req.file()
 		if (!data) {
-			return res.code(400).send({ message: "No file uploaded" });
+			return res.code(400).send({ message: "No file uploaded", statusCode: 400 });
 		}
 		if (data.mimetype !== 'image/png') {
 			data.file.resume()
-    	    return res.code(400).send({ message: "only PNG images are accepted." });
-    	}
+			return res.code(400).send({ message: "only PNG images are accepted.", statusCode: 400 });
+		}
 		const avatar_path = `${process.env.AVATARS_STORAGE_PATH}/user_${user_id}_avatar.png`;
 		const temp_path = `${process.env.AVATARS_STORAGE_PATH}/tmp_user_${user_id}_avatar.png`;
 		const writeStream = fs.createWriteStream(temp_path);
 		await pipeline(data.file, writeStream);
 		if (data.file.truncated){
 			fs.unlinkSync(temp_path)
-			return res.code(413).send({message: "File too large. Max 3MB."})
+			return res.code(413).send({message: "File too large. Max 3MB.", statusCode: 413})
 		}
 		const secondFile = await req.file();
-        if (secondFile){//sending more than one element
+		if (secondFile){//sending more than one element
 			console.log("inside")
-            fs.unlinkSync(temp_path)
-            secondFile.file.resume(); 
-            throw { code: 'FST_FILES_LIMIT' }; 
-        }
+			fs.unlinkSync(temp_path)
+			secondFile.file.resume(); 
+			throw { code: 'FST_FILES_LIMIT' }; 
+		}
 		fs.renameSync(temp_path, avatar_path)//if file exists, it will be overwritten
 		await prisma.user.update({
 			where:{
@@ -139,9 +143,9 @@ export async function updateUserAvatar(req: FastifyRequest, res:FastifyReply)
 	}
 	catch (error:any){
 		if (error.code === 'FST_FILES_LIMIT')
-    	    return res.code(400).send({ message: "You can only upload one file at a time." });
+			return res.code(400).send({ message: "You can only upload one file at a time.", statusCode: 400 });
 		req.log.error(error);
-			return res.code(500).send({message: "server unexpected error."})
+		return res.code(500).send({message: "server unexpected error.", statusCode: 500})
 	}
 	return  res.code(200).send({ message: "Avatar updated successfully." });
 }
