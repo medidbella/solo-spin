@@ -15,6 +15,7 @@ import { renderProfilesPage } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
 import { setupHeaderLogic } from './components/Header.ts';
+import { requireAuth, requirGuest } from './utils/auth.ts';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -23,51 +24,72 @@ async function router(path: string) {
   
 
   switch (path) {
+    //public pages for Guests (landing login and signup pages)
     case '/':
+      if (!await requirGuest()) //return true if the user has not the access to public pages because he is alreadu authenticated so i will redirect the user to home page
+        return router('/home');
       app.innerHTML = renderLandingPage();
       break;
       
     case '/login':
+      if (!await requirGuest())
+        return router('/home');
       app.innerHTML = renderLoginPage();
       setUpLoginLogic();
       break;
       
     case '/signup':
+       if (!await requirGuest())
+        return router('/home');
        app.innerHTML = renderSignUpPage(); 
        setupSignupLogic();
        break;
        
     case '/home':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderHome();
       setupHeaderLogic();
       break;
       
     case '/settings':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderSettings();
       setupHeaderLogic();
       break;
       
     case '/security':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderSecurity();
       setupHeaderLogic();
       break;
       
     case '/chat':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderChat();
       setupHeaderLogic();
       break;
       
     case '/leaderBoard':
+      if (!await requireAuth())
+          return router('/login');
         app.innerHTML = renderLeaderBoard();
         setupHeaderLogic();
         break;
         
     case '/game':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderGamePage();
       setupHeaderLogic();
       break;
 
     case '/profile':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';
       try {
         const profileHtml = await renderProfile(); 
@@ -80,6 +102,8 @@ async function router(path: string) {
       break;
 
     case '/profiles':
+      if (!await requireAuth())
+          return router('/login');
       app.innerHTML = renderProfilesPage();
       setupHeaderLogic();
       break;
