@@ -94,9 +94,9 @@ export async function storeMatchResult(req:FastifyRequest, res:FastifyReply)
 	const {winner_id, loser_id, winner_score, loser_score} = req.body as
 		{winner_id:number, loser_id:number, winner_score:number, loser_score:number} 
 	if (winner_score <= loser_score)
-		return res.code(400).send({msg: "winner score must be greater than loser score"})
+		return res.code(400).send({message: "winner score must be greater than loser score", StatusCode: 400})
 	else if (winner_id == loser_id)
-		return res.code(400).send({msg: "winner id and loser id must be different"})
+		return res.code(400).send({message: "winner id and loser id must be different", StatusCode: 400})
 	try {
 		const game = await prisma.game.create({
 			data:{
@@ -134,9 +134,9 @@ export async function storeMatchResult(req:FastifyRequest, res:FastifyReply)
 		if (error.code === 'P2003'){
 			const field = error.meta?.field_name?.[0] || 'unknown';
 			const userId = field.includes('winner') ? winner_id : loser_id;
-			return res.code(404).send({ message: `User with id ${userId} does not exist` });
+			return res.code(404).send({ message: `User with id ${userId} does not exist`, StatusCode: 404});
 		}
-		return res.code(500).send({msg: "Server unexpected error"})
+		return res.code(500).send({message: "Server unexpected error", StatusCode: 500})
 	}
 	return res.code(201).send({msg: "game stored successfully"})
 }
@@ -166,7 +166,7 @@ export async function getGameHistory(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(games)
 	}
 	catch (error){
-			return res.code(500).send({message: "Server unexpected Error"})
+		return res.code(500).send({message: "Server unexpected Error", StatusCode: 401})
 	}
 }
 
@@ -188,6 +188,6 @@ export async function getLeaderboard(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(top_users)
 	}
 	catch (error){
-		return res.code(500).send({message: "Server unexpected Error"})
+		return res.code(500).send({message: "Server unexpected Error", StatusCode: 401})
 	}
 }

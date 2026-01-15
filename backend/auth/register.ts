@@ -35,9 +35,9 @@ export async function register(req:FastifyRequest, res:FastifyReply) {
         })
         if (UserFromDb){ // username or email found in db 
             if (UserFromDb.username == username)
-                return res.code(409).send({ message: "username already in use."});
+                return res.code(409).send({ message: "username already in use.", statusCode: 409});
             else if (UserFromDb.email == email)
-                return res.code(409).send({message: "email already in use."});
+                return res.code(409).send({message: "email already in use.", statusCode: 409});
         }
         const password_hash:string = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS!))
         const avatar_path = GetRandomAvatarPath();
@@ -63,7 +63,7 @@ export async function register(req:FastifyRequest, res:FastifyReply) {
     }
     catch (error){
         req.log.error(error);
-        return res.code(500).send({message: "server unexpected error."})
+        return res.code(500).send({message: "server unexpected error.", statusCode: 500})
     }
-    return res.code(201).send({ message: "User registered successfully." });
+    return res.code(201).send({ message: "User registered successfully."});
 }
