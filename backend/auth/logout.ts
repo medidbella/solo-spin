@@ -18,6 +18,7 @@ export async function logout(req: FastifyRequest, res: FastifyReply)
 		});
 	}
 	catch (error) {
-	 	res.log.info("user logged out with an invalid token")}
+	 	res.log.info("user logged out with an invalid token")
+	}
 	return res.code(200).send({message: "Logged out successfully"})
 }

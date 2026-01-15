@@ -26,7 +26,7 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 			},
 		})
 		if (!user || !await bcrypt.compare(password, user.password_hash!))
-			return res.code(401).send({message: "invalid username or password"})
+			return res.code(401).send({message: "invalid username or password", statusCode: 401})
 		if (user.two_factor_enabled)
 			return TwoFactoLoginController(res, user)
 		SetAccessTokenCookie(res, user.id)
@@ -43,7 +43,7 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 	}
 	catch (error){
 		req.log.error(error)
-		return res.code(500).send({message: "Server unexpected error"})
+		return res.code(500).send({message: "Server unexpected error", statusCode: 500})
 	}
 	return res.code(200).send({ message: "Successfully authenticated." });
 }
