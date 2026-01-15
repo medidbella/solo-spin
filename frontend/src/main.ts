@@ -2,11 +2,11 @@ import './style.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
 import { renderHome } from './pages/Home';
-import { renderSettings } from './pages/Settings';
+import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
-import { renderSecurity } from './pages/Security';
+import { renderSecurity, changePasswordFormSubmit} from './pages/Security';
 import { renderChat } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
@@ -14,11 +14,13 @@ import { renderProfile } from './pages/Profile';
 import { renderProfilesPage } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
+import { apiFetch } from './api_integration/api_fetch';
+import type { UserInfo } from './api_integration/api_types';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
 
-async function router(path: string) {
+export async function router(path: string) {
   
 
   switch (path) {
@@ -41,13 +43,48 @@ async function router(path: string) {
       break;
       
     case '/settings':
-      app.innerHTML = renderSettings();
+      try {
+        const userInfo = await apiFetch<UserInfo>("/api/personal-info")
+        app.innerHTML = renderSettings(userInfo);
+        const settingsFrom = document.getElementById('settings-form')
+        if (settingsFrom)
+          settingsFrom.addEventListener('submit', settingsFormSubmit)
+      }
+      catch (error: any) {
+        console.log('Failed fetching settings:', error);
+        if (error.message == "Failed to fetch"){
+          alert('server error please try again later')
+        }
+        else {
+          console.log(error.message)
+          history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+          router('/login');
+          return;
+        }
+      }
       break;
       
     case '/security':
-      app.innerHTML = renderSecurity();
-      break;
-      
+      try {
+        const userInfo = await apiFetch<UserInfo>("/api/personal-info")
+        app.innerHTML = renderSecurity(userInfo);
+        const newPasswordForm = document.getElementById('new-password-form')
+        if (newPasswordForm)
+          newPasswordForm.addEventListener('submit', changePasswordFormSubmit)
+      }
+      catch (error: any) {
+        console.log('Failed fetching settings:', error);
+        if (error.message == "Failed to fetch"){
+          alert('server error please try again later')
+        }
+        else {
+          console.log(error.message)
+          history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+          router('/login');
+          return;
+        }
+      }
+      break;      
     case '/chat':
       app.innerHTML = renderChat();
       break;
