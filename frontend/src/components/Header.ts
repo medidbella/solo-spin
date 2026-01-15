@@ -1,4 +1,4 @@
-export function renderHeader() : string{
+export function renderHeader() : string {
     return /* html */ `
         <header class="h-16 flex-none flex justify-between items-center px-1 py-10 z-10 relative">
           <img class="w-56 cursor-pointer object-contain" src="../../public/imgs/logo.png" alt="solo spin logo">

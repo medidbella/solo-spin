@@ -2,11 +2,19 @@
 import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
 import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
 import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
-// import { renderWaitingRoomPage } from '../renders/waiting-room'; // New: Waiting Room
+import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
 // import { renderGamePlayPage } from '../renders/game_play'; // The actual game
 
+import { router } from '../../main';
 
-// import { router } from '../../main';
+export function navigateTo(url: string) {
+    // 1. Update the URL in the browser history without reloading
+    history.pushState(null, "", url);
+    
+    // 2. Trigger your router logic (the function that checks path and renders HTML)
+	// console.log(url);
+    router(url);
+}
 
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
@@ -54,14 +62,17 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			setFriendNameLogic();
 			break;
 			
-		// case '/games/pong/waiting-room':
-		// 	// Waiting room
-		// 	innerHTML = renderWaitingRoomPage();
-		// 	if (!innerHTML) {
-		// 		console.log(" ERROR: can't read the file, try again!!");
-		// 		router('/games/pong/waiting-room');
-		// 	}
-		// 	return innerHTML;
+		case '/games/pong/waiting':
+			// Waiting room
+			innerHTML = renderWaitingPage();
+			if (!innerHTML) {
+				console.log(" ERROR: can't read the file, try again!!");
+				// router('/games/pong/waiting-room');
+				return;
+			}
+			app.innerHTML = innerHTML;
+			setWaitingPageLogic();
+			break;
 		
 		// case '/games/pong/game-play':
 		// 	// The actual pong canvas

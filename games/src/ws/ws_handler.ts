@@ -1,14 +1,15 @@
 
 import { FastifyRequest, FastifyReply } from "fastify";
 import { SocketStream } from '@fastify/websocket';
+import { WebSocket } from 'ws';
 
 import { registerNewPlayer } from '../game_manager/games_utiles';
 import { ClientMessage, ServerMessage  } from '../../../shared/types'
 
-function connectPlayer(playerId: string, socket: WebSocket) {
+function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
     console.log(` player id ==> ${playerId}`);
     console.log(`👤 New User wants to be Regitered`);
-    registerNewPlayer(playerId, socket);
+    registerNewPlayer(playerId, playerName, socket);
 }
 
 function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
@@ -19,12 +20,16 @@ function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
     console.log('🔌 New WebSocket connection established');
 
-    const socket = connection.socket;
+    const socket: WebSocket = connection.socket;
     const playerId: string = req.cookies.playerId as string;
+    const playerName: string = req.cookies.playerName as string;
 
     // 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
-    if (!playerId) {
-        console.warn("❌ Connection rejected: Missing cookie ID");
+    if (!playerId || !playerName) {
+        if (!playerId)
+            console.warn("❌ Connection rejected: Missing cookie ID");
+        else
+            console.warn("❌ Connection rejected: Missing cookie Name");
         const errorMsg: ServerMessage = {
             type: 'CONNECT_ERROR',
             payload: { error: 'Authentication missing. Please log in.' }
@@ -54,7 +59,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
             // Now we can safely cast to ClientMessage because we know it's an object
             switch (parsedMessage.type) {
                 case 'CONNECT':
-                    connectPlayer(playerId, socket);
+                    connectPlayer(playerId, playerName, socket);
                     break;
                     
                 case 'GAME_INPUT':

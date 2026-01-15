@@ -5,19 +5,7 @@ import { SocketStream } from '@fastify/websocket';
 
 // import { registerNewPlayer } from '../game_manager/games_utiles';
 import { wsHandler } from '../ws/ws_handler';
-
-function gameModeRouteHandler(req: FastifyRequest, reply: FastifyReply) {
-
-}
-
-function playModeRouteHandler(req: FastifyRequest, reply: FastifyReply) {
-
-}
-
-function friendNameRouteHandler(req: FastifyRequest, reply: FastifyReply) {
-
-}
-
+import { pongRoutesManager } from '../routes/pongRoutesManager';
 
 function registerWSRoutes(server: FastifyInstance) {
 	
@@ -32,7 +20,14 @@ function registerWSRoutes(server: FastifyInstance) {
 function registerPongRoutes(server: FastifyInstance) {
 	server.post('/api/games/pong', async (req: FastifyRequest, reply: FastifyReply) => {
 		console.log("📝 /api/games/pong POST hit"); // log immediately
-		pongGameManager(req, reply);
+		pongRoutesManager(req, reply);
+	});
+}
+
+function registerSudokuRoutes(server: FastifyInstance) {
+	server.post('/api/games/sudoku', async (req: FastifyRequest, reply: FastifyReply) => {
+		console.log("📝 /api/games/sudoku POST hit"); // log immediately
+		// sudokuRoutesManager(req, reply);
 	});
 }
 
@@ -43,7 +38,7 @@ function registerGamesRoutes(server: FastifyInstance) {
 	
 	registerWSRoutes(server)
 	registerPongRoutes(server); // define pong routes
-	// registerSudokuRoutes(server); // define sudoku routes
+	registerSudokuRoutes(server); // define sudoku routes
 
 }
 

@@ -1,30 +1,42 @@
 
-import { PongPlayer } from '../pong/pong_types';
+
+import { WebSocket } from 'ws';
+
+import { PongPlayer, PongPlayerState } from '../pong/pong_types';
 import { SudokuPlayer } from '../sudoku/sudoku_types';
 
 type AvailableGames = 'not_selected' | 'pong' | 'sudoku';
-type GameState = 'waiting' | 'playing' | 'finished';
+// type GameState = 'waiting' | 'playing' | 'finished';
 
-enum GameMessageTypes {
-	CONNECT = 'CONNECT',             // client → server: request connection
-	EVENT = 'EVENT',                   // client → server: event
-	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
-	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
-	CLOSE = "CLOSE"
-}
+// enum GameMessageTypes {
+// 	CONNECT = 'CONNECT',             // client → server: request connection
+// 	EVENT = 'EVENT',                   // client → server: event
+// 	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
+// 	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
+// 	CLOSE = "CLOSE"
+// }
 
-type WsMessageType =
-	GameMessageTypes.CONNECT
-	| GameMessageTypes.CONNECTION_SUCCESS
-	| GameMessageTypes.CONNECTION_FAILED
-	| GameMessageTypes.EVENT
-	| GameMessageTypes.CLOSE;
+// type WsMessageType =
+// 	GameMessageTypes.CONNECT
+// 	| GameMessageTypes.CONNECTION_SUCCESS
+// 	| GameMessageTypes.CONNECTION_FAILED
+// 	| GameMessageTypes.EVENT
+// 	| GameMessageTypes.CLOSE;
 
 interface GamesPlayer {
-	game: AvailableGames;
-	pongPlayer: PongPlayer | undefined;
-	sudokuPlayer: SudokuPlayer | undefined;
-	ws: WebSocket;
+    playerId: string,
+    playerName: string;
+    playerState: PongPlayerState;
+    concurrentId: string | null; // for remote game
+	ws: WebSocket | null; // null if create a local player for local game (use one socket cause two player playing in the same machine)
+	
+    game: AvailableGames;
+	// pongSutUp: PongSutUp;
+	// sudokuSetUp: SudokuSetUp;
+	pongPlayer: PongPlayer | null;
+	sudokuPlayer: SudokuPlayer | null;
+
+	// pongPlayer2: PongPlayer | null; // for player 2 for local pong game
 }
 
 
@@ -70,4 +82,8 @@ interface GamesPlayer {
 //     move: PongGameMove;
 // }
 
-export { GameState, GameMessageTypes, WsMessageType, GamesPlayer };
+export {
+    // GameState, GameMessageTypes, WsMessageType,
+    GamesPlayer,
+    AvailableGames
+};

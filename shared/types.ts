@@ -75,12 +75,45 @@ export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState up
 
 // --------- Define the possible "Labels" for your http connections --------
 
+export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
 export type GameState = 'waiting' | 'playing' | 'finished';
 
-export interface HttpPongSetupReq {
-    gameMode: GameMode;      // 'local' | 'remote'
-    playMode: PlayMode;      // 'random' | 'friend'
-    friendId?: string;       // Optional: only needed if playMode === 'friend'
+
+// ----- HTTP request ---------
+export interface HttpPongSetupReq { 
+    game: AvailableGames,
+    gameMode: GameMode,
+    playMode: PlayMode,
+    player1: string,
+    player2: string,
+};
+
+// --- HTTP RESPONSES ---
+export interface HttpSetupSuccess {
+    status: 'success';
+    gameSessionId: string;
+    message: string;
 }
+
+export interface HttpSetupError {
+    status: 'error';
+    error: string;
+}
+
+// Union type for the frontend to handle both cases
+export type HttpSetupResponse = HttpSetupSuccess | HttpSetupError;
+
+
+// ----- Client state ---------
+export type PlayerState =
+    'INIT'                 // Player created, nothing chosen yet
+  | 'GAME_MODE_SELECTED'   // local / remote chosen
+  | 'PLAY_MODE_SELECTED'   // friend / random chosen
+  | 'FRIEND_NAME_SELECTED' // friend name entered
+  | 'WAITING_MATCH'        // waiting for opponent (remote)
+  | 'READY'                // fully configured
+  | 'PLAYING'              // game loop running
+  | 'FINISHED';            // game ended
+

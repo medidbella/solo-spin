@@ -1,0 +1,22 @@
+<div class="bg-gray-800 p-8 rounded-lg shadow-lg w-96 flex flex-col items-center">
+    
+    <h2 class="text-2xl font-bold text-white mb-8 tracking-wide">
+        Game Lobby
+    </h2>
+
+    <div class="relative flex justify-center items-center mb-6">
+        <div class="absolute animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+        <div class="rounded-full h-10 w-10 bg-gray-700"></div>
+    </div>
+
+    <p id="waitingMessage" class="text-lg text-gray-300 font-medium animate-pulse mb-8 text-center">
+        Initializing...
+    </p>
+
+    <button 
+        id="cancelWaitBtn"
+        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-200"
+    >
+        Cancel
+    </button>
+</div>

@@ -1,6 +1,8 @@
 // import { GameConfig, PongState } from "../types/PongTypes";
 
-import type { GameMode, AvailableGames, PlayMode } from "@shared/types";
+import type { PlayerState, GameMode, AvailableGames, PlayMode
+				, HttpPongSetupReq, HttpSetupResponse } from "@shared/types";
+
 import { wsConnectionsHandler } from "./ws_handler";
 
 class GameClient {
@@ -8,10 +10,14 @@ class GameClient {
 	// private socket: WebSocket | null = null;
 	public wsConnectionsHandler = wsConnectionsHandler;
 
+	private playerState: PlayerState;
 	private playerName: string | null = null;
 	private game: AvailableGames | null = null;
 	private gameMode: GameMode | null = null;
 	private playMode: PlayMode | null = null;
+	private friendName: string | null = null;
+	
+	private gameId: string | null = null;
 
 	// /**
 	//  * Singleton Instance:
@@ -20,9 +26,7 @@ class GameClient {
 	private static instance: GameClient;
 
 	private constructor() {
-		// Private constructor prevents direct "new GameClient()" calls
-		// this.wsConnectionsHandler = wsConnectionsHandler;
-		// this.wsConnectionsHandler.connect();
+		this.playerState = 'INIT';
 		console.log("🎮 Game Client Initialized");
 	}
 
@@ -35,8 +39,11 @@ class GameClient {
 
 	// ------------ METHODS ----------------
 
+	public setPlayerState(state: PlayerState) { this.playerState = state; }
+	public getPlayerState(): PlayerState { return this.playerState; }
+
 	public setPlayerName(playerName: string) { this.playerName = playerName; }
-	public getPlayerName(): string | null { return this.playerName };
+	public getPlayerName(): string | null { return this.playerName; }
 
 	public setGame(game: AvailableGames) { this.game = game; }
 	public getGame(): AvailableGames | null { return this.game; }
@@ -47,7 +54,101 @@ class GameClient {
 	public setPlayMode(playMode: PlayMode) { this.playMode = playMode; }
 	public getPlayMode(): PlayMode | null { return this.playMode; }
 
+	public setFriendName(friendName: string) { this.friendName = friendName; }
+	public getFriendName(): string | null { return this.friendName; }
+
+	public setGameId(gameId: string) { this.gameId = gameId; };
+	public getGameId(): string | null { return this.gameId; };
+
+	public reset() {
+		this.playerState = 'INIT';
+		this.game = null;
+		this.gameMode = null;
+		this.playMode = null;
+		this.friendName = null;
+	}
+
+
+	private createSetupRequest(): HttpPongSetupReq {
+		// 1. Validation: Ensure we aren't sending nulls
+		// if (!this.game || !this.gameMode || !this.playMode || !this.playerName) {
+		//     throw new Error("❌ Game Client State Incomplete: Cannot build setup request.");
+		// }
+		
+		const req: HttpPongSetupReq = {
+			game: this.game!,
+			gameMode: this.gameMode!,
+			playMode: this.playMode!,
+			player1: this.playerName!,
+			player2: this.friendName!
+		}
+		return req;
+	}
+
+
+	public async sendSetUpRequest(): Promise<HttpSetupResponse> {
+
+		try {
+			// 1. Get the data
+			const reqData = this.createSetupRequest();
+	
+			console.log("📤 Sending Game Setup:", reqData);
+	
+			// 2. Send the Request
+			// Note: Make sure your backend endpoint matches this URL
+			const response = await fetch('/api/games/pong', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(reqData)
+			});
+	
+			// 3. Parse JSON response
+			const data = await response.json();
+	
+			// 4. Handle HTTP Errors (like 400 Bad Request or 500 Server Error)
+			if (!response.ok) {
+				return {
+					status: 'error',
+					error: data.message || "Server Error",
+					code: response.status
+				};
+			}
+	
+			// 5. Success
+			return data as HttpSetupResponse;
+	
+	
+		} catch (err) {
+			// Network errors (server down, no internet)
+			console.error("❌ Network Error:", err);
+			return {
+				status: 'error',
+				error: "Network connection failed"
+			};
+		}
+	}
+	// greet!: () => void; 
+
 }
+
+// GameClient.prototype.createSetupRequest = function(): HttpPongSetupReq {
+// 	// 1. Validation: Ensure we aren't sending nulls
+//     // if (!this.game || !this.gameMode || !this.playMode || !this.playerName) {
+//     //     throw new Error("❌ Game Client State Incomplete: Cannot build setup request.");
+//     // }
+	
+// 	const req: HttpPongSetupReq = {
+// 		game: this.game!,
+// 		gameMode: this.gameMode!,
+// 		playMode: this.playMode!,
+// 		player1: this.playerName!,
+// 		player2: this.friendName!
+// 	}
+// 	return req;
+// }
+
 
 // Export the Single Instance directly for ease of use
 // this exports the INSTANCE, not the class.
