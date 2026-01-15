@@ -4,7 +4,6 @@ export function SetAccessTokenCookie(res: FastifyReply, user_id: number)
 {
 	const jwtToken = res.server.jwt.sign({sub:user_id}, {expiresIn: "15m"})
 	res.cookie("accessToken", jwtToken, {
-    	domain: 'localhost',
     	path: '/',
     	httpOnly: true,
     	secure: true,
@@ -17,7 +16,6 @@ export function SetRefreshTokenCookie(res: FastifyReply, user_id :number)
 {
 	const jwtToken = res.server.jwt.sign({sub:user_id}, {expiresIn: "7d", key:process.env.JWT_REFRESH_SECRET!})
 	res.cookie("refreshToken", jwtToken, {
-		domain: 'localhost',
     	path: '/api/refresh',
     	httpOnly: true,
     	secure: true,
@@ -34,8 +32,8 @@ export async function authVerifier(req: FastifyRequest, res: FastifyReply)
 	}
 	catch (err){
 		res.code(401).send({ 
-		message: 'the token is invalid or expired.',
-		error: err 
-    });
+			message: 'the token is invalid or expired.',
+			statusCode: 401
+    	});
 	}
 }

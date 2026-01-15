@@ -80,7 +80,7 @@ async function checkRequestDuplicateRequest(res:FastifyReply, sender_id:number, 
 	})
 	if (request){
 		if (request.status == 'ACCEPTED')
-			return res.code(400).send({message: "the user is already in your friends list"})
+			return res.code(400).send({message: "the user is already in your friends list", StatusCode: 400})
 		await prisma.friendship.update({
 			where:{
 				senderId_receiverId: {
@@ -101,7 +101,7 @@ export async function sendFriendRequest(req:FastifyRequest, res:FastifyReply)
 	const sender_id = (req.user as any).sub;
 	const {receiver_id} = req.body as {receiver_id: number};
 	if (sender_id === receiver_id){
-		return res.code(400).send({message: "You cannot send a friend request to yourself."});
+		return res.code(400).send({message: "You cannot send a friend request to yourself.", statusCode: 400});
 	}
 	try {
 		await checkRequestDuplicateRequest(res, sender_id, receiver_id)
@@ -116,12 +116,13 @@ export async function sendFriendRequest(req:FastifyRequest, res:FastifyReply)
 	}
 	catch (error: any)
 	{
+		req.log.error(error);
 		if (error.code === 'P2002')
-	        return res.code(409).send({ message: "Request already exists" });
-	    else if (error.code === 'P2003')
-	        return res.code(404).send({ message: "The target user does not exist" });
+			return res.code(409).send({ message: "Request already exists", statusCode: 409 });
+		else if (error.code === 'P2003')
+			return res.code(404).send({ message: "The target user does not exist", statusCode: 404 });
 		else 
-			return res.code(500).send({message: "Server unexpected Error"})
+			return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 	return res.code(201).send({msg: "request sent successfully"})
 }
@@ -150,8 +151,9 @@ export async function listFriendRequests(req:FastifyRequest, res:FastifyReply)
     	});
     	return res.send(pendingRequests);
 	}	
-	catch{
-		return res.code(500).send({msg: "Server unexpected Error"})
+	catch(error){
+		req.log.error(error);
+		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 }
 
@@ -193,8 +195,9 @@ export async function listFriends(req:FastifyRequest, res:FastifyReply)
 		});
     	return res.send(formattedFriends);
 	}	
-	catch {
-		return res.code(500).send({msg: "Server unexpected Error"})
+	catch (error){
+		req.log.error(error);
+		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 }
 
@@ -208,11 +211,11 @@ export async function acceptRequest(req:FastifyRequest, res:FastifyReply)
 			where: { id: request_id }
 		});
 		if (!request)
-			return res.code(404).send({ message: "Friend request not found" });
+			return res.code(404).send({ message: "Friend request not found", statusCode: 404 });
 		else if (request.receiverId !== user_id)
-			return res.code(403).send({ message: "You are not authorized to reject this request" });
+			return res.code(403).send({ message: "You are not authorized to reject this request", statusCode: 403 });
 		else if (request.status === 'ACCEPTED')
-			return res.code(400).send({ message: "request already accepted" });
+			return res.code(400).send({ message: "request already accepted", statusCode: 400 });
 		await prisma.friendship.update({
 			where:{
 				id:request_id
@@ -223,7 +226,8 @@ export async function acceptRequest(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error:any){
-		 return res.code(500).send({message: "Server unexpected Error"})
+		req.log.error(error);
+		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 	return res.code(200).send({msg: "Request accepted successfully"})
 }
@@ -238,19 +242,20 @@ export async function rejectRequest(req:FastifyRequest, res:FastifyReply)
 			where: { id: request_id }
 		});
 		if (!request)
-			return res.code(404).send({ message: "Friend request not found" });
+			return res.code(404).send({ message: "Friend request not found", statusCode: 404 });
 		else if (request.receiverId !== user_id)
-			return res.code(403).send({ message: "You are not authorized to reject this request" });
+			return res.code(403).send({ message: "You are not authorized to reject this request", statusCode: 403 });
 		else if (request.status !== 'PENDING')
-			return res.code(400).send({ message: "Only pending requests can be rejected" });
+			return res.code(400).send({ message: "Only pending requests can be rejected", statusCode: 400 });
 		await prisma.friendship.delete({
 			where: { id: request_id }
 		});
-		
+        
 		return res.code(200).send({ message: "Request rejected successfully" });
 	}
 	catch (error: any) {
-		return res.code(500).send({ message: "Server unexpected Error" });
+		req.log.error(error);
+		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500 });
 	}
 }
 
@@ -263,13 +268,13 @@ export async function removeFriendship(req:FastifyRequest, res:FastifyReply)
 	try {
 		const relation = await getRelation(user_id, friend_id)
 		if (!relation)
-			return res.code(404).send({ message: "Friend relation not found" });
+			return res.code(404).send({ message: "Friend relation not found", StatusCode: 404 });
 		await prisma.friendship.delete({
 			where: { id: relation.id }
 		});
 	}
 	catch (error) {
-		return res.code(500).send({ message: "Server unexpected Error" });
+		return res.code(500).send({ message: "Server unexpected Error", StatusCode: 500});
 	}
 	return res.code(200).send({ message: "Friend removed successfully" });
 }
@@ -281,11 +286,11 @@ export async function blockFriend(req:FastifyRequest, res:FastifyReply)
 	try {
 		const relation = await getRelation(user_id, friend_id)
 		if (!relation)
-			return res.code(404).send({ message: "Friend relation not found"});	
+			return res.code(404).send({ message: "Friend relation not found", StatusCode: 404});	
 		if (relation.blockerId == user_id)
-			return res.code(400).send({message: "User has already been blocked"})
+			return res.code(400).send({message: "User has already been blocked", StatusCode: 400})
 		else if (relation.blockerId == friend_id)
-			return res.code(400).send({message: "User has already blocked you"})
+			return res.code(400).send({message: "User has already blocked you", StatusCode: 400})
 		await prisma.friendship.update({
 			where:{
 				id: relation.id
@@ -296,7 +301,7 @@ export async function blockFriend(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error) {
-		return res.code(500).send({ message: "Server unexpected Error" });
+		return res.code(500).send({ message: "Server unexpected Error", StatusCode: 500});
 	}
 	return res.code(200).send({message: "Blocked the user successfully"})
 }
@@ -308,11 +313,11 @@ export async function unBlockFriend(req:FastifyRequest, res:FastifyReply)
 	try {
 		const relation = await getRelation(user_id, friend_id)
 		if (!relation)
-			return res.code(404).send({ message: "Friend relation not found"});
+			return res.code(404).send({ message: "Friend relation not found", StatusCode: 404});
 		else if (!relation.blockerId)
-			return res.code(400).send({ message: "User is not blocked" });
+			return res.code(400).send({ message: "User is not blocked", StatusCode: 400});
 		else if (relation.blockerId == friend_id)
-			return res.code(403).send({message: "You cannot unblock a user who has blocked you"})
+			return res.code(403).send({message: "You cannot unblock a user who has blocked you", StatusCode: 403})
 		await prisma.friendship.update({
 			where:{
 				id: relation.id
@@ -323,7 +328,7 @@ export async function unBlockFriend(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error) {
-		return res.code(500).send({ message: "Server unexpected Error" });
+		return res.code(500).send({ message: "Server unexpected Error", StatusCode: 500});
 	}
 	return res.code(200).send({message: "user unblocked successfully"})
 }

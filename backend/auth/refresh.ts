@@ -28,7 +28,7 @@ export async function refresh(req:FastifyRequest, res:FastifyReply)
 		// console.log(`${user?.refresh_token}`)
 		// console.log(`${req.cookies.refreshToken}`)
 		if (!user || !user.refresh_token || req.cookies.refreshToken != user.refresh_token)
-			return res.code(401).send({message: "Invalid refresh token"})
+			return res.code(401).send({message: "Invalid refresh token", statusCode: 401})
 		SetAccessTokenCookie(res, user_id)
 		const token = SetRefreshTokenCookie(res, user.id)
 		await prisma.user.update({
@@ -41,7 +41,7 @@ export async function refresh(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error){
-		return res.code(401).send({message: "Refresh failed", error})
+		return res.code(401).send({message: "Refresh failed", statusCode: 401})
 	}
 	return res.code(200).send({message: "Tokens refreshed successfully"})
 }

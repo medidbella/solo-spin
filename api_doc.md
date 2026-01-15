@@ -2,6 +2,9 @@
 
 This document describes the API endpoints for the Solo Spin backend. Please follow the request and response formats as described.
 ---
+
+any request with status codes of in range (4xx, 5xx) will have a 'message' element in the body describing the error 
+and another 'StatusCode' element that has the same value of the http response status code.
 if any request does not follow its defined schema a response with status : "400 Bad request" will be sent and the error details are mentioned in the body  
 
 ## POST `/api/register`
@@ -69,7 +72,24 @@ Fetch all user data. Only a valid access token is required.
   ```
 
 ---
+## GET `/api/personal-info`
+Fetch basic personal information for the authenticated user.
+Only a valid access token is required.
 
+**Responses:**
+- If no token found or it's invalid -> "401 Unauthorized"
+- If the token user id is not found in DB or the account is deactivated -> "401 Unauthorized"
+- When successful -> "200 OK" + the body will be in this format:
+```json
+  {
+    "user": {
+      "name": "mohamed",
+      "username": "midbella",
+      "email": "mohamedmidbella@gmail.com"
+    }
+  }
+```
+---
 ## GET `/api/user/:id`
 Get a user's details by their ID.
 

@@ -6,7 +6,7 @@ import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me, getUserProfile, fetchUserDataSchema} from "./users/profile.js";
+import { me, getUserProfile, fetchUserDataSchema, personalInfos} from "./users/profile.js";
 import { logout } from "./auth/logout.js"
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
@@ -130,7 +130,7 @@ app.addHook('onRequest', async (req:FastifyRequest, res:FastifyReply) => {
   if (req.url.startsWith('/internal')) {
     const key = req.headers['x-internal-secret'];
     if (key !== INTERNAL_SECRET) {
-      return res.code(404).send();
+      return res.code(404).send({message: "Not found", statusCode: 404});
     }
   }
 });
@@ -140,6 +140,8 @@ app.post("/api/register", { schema: registrationSchema }, register)
 app.post("/api/login", { schema: loginSchema }, login)
 
 app.get("/api/me", { preHandler: authVerifier }, me)
+
+app.get("/api/personal-info", { preHandler: authVerifier }, personalInfos)
 
 app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
 
