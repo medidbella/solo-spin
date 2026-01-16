@@ -2,7 +2,7 @@
 
 export interface ApiErrorResponse {
     message: string;
-    StatusCode: string;
+    statusCode: string;
 }
 
 // POST /api/register
@@ -191,9 +191,30 @@ export interface LeaderboardEntry {
 export type LeaderboardResponse = LeaderboardEntry[];
 
 // GET /api/games/history response item
+/**
+ * [
+    {
+        "loser": {
+            "id": 2,
+            "username": "aakouhar"
+        },
+        "winner": {
+            "id": 34,
+            "username": "achievement_test"
+        },
+        "score": "5-0"
+    },
+ */
+
 export interface GameHistoryEntry {
-  loser_id: number;
-  winner_id: number;
+  loser: {
+    id:number,
+    username: string
+  };
+  winner: {
+    id:number,
+    username: string
+  };
   score: string;
 }
 

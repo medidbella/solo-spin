@@ -43,7 +43,7 @@ export async function updateUserInfo(req: FastifyRequest, res:FastifyReply)
     const cleanData = req.body as any;
 
     if (Object.keys(cleanData).length === 0) {
-        return res.code(400).send({message: "No changes detected", StatusCode: 400});
+        return res.code(400).send({message: "No changes detected", statusCode: 400});
     }
     try {
         const updatedUser = await prisma.user.update({
@@ -61,7 +61,7 @@ export async function updateUserInfo(req: FastifyRequest, res:FastifyReply)
 		if (error.code === 'P2025') {//when user not found
 			return res.code(401).send({
 				message: "User not found.",
-				StatusCode: 401
+				statusCode: 401
 			});
 		}
         if (error.code === 'P2002') {//when trying to update to a username/email that already exists
@@ -69,11 +69,11 @@ export async function updateUserInfo(req: FastifyRequest, res:FastifyReply)
             const target = error.meta?.target?.[0] || 'Field';
             return res.code(409).send({ 
                 message: `This ${target} is already taken.`,
-				StatusCode: 409
+				statusCode: 409
             });
         }
         req.log.error(error);
-        return res.code(500).send({ message: "Internal Server Error", StatusCode: 500});
+        return res.code(500).send({ message: "Internal Server Error", statusCode: 500});
     }
 }
 
@@ -84,7 +84,7 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 		{ oldPassword: string; newPassword: string; verifyNewPassword: string };
 
 	if (newPassword !== verifyNewPassword) {
-		return res.code(400).send({ message: "New password and verification do not match.", StatusCode: 400});
+		return res.code(400).send({ message: "New password and verification do not match.", statusCode: 400});
 	}
 	try {
 		const user = await prisma.user.findUnique({
@@ -92,7 +92,7 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 			select: { password_hash: true }
 		});
 		if (!user || !(await bcrypt.compare(oldPassword, user.password_hash!))) {
-			return res.code(401).send({ message: "Old password is incorrect.", StatusCode: 401});
+			return res.code(401).send({ message: "Old password is incorrect.", statusCode: 401});
 		}
 		const newHashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUNDS!) || 10);
 		await prisma.user.update({
@@ -102,7 +102,7 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 	}
 	catch (error){
 		req.log.error(error);
-		return res.code(500).send({message: "server unexpected error.", StatusCode: 500})
+		return res.code(500).send({message: "server unexpected error.", statusCode: 500})
 	}
 	return res.send({ message: "Password updated successfully." });
 }
