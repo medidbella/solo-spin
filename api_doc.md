@@ -4,7 +4,7 @@ This document describes the API endpoints for the Solo Spin backend. Please foll
 ---
 
 any request with status codes of in range (4xx, 5xx) will have a 'message' element in the body describing the error 
-and another 'StatusCode' element that has the same value of the http response status code.
+and another 'statusCode' element that has the same value of the http response status code.
 if any request does not follow its defined schema a response with status : "400 Bad request" will be sent and the error details are mentioned in the body  
 
 ## POST `/api/register`
@@ -466,20 +466,32 @@ Get the last few games.
 **Responses:**
 - Invalid access token -> "403 Unauthorized"
 - Otherwise -> "200 OK" + the body will contain at most the last 'limit' games, example:
-  ```json
+```json
   [
-    {
-      "loser_id": 1,
-      "winner_id": 2,
-      "score": "5-4"
-    },
-    {
-      "loser_id": 2,
-      "winner_id": 1,
-      "score": "5-0"
-    }
+      {
+          "loser": {
+              "id": 2,
+              "username": "aakouhar"
+          },
+          "winner": {
+              "id": 34,
+              "username": "achievement_test"
+          },
+          "score": "5-0"
+      },
+      {
+          "loser": {
+              "id": 2,
+              "username": "aakouhar"
+          },
+          "winner": {
+              "id": 34,
+              "username": "achievement_test"
+          },
+          "score": "5-0"
+      }
   ]
-  ```
+```
 
 # Internal Routes
 ```text

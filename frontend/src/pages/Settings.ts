@@ -31,13 +31,13 @@ export async function settingsFormSubmit(ev:Event)
   catch(error:any)
   {
     console.log(`exception status phrase ${error.message}`, error)
-    if (!('StatusCode' in error))//not api related error 
+    if (!('statusCode' in error))//not api related error 
       throw error
-    else if (error.StatusCode == 401)
+    else if (error.statusCode == 401)
       history.pushState(null, '', `/login?error=${encodeURIComponent("session expired please login again")}`);
-    else if (error.StatusCode == 400 || error.StatusCode == 409)
+    else if (error.statusCode == 400 || error.statusCode == 409)
       alert(error.message)
-    else if (error.StatusCode == 500){
+    else if (error.statusCode == 500){
       alert("server unexpected error please try again later")
     }
   }
