@@ -424,11 +424,70 @@ Unblock an already blocked friend.
 
 ---
 
-# Internal Routes
+# Leaderboard and Games History Endpoints
 
+---
+
+## GET `/api/leaderboard`
+Fetch top ranked users based on total XP gained.
+
+**Request query schema:**
+- limit: { type: 'integer', minimum: 1 }
+  - Example: `https://ip:443/api/leaderboard?limit=2`
+
+**Responses:**
+- Invalid token -> "401 Unauthorized"
+- Otherwise -> "200 OK" and a sorted list of users will be sent in the response body in this form:
+  ```json
+  [
+    {
+      "id": 1,
+      "username": "midbella",
+      "total_xp_points": 1175
+    },
+    {
+      "id": 2,
+      "username": "aakouhar",
+      "total_xp_points": 175
+    }
+    // at most 'limit' number of elements
+  ]
+  ```
+
+---
+
+## GET `/api/games/history`
+Get the last few games.
+
+**Request query schema:**
+- limit: { type: 'integer', minimum: 1 }
+  - Example: `https://ip:443/api/games/history?limit=2`
+
+**Responses:**
+- Invalid access token -> "403 Unauthorized"
+- Otherwise -> "200 OK" + the body will contain at most the last 'limit' games, example:
+  ```json
+  [
+    {
+      "loser_id": 1,
+      "winner_id": 2,
+      "score": "5-4"
+    },
+    {
+      "loser_id": 2,
+      "winner_id": 1,
+      "score": "5-0"
+    }
+  ]
+  ```
+
+# Internal Routes
+```text
 The internal routes are only accessible by the chat and game containers (inside the docker network).
 A secret must be added in all internal requests as a header named: `x-internal-secret`. This secret is shared between containers. If no correct secret header is found a "404 Not found" response is sent.
-
+this rule is bypassed in dev mode, and the server uses '/api' instead of '/internal' as the prefix
+so all the endpoints that starts with '/internal' in this doc are instead starting with '/api' in development mode !!
+```
 ---
 
 ## POST `/internal/messages`
@@ -502,60 +561,3 @@ Store a game result and update user stats.
 - Otherwise the game will be scored and the winner + user stats will be updated -> "200 OK"
 
 ---
-
-# Leaderboard and Games History Endpoints
-
----
-
-## GET `/api/leaderboard`
-Fetch top ranked users based on total XP gained.
-
-**Request query schema:**
-- limit: { type: 'integer', minimum: 1 }
-  - Example: `https://ip:443/api/leaderboard?limit=2`
-
-**Responses:**
-- Invalid token -> "401 Unauthorized"
-- Otherwise -> "200 OK" and a sorted list of users will be sent in the response body in this form:
-  ```json
-  [
-    {
-      "id": 1,
-      "username": "midbella",
-      "total_xp_points": 1175
-    },
-    {
-      "id": 2,
-      "username": "aakouhar",
-      "total_xp_points": 175
-    }
-    // at most 'limit' number of elements
-  ]
-  ```
-
----
-
-## GET `/api/games/history`
-Get the last few games.
-
-**Request query schema:**
-- limit: { type: 'integer', minimum: 1 }
-  - Example: `https://ip:443/api/games/history?limit=2`
-
-**Responses:**
-- Invalid access token -> "403 Unauthorized"
-- Otherwise -> "200 OK" + the body will contain at most the last 'limit' games, example:
-  ```json
-  [
-    {
-      "loser_id": 1,
-      "winner_id": 2,
-      "score": "5-4"
-    },
-    {
-      "loser_id": 2,
-      "winner_id": 1,
-      "score": "5-0"
-    }
-  ]
-  ```
