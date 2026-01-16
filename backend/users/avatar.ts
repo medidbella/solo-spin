@@ -29,9 +29,7 @@ export function GetRandomAvatarPath():string{
 	for(let i = 1; i <= 6; i++)
 		default_avatars.push(`avatar_${i}.png`)//there are 6 default avatars
 	const randomIndex = Math.floor(Math.random() * default_avatars.length);
-	const path: string = process.env.AVATARS_STORAGE_PATH! + '/' + default_avatars[randomIndex];
-	// const path: string = "./avatars/" + default_avatars[randomIndex];
-	
+	const path: string = process.env.AVATARS_STORAGE_PATH! + '/' + default_avatars[randomIndex];	
 	console.log(`selected path: ${path}`);
 	return path;
 }

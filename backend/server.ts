@@ -1,4 +1,4 @@
-import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
+import Fastify, { fastify, FastifyReply, FastifyRequest } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
 import fastifyOauth2 from "@fastify/oauth2"
@@ -126,14 +126,17 @@ app.register(fastifyOauth2, {
 
 const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET;
 
-app.addHook('onRequest', async (req:FastifyRequest, res:FastifyReply) => {
-  if (req.url.startsWith('/internal')) {
-    const key = req.headers['x-internal-secret'];
-    if (key !== INTERNAL_SECRET) {
-      return res.code(404).send({message: "Not found", statusCode: 404});
+if (process.env.NODE_ENV != "development")
+{
+  app.addHook('onRequest', async (req:FastifyRequest, res:FastifyReply) => {
+    if (req.url.startsWith('/internal')) {
+      const key = req.headers['x-internal-secret'];
+      if (key !== INTERNAL_SECRET) {
+        return res.code(404).send({message: "Not found", statusCode: 404});
+      }
     }
-  }
-});
+  });
+}
 
 app.post("/api/register", { schema: registrationSchema }, register)
 
@@ -191,17 +194,23 @@ app.post("/api/friends/block", {preHandler: authVerifier, schema: friendBlockSch
 
 app.post("/api/friends/unblock", {preHandler: authVerifier, schema: friendBlockSchema}, unBlockFriend)
 
-app.post("/internal/messages", {schema: storeMessageSchema}, storeMessage)
+const protectedRoutesPrefix = process.env.NODE_ENV == "development" ? 'api' : 'internal'  
 
-app.get("/internal/messages", {schema: listMessagesSchema}, listMessages)
+app.post(`/${protectedRoutesPrefix}/messages`, {schema: storeMessageSchema}, storeMessage)
 
-app.patch("/internal/messages/seen", {schema: markConversationSeenSchema}, markConversationSeen) 
+app.get(`/${protectedRoutesPrefix}/messages`, {schema: listMessagesSchema}, listMessages)
 
-app.post("/internal/games", {schema: storeMatchSchema}, storeMatchResult)
+app.patch(`/${protectedRoutesPrefix}/messages/seen`, {schema: markConversationSeenSchema}, markConversationSeen) 
+
+app.post(`/${protectedRoutesPrefix}/games`, {schema: storeMatchSchema}, storeMatchResult)
 
 app.get("/api/leaderboard", {preHandler:authVerifier, schema:gameLeaderboardSchema}, getLeaderboard)
 
 app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
+
+await app.ready()
+
+console.log(app.printRoutes());
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 
