@@ -84,7 +84,7 @@ export async function listMessages(req:FastifyRequest, res:FastifyReply)
 	try {
 		const relation = await getRelation(user1_id, user2_id)
 		if (!relation){
-			return res.code(404).send({message: "No conversation found between these users", StatusCode: 404})
+			return res.code(404).send({message: "No conversation found between these users", statusCode: 404})
 		}
 		const messages = await prisma.directMessage.findMany({
 			where:{
@@ -94,7 +94,7 @@ export async function listMessages(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(messages)
 	}
 	catch (error){
-		return res.code(500).send({ message: "Server unexpected Error", StatusCode: 500});
+		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 }
 
@@ -106,7 +106,7 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 		console.log(relation)
 		if (!relation){
 			console.log("no relation")
-			return res.code(404).send({message: "No conversation found between the two users", StatusCode: 404})
+			return res.code(404).send({message: "No conversation found between the two users", statusCode: 404})
 		}
 		await prisma.directMessage.updateMany({
 			where:{
@@ -119,6 +119,6 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send({message: "All conversation messages are marked as seen"})
 	}
 	catch (error){
-		return res.code(500).send({message: "Server unexpected Error", StatusCode: 500})
+		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 }

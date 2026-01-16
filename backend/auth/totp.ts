@@ -65,17 +65,17 @@ function CheckPossibleErrors(res: FastifyReply, code: string, user: any): Fastif
 	if (!user){
 		return res.code(401).send({
 			message: "User associated with token not found or account deactivated. Please log in again.",
-			StatusCode: 401
+			statusCode: 401
 		})
 	}
 	if (!user.two_factor_secret){
 		return res.code(400).send({
-			message: "Two factor authentication secret is not set yet", StatusCode: 400
+			message: "Two factor authentication secret is not set yet", statusCode: 400
 		})
 	}
 	if (!authenticator.check(code, user.two_factor_secret)){
 		return res.code(401).send({
-			message: "Wrong 2FA key, try again", StatusCode: 401
+			message: "Wrong 2FA key, try again", statusCode: 401
 		})
 	}
 }
@@ -131,7 +131,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 		const decoded = req.server.jwt.verify(mfaToken)
 		console.log("token verified successfully")
 		if ((decoded as any).type != "2fa_temp")
-			return (res.code(401).send({message: "Invalid token type", StatusCode: 401}))
+			return (res.code(401).send({message: "Invalid token type", statusCode: 401}))
 		const user_id = parseInt((decoded as any).sub)
 		const user = await prisma.user.findFirst({
 			where: {
@@ -144,7 +144,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 			}
 		})
 		if (user && !user.two_factor_enabled)
-			return res.code(401).send({message: "User 2FA is disabled, try enabling it first", StatusCode: 401})
+			return res.code(401).send({message: "User 2FA is disabled, try enabling it first", statusCode: 401})
 		else if (CheckPossibleErrors(res, code, user))
 			return ;
 		SetAccessTokenCookie(res, user_id)

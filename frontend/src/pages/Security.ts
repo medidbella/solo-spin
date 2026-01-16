@@ -31,9 +31,9 @@ export async function changePasswordFormSubmit(ev:Event)
   }
   catch (error:any)
   {
-    if (!('StatusCode' in error))//not api related error 
+    if (!('statusCode' in error))//not api related error 
         throw error
-    else if (error.StatusCode == 401)
+    else if (error.statusCode == 401)
     {
       if (error.message == "Old password is incorrect.")
         alert("wrong password")
