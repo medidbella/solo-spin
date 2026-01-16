@@ -1,14 +1,19 @@
-class MyClass {
-    private name: string; // Soft private
-    public printer!: () => void;
+class Test {
+    private static instance: Test;
 
-    constructor (name: string) { this.name = name; }
+    // 1️⃣ Prevent direct construction
+    private constructor() {
+        console.log("Instance Created");
+    }
+
+    // 2️⃣ Single access point
+    public static getInstance(): Test {
+        if (!Test.instance) {
+            Test.instance = new Test();
+        }
+        return Test.instance;
+    }
 }
-  
-MyClass.prototype.printer = function() {
-    // @ts-ignore: Required to bypass the compiler error
-    console.log(this.name); 
-};
 
-const test: MyClass = new MyClass("karim");
-test.printer();
+let tst1: Test = Test.getInstance();
+let tst2: Test = Test.getInstance();

@@ -82,100 +82,139 @@ export interface PongPlayer {
 	// '?': makes a property optional, may exist or may not on the object
 }
 
-// interface PongSession {
-// 	// A GameSession is one running match of Pong between two players.
-// 	// server creates one gameSession for each match.
-// 	// the session will be destroyed after the match ends.
+interface PongSession {
+	// A GameSession is one running match of Pong between two players.
+	// server creates one gameSession for each match.
+	// the session will be destroyed after the match ends.
 
-// 	createdAt: number;        // creating time
+	createdAt: number;        // creating time
 	
-// 	state: GameState;		// ('waiting' | 'playing' | 'finished')
-// 	gameMode: GameMode | null;		// (local | remote)
-// 	sessionId: string | null;		// identifies this match
-// 	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
-// 	ball: Ball;				// shared ball objetc instance
-// }
+	state: GameState;		// ('waiting' | 'playing' | 'finished')
+	gameMode: GameMode;		// (local | remote)
+	sessionId: string;		// identifies this match
+	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
+	ball: Ball;				// shared ball objetc instance
+}
 
 // ----------- Pong Game Session ------------------------
 
 // import { v4 as uuidv4 } from 'uuid'; // Assuming you use uuid for unique IDs
 import { randomUUID } from 'crypto';
 
-export class PongSession {
+class PongSessionsRoom {
+
+	// Singleton Instance:
+	private static instance: PongSessionsRoom;
+
+	public static getInstance(): PongSessionsRoom {
+		if (!PongSessionsRoom.instance) {
+			PongSessionsRoom.instance = new PongSessionsRoom();
+		}
+		return PongSessionsRoom.instance;
+	}
+
     // --- Properties ---
-    public createdAt: number;
-    public state: GameState;
-    public gameMode: GameMode;
-    public playMode: PlayMode; // Added this as per your requirement
-    public sessionId: string;
-    public players: PongPlayer[];
-    public ball: Ball;
+    // Maps sessionId -> PongSession object
+    private localSessions = new Map<string, PongSession>();
+    private remoteSessions = new Map<string, PongSession>();
 
-    // --- Constructor ---
-    // Sets up the initial state, timestamp, mode, players, and ball.
-    constructor(
-        gameMode: GameMode,
-        playMode: PlayMode,
-        players: PongPlayer[]
-    ) {
-        this.createdAt = Date.now();
-        this.state = 'waiting'; // Default start state
-        this.gameMode = gameMode;
-        this.playMode = playMode;
-        this.players = players;
-		// players: createPongSessionPlayers();
+    // --- Methods ---
 
+    /**
+     * 1. Register Session: - Creates a new session, generates an ID, 
+     *                      - adds it to the map, and returns the ID.
+     */
+    public createSession(player1: PongPlayer, player2: PongPlayer, gameMode: GameMode): string {
+        const newId = randomUUID();
+
+        const newSession: PongSession = {
+            sessionId: newId,
+            createdAt: Date.now(),
+            state: 'waiting',
+            gameMode,
+            players: [player1, player2],
+            ball: createBall()
+        };
+
+		if (gameMode === 'local')
+	        this.localSessions.set(newId, newSession);
+		else
+			this.remoteSessions.set(newId, newSession);
+
+        console.log(`[PongRoom] Session created: ${newId} | Mode: ${gameMode}`);
         
-        // Generate a unique ID immediately upon creation
-        this.sessionId = this.generateSessionId();
-
-        // Initialize the shared ball instance (assuming default center position)
-        this.ball = createBall();
-    }
-
-    // --- Core Methods ---
-
-    /**
-     * Generates a unique string ID for this specific match.
-     * Used as the key in the session Maps.
-     */
-    private generateSessionId(): string {
-        return `pong_${Date.now()}_${randomUUID()}`;
-    }
-
-    // /**
-    //  * Moves players from 'Available' to 'Playing' maps and 
-    //  * registers this session in the correct (Local/Remote) Game Room.
-    //  * * @param availablePlayersRoom - Global map of idle players
-    //  * @param playingPlayersRoom - Global map of busy players
-    //  * @param localPongGamesRoom - Global map for local sessions
-    //  * @param remotePongGamesRoom - Global map for remote sessions
-    //  */
-    public registerGame(): void {
-        // Implementation steps:
-        // 1. Loop through this.players.
-        // 2. For each player, .delete() them from availablePlayersRoom.
-        // 3. .set() them into playingPlayersRoom.
-        // 4. Check this.gameMode.
-        // 5. If 'local', .set(this.sessionId, this) into localPongGamesRoom.
-        // 6. If 'remote', .set(this.sessionId, this) into remotePongGamesRoom.
+        return newId;
     }
 
     /**
-     * Starts the game loop or logic.
-     * Transitions state from 'waiting' to 'playing'.
+     * Helper: Retrieve a session by ID.
+     * Useful for the WebSocket connection to find which game the user is joining.
      */
-    public startGame(): void {
-        // Implementation: Set this.state = 'playing', start timers/intervals.
+    public getSession(sessionId: string, gameMode: GameMode): PongSession | undefined {
+        if (gameMode === 'local')
+			return this.localSessions.get(sessionId);
+		return this.remoteSessions.get(sessionId);
     }
 
     /**
-     * Cleans up the session when the match ends.
-     * Should reverse the logic of registerGame (move players back to available).
+     * 2. Remove Session: Deletes the session from memory.
      */
-    public endGame(): void {
-        // Implementation: Set this.state = 'finished', clear intervals, move players back.
+    public removeSession(sessionId: string, gameMode: GameMode): boolean {
+		let deleted: boolean;
+		if (gameMode === 'local')
+        	deleted = this.localSessions.delete(sessionId);
+		else
+			deleted = this.remoteSessions.delete(sessionId);
+        if (deleted) {
+            console.log(`[PongRoom] Session removed: ${sessionId}`);
+        }
+        return deleted;
     }
+
+    /**
+     * 3. Start the game: Set state = 'playing'
+     */
+    public startGame(sessionId: string, gameMode: GameMode): void {
+		let session: PongSession | undefined;
+		if (gameMode === 'local')
+	        session = this.localSessions.get(sessionId);
+        else
+			session = this.remoteSessions.get(sessionId);
+		if (!session) {
+            console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
+            return;
+        }
+
+        session.state = 'playing';
+        console.log(`[PongRoom] Game started: ${sessionId}`);
+    }
+
+    /**
+     * 4. End the game: Set state = 'finished'
+     * Optional: You might want to auto-remove it after a delay here.
+     */
+    public endGame(sessionId: string, gameMode: GameMode): void {
+        let session: PongSession | undefined;
+		if (gameMode === 'local')
+	        session = this.localSessions.get(sessionId);
+        else
+			session = this.remoteSessions.get(sessionId);
+
+        if (!session) {
+            console.error(`[PongRoom] Cannot end: Session ${sessionId} not found.`);
+            return;
+        }
+
+        session.state = 'finished';
+        console.log(`[PongRoom] Game finished: ${sessionId}`);
+        
+        // Optional: Auto-cleanup after 1 minute to free memory
+        // setTimeout(() => this.removeSession(sessionId), 60000); 
+    }
+
+	public cleanSessions() {
+		// ... 
+	}
 }
 
 // ------------------------------------------------------
@@ -241,5 +280,6 @@ interface LocalPongSession {
 export  {
 	// PongGameConfig, 
 	// PongConstants,
-	// PongSession,
+	PongSessionsRoom,
+	PongSession,
 	LocalPongSession };

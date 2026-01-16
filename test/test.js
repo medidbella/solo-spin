@@ -1,13 +1,16 @@
-var MyClass = /** @class */ (function () {
-    function MyClass(name) {
-        this.name = "Example"; // Soft private
-        this.name = name;
+var Test = /** @class */ (function () {
+    // 1️⃣ Prevent direct construction
+    function Test() {
+        console.log("Instance Created");
     }
-    return MyClass;
+    // 2️⃣ Single access point
+    Test.getInstance = function () {
+        if (!Test.instance) {
+            Test.instance = new Test();
+        }
+        return Test.instance;
+    };
+    return Test;
 }());
-MyClass.prototype.printer = function () {
-    // @ts-ignore: Required to bypass the compiler error
-    console.log(this.name);
-};
-var test = new MyClass("karim");
-test.printer();
+var tst1 = Test.getInstance();
+var tst2 = Test.getInstance();

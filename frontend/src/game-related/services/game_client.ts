@@ -111,8 +111,8 @@ class GameClient {
 			if (!response.ok) {
 				return {
 					status: 'error',
-					error: data.message || "Server Error",
-					code: response.status
+					error: data.message || "Server Error"
+					// code: response.status
 				};
 			}
 	

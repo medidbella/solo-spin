@@ -1,64 +1,65 @@
 
 // import { WebSocket } from 'ws';
+import type { ClientMessage, WSMsgType, ServerMessage, AvailableGames, PongMoves } from "@shared/types"; 
 
 // Access the variables using import.meta.env
 const port = import.meta.env.VITE_NGINX_PORT;
 const host = import.meta.env.VITE_HOST;
 const url = `ws://${host}:${port}/ws/games/`;
 
-// import { gameClient } from './game_client';
+// // import { gameClient } from './game_client';
 
-type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
+// type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
 
-// ---------- SYSTEM MESSAGES (Handshake) ----------------
+// // ---------- SYSTEM MESSAGES (Handshake) ----------------
 
-export interface WSConnectMessage {
-	type: 'CONNECT';
-	payload: {
-		// game: GameType;
-		// username: string;
-	};
-}
+// export interface WSConnectMessage {
+// 	type: 'CONNECT';
+// 	payload: {
+// 		// game: GameType;
+// 		// username: string;
+// 	};
+// }
 
-export interface WSConnectSuccess {
-	type: 'CONNECT_SUCCESS';
-	payload: {
-		playerId: string;
-		ready: boolean;
-	};
-}
+// export interface WSConnectSuccess {
+// 	type: 'CONNECT_SUCCESS';
+// 	payload: {
+// 		playerId: string;
+// 		ready: boolean;
+// 	};
+// }
 
-export interface WSConnectError {
-	type: 'CONNECT_ERROR';
-	payload: {
-		error: string;
-	};
-}
-// ----------------------------------------------------
+// export interface WSConnectError {
+// 	type: 'CONNECT_ERROR';
+// 	payload: {
+// 		error: string;
+// 	};
+// }
+// // ----------------------------------------------------
 
-// ---------------- GAME MESSAGES (The Fun Part) ------
+// // ---------------- GAME MESSAGES (The Fun Part) ------
 
-// A. PONG
-export interface WSPongInput {
-	type: 'GAME_INPUT';
-	game: 'pong';
-	payload: {
-		move: pongMoves; // Simple directions
-	};
-}
+// // A. PONG
+// export interface WSPongInput {
+// 	type: 'GAME_INPUT';
+// 	game: 'pong';
+// 	payload: {
+// 		move: pongMoves; // Simple directions
+// 	};
+// }
 
-// B. SUDOKU (Placeholder for later)
-export interface WSSudokuInput {
-	type: 'GAME_INPUT';
-	game: 'sudoku';
-	payload: {
-		row: number;
-		col: number;
-		value: number;
-	};
-}
+// // B. SUDOKU (Placeholder for later)
+// export interface WSSudokuInput {
+// 	type: 'GAME_INPUT';
+// 	game: 'sudoku';
+// 	payload: {
+// 		row: number;
+// 		col: number;
+// 		value: number;
+// 	};
+// }
 
-type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
+// type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
 // ---------------------------------------------------------
 
 // ------- WS connections hanlder (send/receive) ------------
@@ -73,6 +74,33 @@ class WSConnectionsHandler {
 		};
 
 		return message;
+	}
+
+	private createWSStartGameMessage(game: AvailableGames, sessionId: string): ClientMessage {
+		const message: ClientMessage = {
+			type: 'START_GAME',
+			game,
+			payload: {
+				sessionId
+			}
+		};
+
+		return message;
+	}
+
+	private sendWSMessage(msg: ClientMessage) {
+		this.socket!.send(JSON.stringify(msg));
+	}
+
+	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string, move: PongMoves | null) {
+		let message: ClientMessage;
+
+		if (type === "START_GAME")
+			message = this.createWSStartGameMessage(game, sessionId);
+		// else
+		// 	// input message
+
+		this.sendWSMessage(message);
 	}
 
 	connect() {
@@ -90,7 +118,7 @@ class WSConnectionsHandler {
 			const msg = this.createWSConnectMessage();
 			// 1. Convert the object to a JSON string
 		   // 2. Send it safely (using optional chaining in case socket is null)
-			this.socket?.send(JSON.stringify(msg));
+		   this.sendWSMessage(msg);
 		};
 	
 		this.socket.onerror = (error: any) => {

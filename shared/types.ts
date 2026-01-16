@@ -5,12 +5,13 @@ export type WSMsgType =
     | 'CONNECT_SUCCESS' 
     | 'CONNECT_ERROR'
     | 'SELECT_GAME' // Client -> Server (player tells the server which game to play) 
+    | 'START_GAME'
     | 'GAME_INPUT'   // Client -> Server (Player did something)
     | 'GAME_STATE';  // Server -> Client (Update the screen)
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
-export type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
+export type PongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
 
 // --- SYSTEM MESSAGES (Handshake) ---
 
@@ -47,12 +48,20 @@ export interface WSConnectError {
 //     }
 // }
 
+export interface WSPongStartGameMessage {
+    type: 'START_GAME';
+    game: 'pong';
+    payload : {
+        sessionId: string
+    }
+}
+
 // A. PONG
 export interface WSPongInput {
     type: 'GAME_INPUT';
     game: 'pong';
     payload: {
-        move: pongMoves; // Simple directions
+        move: PongMoves; // Simple directions
     };
 }
 
@@ -69,7 +78,7 @@ export interface WSSudokuInput {
 
 // 3. The Master Type (The Union)
 // This is what you use in your socket.onmessage function!
-export type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
+export type ClientMessage = WSConnectMessage | WSPongStartMessage | WSPongInput | WSSudokuInput;
 export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState updates later
 
 

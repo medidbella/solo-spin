@@ -17,7 +17,16 @@ function isPlayerExist(playerId: string): Boolean {
 	return onlinePlayersRooom.has(playerId);
 }
 
-function createNewPlayer(playerId: string, playerName: string, socket: WebSocket | null) {
+function showOnlinePlayers(): void {
+	console.log(" =========== Online players ==============\n");
+	onlinePlayersRooom.forEach((value: GamesPlayer, key: string) => {
+		console.log(" -------------------------------");
+		console.log(`ID: ${key}, Name: ${onlinePlayersRooom.get(key)?.playerName}`);
+	});
+	console.log("\n======================================");
+}
+
+function createNewPlayer(playerId: string, playerName: string, socket: WebSocket | null): GamesPlayer {
 	const newPlayer: GamesPlayer = {
 		playerId,
 		playerName,
@@ -29,6 +38,10 @@ function createNewPlayer(playerId: string, playerName: string, socket: WebSocket
 		ws: socket
 	}
 	return newPlayer;
+}
+
+function addToOnlinePlayersRoom(newPlayer: GamesPlayer) {
+	onlinePlayersRooom.set(newPlayer.playerId, newPlayer);
 }
 
 function addToAvailablePlayersRoom(playerId: string) {
@@ -64,21 +77,15 @@ function registerNewPlayer(playerId: string, playerName: string, socket: WebSock
 	if (isPlayerExist(playerId))
 		return ; // already exist
 
-	createNewPlayer(playerId, playerName, socket);
+	const newPlayer: GamesPlayer = createNewPlayer(playerId, playerName, socket);
+	addToOnlinePlayersRoom(newPlayer);
 	addToAvailablePlayersRoom(playerId);
 }
 
 
-function initializePlayerGameContext(playerId: string, gameType: AvailableGames): Boolean {
-
-	console.log(" ====>>> initializePlayerGameContext");
+function initializePlayerGameContext(playerId: string, gameType: AvailableGames) {
 
 	const player: GamesPlayer = getPlayer(playerId);
-	
-	// SAFETY CHECK: If server restarted or ID is invalid, player is undefined
-    if (!player) {
-		return false;
-    }
 
     // 1. Set the game type (Pong or Sudoku)
     player.game = gameType;
@@ -96,7 +103,6 @@ function initializePlayerGameContext(playerId: string, gameType: AvailableGames)
         player.sudokuPlayer = null; // not yet
         player.pongPlayer = null;
     }
-	return true;
 }
 
 function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlayer[] {
@@ -108,9 +114,10 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 
 	const p2: GamesPlayer = createNewPlayer(player2Id, player2Name, null);
 	p2.concurrentId = player1Id
+	p2.game = 'pong';
 
 	return [p1, p2];
 
 }
 
-export { registerNewPlayer, getPlayer, initializePlayerGameContext, prepareLocalPlayers };
+export { addToPlayingPlayersRoom, registerNewPlayer, isPlayerExist, showOnlinePlayers, getPlayer, initializePlayerGameContext, prepareLocalPlayers };

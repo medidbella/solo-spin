@@ -5,13 +5,15 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { HttpPongSetupReq, HttpSetupResponse } from '../../../shared/types';
 import { createHttpSuccessResponseBody, createHttpErrorResponseBody } from '../pong/pong_utils';
 
-import { createLocalPongSession } from '../pong/pong_manager';
+import { createLocalPongSession } from '../pong/pong_session';
 import { initializePlayerGameContext, prepareLocalPlayers } from '../game_manager/games_utiles';
 
 import { AvailableGames, GamesPlayer } from "../game_manager/games_types";
+import { isPlayerExist, showOnlinePlayers } from '../game_manager/games_utiles';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
-	 // Check Player 2
+	
+	// Check Player 2
 	 if (!body.player2 || body.player2.trim() === "") {
 		const resBody: HttpSetupResponse = createHttpErrorResponseBody('Local mode requires a name for Player 2.');
 		return reply.status(400).send(resBody);
@@ -23,30 +25,18 @@ function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply
 		return reply.status(400).send(resBody);
 	}
 
-	/* 3. set up pong game
-		* create pong player object for the client(player1).
-		* invite remote player if remote mode
-		* create the pong player object for the concurrent(player2).
-		* Create Game Session (Simulation) !!!!
-	*/
-	// const p1: GamesPlayer = getPlayer(playerId);
-	// p1.concurrenName = body.player2;
-	// const p2: createPongPlayer
 	const players: GamesPlayer[] = prepareLocalPlayers(playerId, body.player2);
 
-	console.log('   ### Players created ###');
-	console.log("=========================================");
-	console.log(players[0]);
-	console.log("=========================================");
-	console.log(players[1]);
-	console.log("=========================================");
+	// console.log('   ### Players created ###');
 
-	// const newGameId = createLocalPongSession(playerId, body.game);
+	const newGameId = createLocalPongSession(players);
+	// console.log(` *** Game Session ID Created: ${newGameId} *** `);
 
 
 	// 4. Return Success Response
 	// This matches the 'HttpSetupResponse' interface that frontend expects
-	const resBody: HttpSetupResponse = createHttpSuccessResponseBody('temp-ID')
+	const resBody: HttpSetupResponse = createHttpSuccessResponseBody(newGameId);
+	// console.log(" ## Sending response ... ##");
 	return reply.status(200).send(resBody);
 }
 
@@ -59,17 +49,24 @@ function RemoteMode(body: HttpPongSetupReq, reply: FastifyReply) {
 
 function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 	try {
-
-
-		// !!! need to check if the client is exist here!!! instead of !!
+		
+		// showOnlinePlayers();
 
 		// player id
 		const playerId: string = req.cookies.playerId as string;
+		// console.log(`  ==> Player Id: ${playerId} <==`);
 		if (!playerId) {
-            const resBody: HttpSetupResponse = createHttpErrorResponseBody('Unauthorized: Missing Player ID cookie.');
+			const resBody: HttpSetupResponse = createHttpErrorResponseBody('Unauthorized: Missing Player ID cookie.');
             return reply.status(401).send(resBody);
         }
-
+		// console.log(" Basic validation ");
+		
+		// make sure is player exist
+		if (!isPlayerExist(playerId)) {
+			// console.log(" ## Player not Exist ##");
+			return reply.status(404).send(createHttpErrorResponseBody('Player not found in active session. Please Re-login.'));
+		}
+		
 		// 1. Cast the body to our expected type
 		const body = req.body as HttpPongSetupReq;
 		
@@ -82,9 +79,7 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		}
 
 		// ---- initialize selected game ----
-		if (!initializePlayerGameContext(playerId, body.game))
-			return reply.status(404).send(createHttpErrorResponseBody('Player not found in active session. Please Re-login.'));
-		
+		initializePlayerGameContext(playerId, body.game);	
 
 		// --- HANDLE LOCAL MODE ---
 
