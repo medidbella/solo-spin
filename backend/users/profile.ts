@@ -125,13 +125,13 @@ export async function personalInfos(req:FastifyRequest, res:FastifyReply)// rout
 		if (!user){
 			return res.code(401).send({
 				message: 'User associated with token not found or account deactivated. Please log in again.',
-				StatusCode: 401
+				statusCode: 401
 			})
 		}
 		return res.code(200).send(user);
 	}
 	catch (err){
 		console.log(err)
-		return res.code(500).send({message:"Server unexpected error", StatusCode: 500})
+		return res.code(500).send({message:"Server unexpected error", statusCode: 500})
 	}
 }
