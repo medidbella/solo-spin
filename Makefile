@@ -16,6 +16,7 @@ RESET        := \033[0m
 
 # --- ORCHESTRATION CONFIGURATION ---
 COMPOSE_BASE := docker compose -f ./docker-compose.yml
+COMPOSE_ALI := docker compose -f ./docker-compose-withoutELK.yml
 # COMPOSE_OVERRIDE := docker compose -f ./docker-compose.override.yml
 COMPOSE      := $(COMPOSE_BASE)
 
@@ -99,6 +100,11 @@ init: ## First-time setup: Configures .env, permissions, and certs
 dev: ## Initialize development environment with Hot Module Replacement
 	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
 	@$(COMPOSE_BASE) -f ./docker-compose.override.yml up -d
+	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
+
+ali:
+	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
+	@$(COMPOSE_ALI)  up -d --build
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 prod: ## Execute production-grade build and deployment
