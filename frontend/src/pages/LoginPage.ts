@@ -1,6 +1,5 @@
 import { apiFetch } from "../api_integration/api_fetch";
-import type {LoginRequest, GeneralSuccessRes } from "../api_integration/api_types"
-import { router } from "../main";
+import type {LoginRequest } from "../api_integration/api_types"
 
 export function renderLoginPage(): string {
   return /* html */ `
@@ -175,11 +174,11 @@ export function setUpLoginLogic() {
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payLoad),
+                  body: JSON.stringify(payLoad),
                 });
-                // if ("2fa_temp" in response)
+                // if ("mfaToken" in response)
                 // {
-                //   console.log("to do it");
+                //   display the 2fa page and add logic
                 // }
                 // else
                 // {
