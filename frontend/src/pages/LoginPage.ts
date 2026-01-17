@@ -1,3 +1,7 @@
+import { apiFetch } from "../api_integration/api_fetch";
+import type {LoginRequest, GeneralSuccessRes } from "../api_integration/api_types"
+import { router } from "../main";
+
 export function renderLoginPage(): string {
   return /* html */ `
     <main class="flex justify-between min-h-screen">
@@ -156,44 +160,50 @@ export function setUpLoginLogic() {
     loginForm.addEventListener('submit', async (event) =>{
         event.preventDefault(); //to make sure the page not reloaded
 
-        LoginButton.disabled = true; // this to send requast one time not a lot of times even if the user press a lot
+        LoginButton.disabled = true; // this to send request one time not a lot of times even if the user press a lot
 
-        const formData = new FormData(loginForm); // this creat an object that holds my inputs and gives me a lot of options in js
+        const formData = new FormData(loginForm); // this create an object that holds my inputs and gives me a lot of options in js
 
         const username = formData.get('username') as string;
         const password = formData.get('password') as string;
 
-        const payLoad = { username , password };
+        const payLoad : LoginRequest = { username , password };
 
         try {
-            const response = await fetch('/api/login', {
+            const response = await apiFetch<any>('/api/login', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payLoad),
                 });
-                //case 1 invalid informations
-                if (response.status === 401)
-                {
-                    alert("Invalid username or password");
-                    LoginButton.disabled = false;
-                    return ;
-                }
-                if (response.status === 200)
-                {
-                    //TODO handel 2Fa here 
-                    console.log("loged succesfuly...");
-                    window.location.href = '/home';
-                }
-                else
-                {
-                    alert("Something went wrong. Please try again later.");
-                    LoginButton.disabled = false;
-                    return ;
-                }
+                // if ("2fa_temp" in response)
+                // {
+                //   console.log("to do it");
+                // }
+                // else
+                // {
+                  console.log("logged successfully");
+                  console.log(response.message);
+                  window.location.href = '/home';
+                // }
         }
-        catch(Error) {
+        catch(Error : any) {
+            if ("statusCode" in Error)
+            {
+              if (Error.statusCode == 401)
+              {
+                alert("Invalid username or password");
+                    LoginButton.disabled = false;
+                    return ;
+              }
+              else
+              {
+                 alert("Something went wrong. Please try again later.");
+                 LoginButton.disabled = false;
+              }
+            }
+            alert("Connection error, try again");
             console.error("Login Error: ", Error);
         }
         finally{
