@@ -38,7 +38,7 @@ export async function GetUserAvatar(req: FastifyRequest, res:FastifyReply)
 {
 	const {id} = req.params as {id:string}
 	try {
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where: {
 				id:parseInt(id)
 			},
@@ -64,7 +64,7 @@ export async function GetLoggedUserAvatar(req: FastifyRequest, res:FastifyReply)
 {
 	const user_id = (req.user as any).sub;
 	try {
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where: {
 				id: user_id
 			},
@@ -94,7 +94,7 @@ export async function updateUserAvatar(req: FastifyRequest, res:FastifyReply)
 {
 	const user_id = (req.user as any).sub;
 	try {
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where: {
 				id: user_id
 			},

@@ -32,7 +32,7 @@ Get access to the application as a user.
 
 **Responses:**
 - If no user found or the password is wrong -> "401 Unauthorized" + "invalid user name or password"
-- If the user has 2FA enabled -> "200 OK" + a jwt token named 2fa_temp, in this case the user should be redirected to a new page where he will be required to enter a 2FA code which will be sent with the previous token to "/api/2FA/verify" only then the tokens will be assigned
+- If the user has 2FA enabled -> "202 Accepted" + a jwt token named mfaToken, in this case the user should be redirected to a new page where he will be required to enter a 2FA code which will be sent with the same mfaToken to "/api/2FA/verify" only then the tokens will be assigned
 - When no error occurs the client will get the access token -> "200 OK"
 
 ---
@@ -147,7 +147,9 @@ Generates the 2FA string (first step to activate 2FA). Only access token is chec
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
-- If no errors occurs -> "201 Created" -> "otpAuthUrl" is set which should be shown as a QR code for the user. This does not enable 2fa yet; user must validate a code first using /api/2fa/validate
+- User not found or account deactivated -> "401 Unauthorized" + message: "User associated with token not found or account deactivated. Please log in again."
+- 2FA is already enabled -> "409 Conflict" + message: "2FA is already enabled"
+- If no errors occur -> "201 Created" + message: "2FA secret generated waiting for validation" + "otpAuthUrl" is set which should be shown as a QR code for the user. This does not enable 2fa yet and the user must validate a code first using POST "/api/2fa/validate"
 
 ---
 
@@ -159,8 +161,10 @@ Validate the user 2fa code to enable 2fa, used after the 2fa/generate route.
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
-- Wrong code -> "401 Unauthorized" + message: "Wrong 2FA key, try again"
-- Correct code and valid access token -> "201 created" now the user has 2FA enabled
+- User not found or account deactivated -> "401 Unauthorized" + message: "User associated with token not found or account deactivated. Please log in again."
+- 2FA secret not generated yet -> "400 Bad Request" + message: "Two factor authentication secret is not set yet"
+- Wrong code -> "401 Unauthorized" + message: "Wrong 2FA key, please try again"
+- Correct code and valid access token -> "201 Created" + message: "2FA is enabled successfully"
 
 ---
 
@@ -173,8 +177,14 @@ To verify a client 2FA code, used after login to 2FA enabled account.
   (mfaToken is already sent with the login response body)
 
 **Responses:**
-- Invalid mfaToken or the user does not have 2FA enabled or the user not found etc... -> "401 Unauthorized" + proper msg
-- Correct code + token -> user gets the access token
+- Invalid token type (not a 2fa_temp token) -> "401 Unauthorized" + message: "Invalid token type"
+- Expired mfaToken -> "401 Unauthorized" + message: "expired temp token, please try to login again"
+- Invalid mfaToken signature -> "401 Unauthorized" + message: "invalid temp token, please try to login again"
+- User not found or account deactivated -> "401 Unauthorized" + proper msg
+- User does not have 2FA enabled -> "401 Unauthorized" + message: "User 2FA is disabled, try enabling it first"
+- 2FA secret not set -> "400 Bad Request" + message: "Two factor authentication secret is not set yet"
+- Wrong 2FA code -> "401 Unauthorized" + message: "Wrong 2FA key, please try again"
+- Correct code + valid token -> "200 OK" + user gets the access token
 
 ---
 

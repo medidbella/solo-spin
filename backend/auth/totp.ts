@@ -30,28 +30,45 @@ export const twoFaVerifySchema = {
 export async function EnableTwoFactoAuth(req: FastifyRequest, res: FastifyReply)
 {
 	let otpAuthUrl: string
+	const user_id = (req.user as any).sub
 	try {
-		const secret = authenticator.generateSecret()
-		const user = await prisma.user.update({
-			where:{
-				id : (req.user as any).sub
+		const user = await prisma.user.findUnique({
+			where: {
+				id :user_id
 			},
-			data:{
+			select: {
+				two_factor_enabled: true
+			}
+		})
+		if (!user) {
+			return res.code(401).send({
+				message: "User associated with token not found or account deactivated. Please log in again.",
+				statusCode: 401
+			})
+		}
+		else if (user.two_factor_enabled){
+			return res.code(409).send({
+				message: "2FA is already enabled",
+				statusCode: 409
+			})
+		}
+		const secret = authenticator.generateSecret()
+		const updatedUser = await prisma.user.update({
+			where: {
+				id : (req.user as any).sub,
+				two_factor_enabled: false
+			},
+			data: {
 				two_factor_secret: secret
 			},
 			select: {
 				email:true
 			}
 		})
-		if (!user){
-			return res.code(401).send({
-				message: "User associated with token not found or account deactivated. Please log in again.",
-				statusCode: 401
-			})
-		}
-		otpAuthUrl = authenticator.keyuri(user.email, "SoloSpin", secret)
+		otpAuthUrl = authenticator.keyuri(updatedUser.email, "SoloSpin", secret)
 	}
-	catch (err){
+	catch (err:any)
+	{
 		return res.code(500).send({
 			message: "Server unexpected error",
 			statusCode: 500
@@ -75,7 +92,7 @@ function CheckPossibleErrors(res: FastifyReply, code: string, user: any): Fastif
 	}
 	if (!authenticator.check(code, user.two_factor_secret)){
 		return res.code(401).send({
-			message: "Wrong 2FA key, try again", statusCode: 401
+			message: "Wrong 2FA key, please try again", statusCode: 401
 		})
 	}
 }
@@ -83,10 +100,11 @@ function CheckPossibleErrors(res: FastifyReply, code: string, user: any): Fastif
 export async function TwoFactorValidator(req: FastifyRequest, res: FastifyReply)
 {
 	const { code } = req.body as {code:string}
+	const user_id = (req.user as any).sub
 	try {
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where: {
-				id : (req.user as any).sub
+				id : user_id
 			},
 			select: {
 				two_factor_secret: true
@@ -96,7 +114,7 @@ export async function TwoFactorValidator(req: FastifyRequest, res: FastifyReply)
 			return ;
 		await prisma.user.update({
 			where: {
-				id : (req.user as any).sub
+				id : user_id
 			},
 			data: {
 				two_factor_enabled: true
@@ -120,8 +138,9 @@ export function TwoFactoLoginController(res:FastifyReply, user:User)
 		type:"2fa_temp"},
 		{ expiresIn: "4m"}
 	)
-	res.code(200).send({requires2FA: true, mfaToken})
+	res.code(202).send({requires2FA: true, mfaToken})
 }
+
 export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyReply)
 {
 	const {code, mfaToken} = req.body as {code:string, mfaToken:string}
@@ -133,7 +152,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 		if ((decoded as any).type != "2fa_temp")
 			return (res.code(401).send({message: "Invalid token type", statusCode: 401}))
 		const user_id = parseInt((decoded as any).sub)
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where: {
 				id : user_id
 			},
@@ -158,7 +177,15 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 			}
 		})
 	}
-	catch(error){
+	catch (error:any)
+	{
+		console.log(error.name)
+		if (error.code == 'FAST_JWT_EXPIRED'){
+			return res.code(401).send({message: "expired temp token, please try to login again", statusCode: 401})
+		}
+		else if (error.code == 'FAST_JWT_INVALID_SIGNATURE'){
+			return res.code(401).send({message: "invalid temp token, please try to login again", statusCode: 401})
+		}
 		req.log.error(error);
 		return res.code(500).send({message: "Server unexpected error", statusCode: 500})
 	}
