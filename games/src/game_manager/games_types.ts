@@ -24,13 +24,13 @@ type AvailableGames = 'not_selected' | 'pong' | 'sudoku';
 // 	| GameMessageTypes.CLOSE;
 
 interface GamesPlayer {
-    playerId: string,
-    playerName: string;
-    playerState: PongPlayerState;
-    concurrentId: string | null; // for remote game
+	playerId: string,
+	playerName: string;
+	playerState: PongPlayerState;
+	concurrentId: string | null; // for remote game
 	ws: WebSocket | null; // null if create a local player for local game (use one socket cause two player playing in the same machine)
 	
-    game: AvailableGames;
+	game: AvailableGames;
 	// pongSutUp: PongSutUp;
 	// sudokuSetUp: SudokuSetUp;
 	pongPlayer: PongPlayer | null;
@@ -83,7 +83,7 @@ interface GamesPlayer {
 // }
 
 export {
-    // GameState, GameMessageTypes, WsMessageType,
-    GamesPlayer,
-    AvailableGames
+	// GameState, GameMessageTypes, WsMessageType,
+	GamesPlayer,
+	AvailableGames
 };

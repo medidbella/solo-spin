@@ -1,6 +1,6 @@
 import waitingContent from '../pages/waiting.html?raw';
-import { withLayout } from './layout'; // Import your layout helper
-import { navigateTo } from '../services/handle_pong_routes'; // Import your router helper
+import { withLayout } from './layout';
+import { navigateTo } from '../services/handle_pong_routes';
 import { gameClient } from '../services/game_client';
 
 // 1. Render Function
@@ -52,10 +52,11 @@ export function setWaitingPageLogic() {
 				gameClient.setGameId(response.gameSessionId);
 
 				// send start game message
+				console.log("Sending Start Game ws message");
 				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 				
-				// Navigate to the Game Canvas page
-				navigateTo('/games/pong/play'); 
+				// // Navigate to the Game Canvas page
+				navigateTo('/games/pong/game-play');
 			}
 			
 			// C. Handle Server Error (e.g., "System Busy")

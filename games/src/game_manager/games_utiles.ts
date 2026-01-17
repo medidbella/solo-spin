@@ -8,6 +8,7 @@ import { GamesPlayer, AvailableGames } from './games_types';
 import { PongPlayer } from '../pong/pong_types';
 import { createPongPlayer } from '../pong/pong_utils';
 import { SudokuPlayer } from '../sudoku/sudoku_types';
+import { GameMode } from '../../../shared/types';
 
 function getPlayer(playerId: string): GamesPlayer {
 	return onlinePlayersRooom.get(playerId) as GamesPlayer;
@@ -30,7 +31,7 @@ function createNewPlayer(playerId: string, playerName: string, socket: WebSocket
 	const newPlayer: GamesPlayer = {
 		playerId,
 		playerName,
-		playerState: 'INIT',
+		playerState: 'IDLE',
 		concurrentId: null,
 		game: 'not_selected',
 		pongPlayer: null,
@@ -82,6 +83,36 @@ function registerNewPlayer(playerId: string, playerName: string, socket: WebSock
 	addToAvailablePlayersRoom(playerId);
 }
 
+function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
+	const player1: GamesPlayer = getPlayer(player1Id);
+	const player2: GamesPlayer = getPlayer(player2Id);
+
+	if (player1) {
+		player1.playerState = 'IDLE';
+		player1.concurrentId = null;
+		player1.game = 'not_selected';
+		player1.pongPlayer = null;
+		player1.sudokuPlayer = null;
+
+		addToAvailablePlayersRoom(player1.playerId);
+	}
+
+
+	if (gameMode === 'local')
+		playingPlayersRoom.delete(player2.playerId);
+	else {
+		if (player2) {
+			player2.playerState = 'IDLE';
+			player2.concurrentId = null;
+			player2.game = 'not_selected';
+			player2.pongPlayer = null;
+			player2.sudokuPlayer = null;
+
+			addToAvailablePlayersRoom(player2.playerId);
+		}
+	}
+}
+
 
 function initializePlayerGameContext(playerId: string, gameType: AvailableGames) {
 
@@ -93,7 +124,7 @@ function initializePlayerGameContext(playerId: string, gameType: AvailableGames)
     // 2. Instantiate the specific game object based on type
     if (gameType === 'pong') {
         // Create the PongPlayer instance (assuming it needs name & side)
-        player.pongPlayer = createPongPlayer('left');
+        player.pongPlayer = createPongPlayer(playerId, 'left');
         player.sudokuPlayer = null; // Ensure other games are null
 
 		player.playerState = 'WAITING_MATCH';
@@ -111,13 +142,20 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 	
 	const p1: GamesPlayer = getPlayer(player1Id);
 	p1.concurrentId = player2Id;
+	p1.playerId = player1Id;
 
 	const p2: GamesPlayer = createNewPlayer(player2Id, player2Name, null);
 	p2.concurrentId = player1Id
 	p2.game = 'pong';
+	p2.playerId = player2Id;
+
+	// add the local player to the playing room
+	playingPlayersRoom.set(player2Id, p2);
 
 	return [p1, p2];
 
 }
 
-export { addToPlayingPlayersRoom, registerNewPlayer, isPlayerExist, showOnlinePlayers, getPlayer, initializePlayerGameContext, prepareLocalPlayers };
+export { addToPlayingPlayersRoom, registerNewPlayer, isPlayerExist,
+		showOnlinePlayers, getPlayer, initializePlayerGameContext,
+		prepareLocalPlayers, resetPlayer };

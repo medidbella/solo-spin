@@ -1,18 +1,26 @@
 
-// import * as fs from 'fs'; // Import the file system module
 import gamePlayContent from '../pages/game_play.html?raw';
+import { renderHeader } from '../../components/Header';
 
-export function renderGamePlayPage() {
-	// const filePath: string = '../public/pages/game_play.html';
-	// let content: string | undefined;
-	// try {
-	// 	// Read the file synchronously with 'utf-8' encoding
-	// 	content = fs.readFileSync(filePath, 'utf-8');
-	// 	// console.log("File content:", content);
-	// } catch (error) {
-	// 	console.error("Error reading file:", error);
-	// }
-	// return content;
+// import { withLayout } from './layout';
+// import { navigateTo } from '../services/handle_pong_routes';
 
-	return gamePlayContent;
+function withGameLayout(contentHTML: string): string {
+    return /* html */ `
+    <div class="flex flex-col h-screen w-full bg-[#0f0c18] text-white select-none overflow-hidden">
+        
+        ${renderHeader()} 
+
+        <main class="flex-1 flex items-center justify-center relative w-full h-full">
+            ${contentHTML}
+        </main>
+    </div>
+    `;
 }
+
+
+// 1. Render Function
+export function renderGamePlayPage(): string {
+	return withGameLayout(gamePlayContent);
+}
+

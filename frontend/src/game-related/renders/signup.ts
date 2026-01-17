@@ -53,7 +53,7 @@ export function setupSignupLogic() {
                 gameClient.setPlayerName(nameInput.value);
 
                 // 2. Connect the WebSocket (it stays alive now!)
-                gameClient.wsConnectionsHandler.connect();
+                await gameClient.wsConnectionsHandler.connect();
 
                 // 3. Update the URL
                 window.history.pushState(null, '', '/home');

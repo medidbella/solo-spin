@@ -76,64 +76,102 @@ class WSConnectionsHandler {
 		return message;
 	}
 
-	private createWSStartGameMessage(game: AvailableGames, sessionId: string): ClientMessage {
+	private createWSStartGameMessage(game: AvailableGames, gameId: string): ClientMessage {
 		const message: ClientMessage = {
 			type: 'START_GAME',
 			game,
 			payload: {
-				sessionId
+				gameId
 			}
 		};
-
 		return message;
 	}
+
+	// private createWSPingMessage(game: AvailableGames, sessionId: string) {
+	// 	const message: ClientMessage = {
+	// 		type: 'PING',
+	// 		game,
+	// 		payload: {
+	// 			sessionId
+	// 		}
+	// 	};
+	// }
 
 	private sendWSMessage(msg: ClientMessage) {
 		this.socket!.send(JSON.stringify(msg));
 	}
 
-	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string, move: PongMoves | null) {
+	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string | null, move: PongMoves | null) {
 		let message: ClientMessage;
 
-		if (type === "START_GAME")
-			message = this.createWSStartGameMessage(game, sessionId);
+		if (type == 'CONNECT')
+			message = this.createWSConnectMessage();
+		else if (type === "START_GAME")
+			message = this.createWSStartGameMessage(game, sessionId!);
 		// else
 		// 	// input message
 
-		this.sendWSMessage(message);
+		this.sendWSMessage(message!);
 	}
 
-	connect() {
+	connect(): Promise<void> {
 
-		if (this.socket) {
-			console.warn("⚠️ Socket already connected");
-			return;
-		}
+		return new Promise((resolve, reject) => {
 
-		console.log(`🔌 Connecting to ${url}...`);
-		this.socket = new WebSocket(url);
 
-		this.socket.onopen = () => {
-			console.log('✅ Connection established!');
-			const msg = this.createWSConnectMessage();
-			// 1. Convert the object to a JSON string
-		   // 2. Send it safely (using optional chaining in case socket is null)
-		   this.sendWSMessage(msg);
-		};
+			if (this.socket) {
+				console.warn("⚠️ Socket already connected");
+				reject();
+			}	
+
+			// 1. Create Socket
+			console.log(`🔌 Connecting to ${url}...`);
+			this.socket = new WebSocket(url);
+
+			// 2. Handle Connection Success
+			this.socket.onopen = () => {
+				console.log('✅ Connection established!');
+
+				// Send the initial CONNECT message
+				this.createAndSendMessages('pong', 'CONNECT', null, null);
+				// const msg = this.createWSConnectMessage();
+				// this.sendWSMessage(msg);
+
+				resolve(); // Unblock the await
+			};
+
+			// Handle Incoming Messages
+            this.socket.onmessage = (event: MessageEvent) => {
+                this.handleIncomingMessage(event);
+            };
+
+			this.socket.onerror = (error: any) => {
+				console.error('❌ WebSocket error:', error);
+				reject(error);
+			};
 	
-		this.socket.onerror = (error: any) => {
-			console.error('❌ WebSocket error:', error);
-		};
-
-		this.socket.onclose = () => {
-			console.log('🔌 WebSocket Closed');
-			this.socket = null;
-	   	};
-			
-		// Add onmessage here later...
-		// We will add methods here later to send data, like:
-		// sendMove(x: number) { ... }
+			this.socket.onclose = () => {
+				console.log('🔌 WebSocket Closed');
+				this.socket = null;
+				reject();
+			};
+		});
 	}
+
+	private handleIncomingMessage(event: MessageEvent) {
+        try {
+            // 1. Parse the string data into a JSON object
+            const data = JSON.parse(event.data as string);
+            
+            console.log("📩 Received:", data);
+
+            // 2. Route the message based on its type
+            
+
+        } catch (err) {
+            console.error("❌ received invalid JSON:", event.data);
+        }
+    }
 }
 
 // ## Export a SINGLE instance ##

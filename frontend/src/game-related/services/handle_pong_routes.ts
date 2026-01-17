@@ -3,7 +3,7 @@ import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // 
 import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
 import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
 import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
-// import { renderGamePlayPage } from '../renders/game_play'; // The actual game
+import { renderGamePlayPage } from '../renders/game_play'; // The actual game
 
 import { router } from '../../main';
 
@@ -74,14 +74,17 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			setWaitingPageLogic();
 			break;
 		
-		// case '/games/pong/game-play':
-		// 	// The actual pong canvas
-		// 	innerHTML = renderGamePlayPage();
-		// 	if (!innerHTML) {
-		// 		console.log(" ERROR: can't read the file, try again!!");
-		// 		router('/games/pong/game-play');
-		// 	}
-		// 	return innerHTML;
+		case '/games/pong/game-play':
+			// The actual pong canvas
+			innerHTML = renderGamePlayPage();
+			if (!innerHTML) {
+				console.log(" ERROR: can't read the file, try again!!");
+				// router('/games/pong/game-play');
+				return ;
+			}
+			app.innerHTML = innerHTML;
+			// setGamePlayPageLogic();
+			break;
 
 		default:
 			return "none";

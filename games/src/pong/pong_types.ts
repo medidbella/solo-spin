@@ -2,13 +2,15 @@
 // import { GameState } from '../game_manager/gamesTypes';
 import { GameMode, PlayMode, GameState } from '../../../shared/types';
 import { createBall } from './pong_utils';
+import { pongEngine } from './pong_memory';
+import { resetPlayer } from '../game_manager/games_utiles';
 
 // export type GameState = 'waiting' | 'playing' | 'finished';
 // export type GameMode = 'local' | 'remote';
 // export type PlayMode = 'friend' | 'random';
 export type Side = 'right' | 'left'
 export type PongPlayerState =
-    'INIT'                 // Player created, nothing chosen yet
+    'IDLE'                 // Player created, nothing chosen yet
 //   | 'GAME_MODE_SELECTED'   // local / remote chosen
 //   | 'PLAY_MODE_SELECTED'   // friend / random chosen
 //   | 'FRIEND_NAME_SELECTED' // friend name entered
@@ -38,8 +40,12 @@ export interface Ball {
 	y: number;				// Current y position of the ball on the game board.
 	
 	// ball_speed: number;	// ball speed
-	velocityX: number;		// speed in the horizontal direction (left/right).
-	velocityY: number;		// speed in the vertical direction (up/down).
+	// velocityX: number;		// speed in the horizontal direction (left/right).
+	// velocityY: number;		// speed in the vertical direction (up/down).
+
+	speed: number; 
+    dx: number;    
+    dy: number;
 
 	radius: number;			// Size of the ball.
 }
@@ -48,8 +54,8 @@ export interface Paddle {
 	// playerId: string; // Identifies which player this paddle belongs to. // // no needed
 	x: number; // Horizontal position of the paddle on the game board. In classic Pong, paddles usually don’t move horizontally, but we still store it
 	y: number; // Vertical position of the paddle (up/down).
-	width: number; // Paddle width (horizontal size).
-	height: number; // Paddle height (vertical size)
+	// width: number; // Paddle width (horizontal size).
+	// height: number; // Paddle height (vertical size)
 }
 
 export interface PlayerInput { // represent player input.
@@ -59,7 +65,7 @@ export interface PlayerInput { // represent player input.
   
 export interface PongPlayer {
 
-	// id: string;						// unique identifier for this player
+	playerId: string;						// unique identifier for this player
 	// name: string;						// player name
 	// playerState: PlayerState;			// player state
 
@@ -94,6 +100,8 @@ interface PongSession {
 	sessionId: string;		// identifies this match
 	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
 	ball: Ball;				// shared ball objetc instance
+
+	winner: 'player1' | 'player2' | null; // the id of the winnere player
 }
 
 // ----------- Pong Game Session ------------------------
@@ -103,8 +111,18 @@ import { randomUUID } from 'crypto';
 
 class PongSessionsRoom {
 
+	// ------------ Properties -----------------------------
+    // Maps sessionId -> PongSession object
+    private localSessions = new Map<string, PongSession>();
+    private remoteSessions = new Map<string, PongSession>();
+	// ------------------------------------------------------
+
 	// Singleton Instance:
 	private static instance: PongSessionsRoom;
+	private constructor() {
+		// 2. Turn on the Engine (if it's not already on)
+        this.startGlobalLoop();
+	}
 
 	public static getInstance(): PongSessionsRoom {
 		if (!PongSessionsRoom.instance) {
@@ -112,11 +130,6 @@ class PongSessionsRoom {
 		}
 		return PongSessionsRoom.instance;
 	}
-
-    // --- Properties ---
-    // Maps sessionId -> PongSession object
-    private localSessions = new Map<string, PongSession>();
-    private remoteSessions = new Map<string, PongSession>();
 
     // --- Methods ---
 
@@ -133,7 +146,8 @@ class PongSessionsRoom {
             state: 'waiting',
             gameMode,
             players: [player1, player2],
-            ball: createBall()
+            ball: createBall(),
+			winner: null
         };
 
 		if (gameMode === 'local')
@@ -171,6 +185,28 @@ class PongSessionsRoom {
         return deleted;
     }
 
+	private startGlobalLoop(): void {
+        console.log("[PongRoom] Global Game Loop Started!");
+
+		// 2. The Heartbeat (60 FPS)
+        setInterval(() => {
+			// Loop through ALL Local Sessions
+            this.localSessions.forEach((session: PongSession, sessionId: string) => {
+				// Only process games that are actually PLAYING
+                if (session.state === 'playing') {
+					// 3. Update Physics (Move Ball, Check Collisions)
+                    pongEngine.gameTick(session);
+
+					// (i am not sending results yet, just updating state in memory)
+					// sending results later!!!!!
+				}
+
+			});
+
+		}, 1000 / 60); // Runs every 16ms
+
+	}
+
     /**
      * 3. Start the game: Set state = 'playing'
      */
@@ -185,7 +221,8 @@ class PongSessionsRoom {
             return;
         }
 
-        session.state = 'playing';
+		// 1. Mark as ready:
+        session.state = 'ready';
         console.log(`[PongRoom] Game started: ${sessionId}`);
     }
 
@@ -195,26 +232,37 @@ class PongSessionsRoom {
      */
     public endGame(sessionId: string, gameMode: GameMode): void {
         let session: PongSession | undefined;
+
+		// 1. Find the session
 		if (gameMode === 'local')
 	        session = this.localSessions.get(sessionId);
         else
 			session = this.remoteSessions.get(sessionId);
 
+		// 2. Safety Check
         if (!session) {
             console.error(`[PongRoom] Cannot end: Session ${sessionId} not found.`);
             return;
         }
 
+        // 3. Mark as Finished 
+        // (The Global Loop will see this and stop updating physics)
         session.state = 'finished';
         console.log(`[PongRoom] Game finished: ${sessionId}`);
-        
-        // Optional: Auto-cleanup after 1 minute to free memory
-        // setTimeout(() => this.removeSession(sessionId), 60000); 
-    }
 
-	public cleanSessions() {
-		// ... 
-	}
+		// 5. send the result to backend (database)
+		// later...
+
+		// 6. reset the players objects
+		resetPlayer(session.players[0].playerId, session.players[1].playerId, session.gameMode);
+
+		// 7. Schedule Cleanup
+        // Wait 10 seconds to let clients read the score, then delete.
+        setTimeout(() => {
+            this.removeSession(sessionId, gameMode);
+        }, 10000);
+
+    }
 }
 
 // ------------------------------------------------------
@@ -224,7 +272,7 @@ class PongSessionsRoom {
 type State = 'waiting' | 'playing' | 'paused' | 'finished';
 type Winner = 'player1' | 'player2' | 'none';
 
-interface LocalPongSession {
+interface PongSessionData {
 	sessionId: string;
     state: State;
   
@@ -249,10 +297,6 @@ interface LocalPongSession {
 	winner: Winner;
 	finaleScore1: number;
 	finaleScore2: number;
-
-	// *1: for player1 "Client"
-	// *2: for player2 "Friend/random"
-
 }
 
 // interface PongConstants {
@@ -282,4 +326,5 @@ export  {
 	// PongConstants,
 	PongSessionsRoom,
 	PongSession,
-	LocalPongSession };
+	// LocalPongSession
+};

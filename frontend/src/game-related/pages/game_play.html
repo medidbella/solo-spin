@@ -1,82 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Game</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        
-        #gameCanvas {
-            display: block;
-            background: #0a0520;
-            border: 3px solid #4f46e5;
-            box-shadow: 0 0 30px rgba(79, 70, 229, 0.5);
-        }
-        
-        .score-box {
-            background: rgba(15, 8, 40, 0.8);
-            border: 2px solid #4f46e5;
-            box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
-        }
-        
-        .pause-btn {
-            background: rgba(79, 70, 229, 0.9);
-            transition: all 0.3s ease;
-        }
-        
-        .pause-btn:hover {
-            background: rgba(99, 90, 249, 1);
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.6);
-        }
-    </style>
-</head>
+<div class="relative flex flex-col items-center justify-center w-full max-w-6xl mx-auto">
 
-<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4">
-    <!-- Logo/Title -->
-    <div class="mb-6">
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Solo<span class="text-purple-400">Spin</span>
-        </h1>
-    </div>
-
-    <!-- Pause Button -->
-    <button id="pauseBtn" class="pause-btn mb-4 w-12 h-12 rounded-full flex items-center justify-center">
-        <svg id="pauseIcon" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-        </svg>
-        <svg id="playIcon" class="w-6 h-6 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+    <button id="pauseBtn" class="mb-6 p-3 rounded-full bg-[#1e1b2e] hover:bg-[#2d2a42] text-indigo-400 hover:text-white transition-all border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>
     </button>
 
-    <!-- Game Container -->
-    <div class="relative">
-        <!-- Player 1 Score -->
-        <div class="score-box absolute left-0 top-8 px-6 py-3 rounded-r-lg" style="transform: translateX(-100%);">
-            <p class="text-white text-sm mb-1" id="player1Name">Player 1</p>
-            <p class="text-white text-3xl font-bold" id="player1Score">0</p>
+    <div class="flex items-center justify-center gap-12 w-full">
+
+        <div class="flex flex-col items-center gap-3">
+            <span class="text-gray-400 font-bold tracking-widest text-xs uppercase">Player 1</span>
+            <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-l-4 border-purple-500 shadow-lg">
+                <span id="score1" class="text-3xl font-bold text-white">0</span>
+            </div>
         </div>
 
-        <!-- Player 2 Score -->
-        <div class="score-box absolute right-0 top-8 px-6 py-3 rounded-l-lg" style="transform: translateX(100%);">
-            <p class="text-white text-sm mb-1 text-right" id="player2Name">Player 2</p>
-            <p class="text-white text-3xl font-bold text-right" id="player2Score">0</p>
+        <div class="relative p-[2px] rounded bg-gradient-to-b from-indigo-500/20 to-transparent shadow-[0_0_30px_rgba(79,70,229,0.15)]">
+            <canvas 
+                id="pongCanvas" 
+                width="800" 
+                height="500" 
+                class="bg-[#050505] rounded border border-indigo-500/30 block"
+            ></canvas>
         </div>
 
-        <!-- Canvas -->
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <div class="flex flex-col items-center gap-3">
+            <span class="text-gray-400 font-bold tracking-widest text-xs uppercase">Player 2</span>
+            <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-r-4 border-blue-500 shadow-lg">
+                <span id="score2" class="text-3xl font-bold text-white">0</span>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Controls Info -->
-    <div class="mt-6 text-gray-400 text-sm text-center">
-        <p>Player 1: W/S keys | Player 2: ↑/↓ keys</p>
-    </div>
-
-    <script type="module" src="/pong/scripts/game_bootstrap.js"></script>
-</body>
-</html>
+</div>

@@ -4,7 +4,7 @@ import { SocketStream } from '@fastify/websocket';
 import { WebSocket } from 'ws';
 
 import { registerNewPlayer } from '../game_manager/games_utiles';
-import { ClientMessage, ServerMessage  } from '../../../shared/types'
+import { ClientMessage, ServerMessage, WSMsgType } from '../../../shared/types'
 
 function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
 	console.log(` player id ==> ${playerId}`);
@@ -13,7 +13,7 @@ function connectPlayer(playerId: string, playerName: string, socket: WebSocket) 
 }
 
 function startPongGame(playerId: string, parsedMessage: ClientMessage) {
-	console.log(`   ### Got start pong game message id: ${parsedMessage.payload.sessionId} ###`);
+	console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload} ###`);
 }
 
 function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
@@ -52,7 +52,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 			// 2. Parse JSON
 			// We use 'any' temporarily to safely check if it's an object
-			const parsedMessage: any = JSON.parse(messageString);
+			const parsedMessage: ClientMessage = JSON.parse(messageString);
 
 			// 🛡️ SAFETY CHECK: Ensure it's a valid object and not null
 			if (!parsedMessage || typeof parsedMessage !== 'object') {
@@ -60,8 +60,8 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			}
 
 			// 3. Handle based on type
-			// Now we can safely cast to ClientMessage because we know it's an object
-			switch (parsedMessage.type) {
+			const type: WSMsgType = parsedMessage.type;
+			switch (type) {
 				case 'CONNECT':
 					connectPlayer(playerId, playerName, socket);
 					break;
@@ -75,12 +75,12 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					break;
 
 				default:
-					console.warn(`⚠️ Unknown message type received: ${parsedMessage.type}`);
+					console.warn(`⚠️ Unknown message type received: ${type}`);
 					// 🗣️ Feedback to Client: "I don't understand this type"
 					if (socket.readyState === socket.OPEN) {
 						socket.send(JSON.stringify({ 
 							type: 'ERROR', 
-							payload: { error: `Unknown message type: ${parsedMessage.type}` } 
+							payload: { error: `Unknown message type: ${type}` } 
 						}));
 					}
 			}

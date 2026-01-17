@@ -17,19 +17,16 @@ export type PongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
 
 export interface WSConnectMessage {
     type: 'CONNECT';
-    payload: {
-        // game: GameType;
-        // username: string;
-    };
+    payload: {};
 }
 
-export interface WSConnectSuccess {
-    type: 'CONNECT_SUCCESS';
-    payload: {
-        playerId: string;
-        ready: boolean;
-    };
-}
+// export interface WSConnectSuccess {
+//     type: 'CONNECT_SUCCESS';
+//     payload: {
+//         playerId: string;
+//         ready: boolean;
+//     };
+// }
 
 export interface WSConnectError {
     type: 'CONNECT_ERROR';
@@ -48,13 +45,30 @@ export interface WSConnectError {
 //     }
 // }
 
+// export interface WSPongPingMessage {
+//     type: 'PING';
+//     game: 'pong';
+//     payload : {
+//         sessionId: string
+//     }
+// }
+
 export interface WSPongStartGameMessage {
     type: 'START_GAME';
-    game: 'pong';
+    game: AvailableGames;
     payload : {
-        sessionId: string
+        gameId: string
     }
 }
+
+// export interface WSPongStartGameSuccess {
+//     type: 'START_GAME_SUCCESS';
+//     game: 'pong';
+//     payload : {
+//         sessionId: string
+//     }
+// }
+
 
 // A. PONG
 export interface WSPongInput {
@@ -78,8 +92,12 @@ export interface WSSudokuInput {
 
 // 3. The Master Type (The Union)
 // This is what you use in your socket.onmessage function!
-export type ClientMessage = WSConnectMessage | WSPongStartMessage | WSPongInput | WSSudokuInput;
-export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState updates later
+export type ClientMessage = WSConnectMessage 
+                            | WSPongStartGameMessage
+                            | WSPongInput | WSSudokuInput;
+export type ServerMessage = 
+                            // WSConnectSuccess |
+                            WSConnectError; // + GameState updates later
 
 
 // --------- Define the possible "Labels" for your http connections --------
@@ -87,7 +105,7 @@ export type ServerMessage = WSConnectSuccess | WSConnectError; // + GameState up
 export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
-export type GameState = 'waiting' | 'playing' | 'finished';
+export type GameState = 'waiting' | 'ready' | 'playing' | 'finished';
 
 
 // ----- HTTP request ---------
