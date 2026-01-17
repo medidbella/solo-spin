@@ -77,7 +77,7 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 {
 	const { id } = req.params as { id: string };
 	try {
-		const user = await prisma.user.findFirst({
+		const user = await prisma.user.findUnique({
 			where:{
 				id: parseInt(id)
 			},
