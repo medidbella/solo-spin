@@ -144,7 +144,7 @@ app.post("/api/login", { schema: loginSchema }, login)
 
 app.get("/api/me", { preHandler: authVerifier }, me)
 
-app.get("/api/personal-info", { preHandler: authVerifier }, personalInfos)
+app.get("/api/basic-info", { preHandler: authVerifier }, personalInfos)
 
 app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
 

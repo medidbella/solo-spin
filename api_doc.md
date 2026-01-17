@@ -72,7 +72,7 @@ Fetch all user data. Only a valid access token is required.
   ```
 
 ---
-## GET `/api/personal-info`
+## GET `/api/basic-info`
 Fetch basic personal information for the authenticated user.
 Only a valid access token is required.
 

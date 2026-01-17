@@ -110,7 +110,7 @@ export interface CurrentUser {
   score: number;
 }
 
-// user info in GET /api/personal-info response
+// user info in GET /api/basic-info response
 export interface UserInfo {
   name: string,
   username: string,
@@ -191,21 +191,6 @@ export interface LeaderboardEntry {
 export type LeaderboardResponse = LeaderboardEntry[];
 
 // GET /api/games/history response item
-/**
- * [
-    {
-        "loser": {
-            "id": 2,
-            "username": "aakouhar"
-        },
-        "winner": {
-            "id": 34,
-            "username": "achievement_test"
-        },
-        "score": "5-0"
-    },
- */
-
 export interface GameHistoryEntry {
   loser: {
     id:number,
