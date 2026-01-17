@@ -2,7 +2,7 @@
 
 export interface ApiErrorResponse {
     message: string;
-    StatusCode: string;
+    statusCode: number;
 }
 
 // POST /api/register
@@ -94,7 +94,7 @@ export interface Achievement {
   title: string;
 }
 
-export interface GeneralSuccessRes{
+export interface GeneralSuccessRes{ //
   message: string
 }
 

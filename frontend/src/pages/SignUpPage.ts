@@ -1,3 +1,8 @@
+import { router } from "../main.ts"
+import type { GeneralSuccessRes, RegisterRequest } from "../api_integration/api_types.ts";
+import { apiFetch } from "../api_integration/api_fetch.ts";
+
+
 export function renderSignUpPage() : string {
   return /* html */`
     <main class="min-h-screen flex items-center justify-center lg:justify-between bg-dark-background">
@@ -85,7 +90,8 @@ export function renderSignUpPage() : string {
                     </button>
                 </div>
 
-                <button type="submit" 
+                <button type="submit"
+                        id=""
                         class="bg-[#2A3FA1] text-white text-2xl font-bold mt-4 w-full rounded-full p-4 cursor-pointer
                                hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
                                hover:shadow-[0_6px_20px_rgba(42,63,161,0.6)] active:scale-[0.97]
@@ -104,16 +110,10 @@ export function renderSignUpPage() : string {
   `;   
 }
 
-interface RegisterPayload {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-}
 
 export function setupSignupLogic() {
   const form = document.getElementById('signupForm') as HTMLFormElement;
-
+  const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
   if (!form) return;
 
   const togglePasswordButton = document.getElementById('togglePassword');
@@ -188,42 +188,38 @@ export function setupSignupLogic() {
       return;
     }
 
-    const payload: RegisterPayload = {
-      name: name,
-      username: username,
-      email: email,
-      password: password
-    };
+    const payload: RegisterRequest = {name, username, email, password};
 
+    if (submitButton) submitButton.disabled = true;
     try {
-      console.log("Register api front ");
-      const response = await fetch('/api/register', {
+      await apiFetch<GeneralSuccessRes>('/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(payload)
       });
-
-      if (response.status === 201) {
-        alert("Account created successfully!");
-        window.location.href = '/home'; 
-      } 
-      else if (response.status === 409) {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.message || "Username or Email already taken"}`);
-      } 
-      else if (response.status === 400) {
-        const errorData = await response.json();
-        alert(`Validation Error: ${errorData.message}`);
-      } 
-      else {
-        alert("Something went wrong. Please try again.");
+      //the only case here is 200 Ok the errors from api or something else will catched and proccessed in the catch section
+      alert("account created successfully");
+      history.pushState(null, '', '/home');
+      router('/home');
+    } catch (error: any) {
+      // checking here the errors that comes from the api itself like username or email already taken 
+      if ('statusCode' in error)
+      {
+        if (error.statusCode === 409) {
+          alert(`Error: ${error.message || "Username or Email already taken"}`);
+        } else if (error.statusCode === 400) {
+          alert(`Validation Error: ${error.message}`);
+        } else {
+          alert(error.message || "Something went wrong");
+        }
       }
-
-    } catch (error) {
-      console.error("Network error:", error);
-      alert("Network error. Check your connection.");
+      else
+      {
+        console.error("Network error:", error);
+        alert("Network issue, Try again");
+      }
+    }
+    finally {
+      if (submitButton) submitButton.disabled = false;
     }
   });
 }
