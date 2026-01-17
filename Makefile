@@ -104,7 +104,7 @@ dev: ## Initialize development environment with Hot Module Replacement
 
 without: 
 	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
-	@$(COMPOSE_ALI)  -f ./docker-compose.override.yml up -d --build
+	@$(COMPOSE_ALI)  -f ./docker-compose.override.yml up -d 
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 prod: ## Execute production-grade build and deployment
