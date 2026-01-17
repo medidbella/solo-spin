@@ -77,7 +77,7 @@ export async function updateUserInfo(req: FastifyRequest, res:FastifyReply)
     }
 }
 
-export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
+export async function updateUserPassword(req: FastifyRequest, res:FastifyReply)
 {
 	const userId = (req.user as any).sub;
 	const { oldPassword, newPassword, verifyNewPassword } = req.body as
@@ -89,9 +89,12 @@ export async function updateUserPassword (req: FastifyRequest, res:FastifyReply)
 	try {
 		const user = await prisma.user.findUnique({
 			where: { id: userId },
-			select: { password_hash: true }
+			select: { password_hash: true, oauth_id: true}
 		});
-		if (!user || !(await bcrypt.compare(oldPassword, user.password_hash!))) {
+		if (user && user.oauth_id){
+			return res.code(409).send({message: "can't change the password of an Oauth authenticated user", statusCode: 409})
+		}
+		else if (!user || !(await bcrypt.compare(oldPassword, user.password_hash!))) {
 			return res.code(401).send({ message: "Old password is incorrect.", statusCode: 401});
 		}
 		const newHashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.SALT_ROUNDS!) || 10);
