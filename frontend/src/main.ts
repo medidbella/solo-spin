@@ -15,50 +15,51 @@ import { renderProfilesPage } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
 import { setupHeaderLogic } from './components/Header.ts';
-import { requireAuth, requirGuest } from './utils/auth.ts';
 import { apiFetch } from './api_integration/api_fetch';
 import type { UserInfo } from './api_integration/api_types';
-
+import { redirectBasedOnAuth } from './utils/auth.ts';
 const app = document.getElementById('app') as HTMLDivElement;
 
+export const routeStatesMap: Record<string, 'private' | 'public'> = {
+  '/'            : 'public',
+  '/login'       : 'public',
+  '/signup'      : 'public',
+  '/home'        : 'private',
+  '/settings'    : 'private',
+  '/security'    : 'private',
+  '/chat'        : 'private',
+  '/game'        : 'private',
+  '/leaderboard' : 'private',
+  '/profile'     : 'private',
+  '/profiles'    : 'private'
+};
 
-export async function router(path: string) {
-  
-
+export async function router(path: string)
+{  
+  path = await redirectBasedOnAuth(path)
   switch (path) {
-    //public pages for Guests (landing login and signup pages)
     case '/':
-      if (!await requirGuest()) //return true if the user has not the access to public pages because he is alreadu authenticated so i will redirect the user to home page
-        return router('/home');
       app.innerHTML = renderLandingPage();
       break;
       
     case '/login':
-      if (!await requirGuest())
-        return router('/home');
       app.innerHTML = renderLoginPage();
       setUpLoginLogic();
       break;
       
     case '/signup':
-       if (!await requirGuest())
-        return router('/home');
        app.innerHTML = renderSignUpPage(); 
        setupSignupLogic();
        break;
        
     case '/home':
-      if (!await requireAuth())
-          return router('/login');
       app.innerHTML = renderHome();
       setupHeaderLogic();
       break;
       
     case '/settings':
-      if (!await requireAuth())
-          return router('/login');
       try {
-        const userInfo = await apiFetch<UserInfo>("/api/personal-info")
+        const userInfo = await apiFetch<UserInfo>("/api/basic-info")
         app.innerHTML = renderSettings(userInfo);
         const settingsFrom = document.getElementById('settings-form')
         if (settingsFrom)
@@ -80,17 +81,14 @@ export async function router(path: string) {
       break;
       
     case '/security':
-      if (!await requireAuth())
-          return router('/login');
-            try {
-        const userInfo = await apiFetch<UserInfo>("/api/personal-info")
+      try {
+        const userInfo = await apiFetch<UserInfo>("/api/basic-info")
         app.innerHTML = renderSecurity(userInfo);
         const newPasswordForm = document.getElementById('new-password-form')
         if (newPasswordForm)
           newPasswordForm.addEventListener('submit', changePasswordFormSubmit)
       }
       catch (error: any) {
-        console.log('Failed fetching settings:', error);
         if (error.message == "Failed to fetch"){
           alert('server error please try again later')
         }
@@ -105,29 +103,21 @@ export async function router(path: string) {
       break;
       
     case '/chat':
-      if (!await requireAuth())
-          return router('/login');
       app.innerHTML = renderChat();
       setupHeaderLogic();
       break;
       
     case '/leaderBoard':
-      if (!await requireAuth())
-          return router('/login');
         app.innerHTML = renderLeaderBoard();
         setupHeaderLogic();
         break;
         
     case '/game':
-      if (!await requireAuth())
-          return router('/login');
       app.innerHTML = renderGamePage();
       setupHeaderLogic();
       break;
 
     case '/profile':
-      if (!await requireAuth())
-          return router('/login');
       app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';
       try {
         const profileHtml = await renderProfile(); 
@@ -140,8 +130,6 @@ export async function router(path: string) {
       break;
 
     case '/profiles':
-      if (!await requireAuth())
-          return router('/login');
       app.innerHTML = renderProfilesPage();
       setupHeaderLogic();
       break;

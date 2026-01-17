@@ -164,9 +164,11 @@ export async function renderProfile()
 				history.pushState(null, '', `/home`);
 				alert('unexpected server error please try again later')
 			}
-			return
 		}
-		history.pushState(null, '', `/home`);
-		alert('connection error please try again later')
+		else {
+			history.pushState(null, '', `/home`);
+			alert('connection error please try again later')
+		}
+		return ""
 	}
 }

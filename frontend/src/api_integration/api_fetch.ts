@@ -1,4 +1,4 @@
-import type {ApiErrorResponse} from "./api_types.js"
+import type {ApiErrorResponse} from "./api_types"
 export async function apiFetch<T>(url: string, options: RequestInit = {}):Promise<T>
 {
     let refreshRes
@@ -9,7 +9,7 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}):Promis
 	const reqConfig = {...options, headers} 
     let response = await fetch(url, reqConfig)
     if (response.status == 401) {
-        console.log('fist fetch failed trying to refresh')
+        console.log('fist fetch failed, trying to refresh')
         refreshRes = await fetch("/api/refresh", {method: "POST"})
         if (refreshRes!.ok)
             response = await fetch(url, reqConfig)

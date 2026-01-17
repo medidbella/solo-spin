@@ -109,7 +109,7 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 	}
 }
 
-export async function personalInfos(req:FastifyRequest, res:FastifyReply)// route "/api/personal-info"
+export async function personalInfos(req:FastifyRequest, res:FastifyReply)// route "/api/basic-info"
 {
 	try {
 		const user_id = (req.user as any).sub;
