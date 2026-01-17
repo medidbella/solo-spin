@@ -51,10 +51,9 @@ export async function renderProfile()
 		const achievementsHtml = userData.achievements.map(achievement => {
 			return `
 			<div class="bg-[#151638] p-4 rounded-xl border border-gray-700 flex items-center gap-3 hover:border-purple-500 transition-colors">
-				<div class="text-2xl">🏆</div>
-				<div>
+			<img src="../../public/imgs/${achievement.code}.png" alt="${achievement.title}" class="w-15 h-15 object-contain">
+			<div>
 				<h4 class="font-bold text-sm text-white">${achievement.title}</h4>
-				<p class="text-xs text-gray-400">Code: ${achievement.code}</p>
 				</div>
 			</div>
 			`;
