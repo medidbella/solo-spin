@@ -18,6 +18,8 @@ import { setupHeaderLogic } from './components/Header.ts';
 import { apiFetch } from './api_integration/api_fetch';
 import type { UserInfo } from './api_integration/api_types';
 import { redirectBasedOnAuth } from './utils/auth.ts';
+import { setupSecurityPageLogic } from './pages/Security';
+
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
@@ -84,9 +86,8 @@ export async function router(path: string)
       try {
         const userInfo = await apiFetch<UserInfo>("/api/basic-info")
         app.innerHTML = renderSecurity(userInfo);
-        const newPasswordForm = document.getElementById('new-password-form')
-        if (newPasswordForm)
-          newPasswordForm.addEventListener('submit', changePasswordFormSubmit)
+        // Use the new combined setup function instead of individual listener
+        setupSecurityPageLogic();
       }
       catch (error: any) {
         if (error.message == "Failed to fetch"){
