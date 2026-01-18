@@ -3,23 +3,31 @@ import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // 
 import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
 import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
 import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
-import { renderGamePlayPage } from '../renders/game_play'; // The actual game
+import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
+
+import { gameClient } from './game_client';
 
 import { router } from '../../main';
 
 export function navigateTo(url: string) {
     // 1. Update the URL in the browser history without reloading
     history.pushState(null, "", url);
-    
-    // 2. Trigger your router logic (the function that checks path and renders HTML)
-	// console.log(url);
+
     router(url);
 }
 
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 	
-	// console.log(`==>> Games Route Detected {${path}} <<==`);
+	if (window.location.pathname === '/games/pong/game-play' && path !== '/games/pong/game-play') {
+		// We are navigating AWAY from the game
+		gameClient.cleanupGamePage();
+		
+		// Also remove window event listeners for keys if you added them
+		// window.removeEventListener('keydown', handleInput); 
+		// window.removeEventListener('keyup', handleInput);
+	}
+	
 	switch (path) {
 
 		// CASE 1: Game Mode Selection
@@ -75,7 +83,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			break;
 		
 		case '/games/pong/game-play':
-			// The actual pong canvas
+			// Render the HTML first
 			innerHTML = renderGamePlayPage();
 			if (!innerHTML) {
 				console.log(" ERROR: can't read the file, try again!!");
@@ -83,7 +91,15 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 				return ;
 			}
 			app.innerHTML = innerHTML;
-			// setGamePlayPageLogic();
+
+			const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
+			// Initialize the Canvas & start logic
+			if (canvas) {
+				gameClient.initGamePage(canvas);
+				
+				// Start logic
+				setGamePlayPageLogic(); 
+			}
 			break;
 
 		default:

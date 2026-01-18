@@ -9,10 +9,11 @@ import { pongEngine } from './pong_memory';
 // ------------------------ HTTP ------------------------------------
 import { GameMode, HttpSetupResponse, PlayMode } from '../../../shared/types';
 
-function createHttpSuccessResponseBody(gameId: string): HttpSetupResponse {
+function createHttpSuccessResponseBody(gameId: string, side: Side): HttpSetupResponse {
 	const resBody: HttpSetupResponse = {
 		status: 'success',
         gameSessionId: gameId,
+		side,
         message: 'Local game initialized successfully'
 	}
 

@@ -1,3 +1,6 @@
+
+
+
 <div class="relative flex flex-col items-center justify-center w-full max-w-6xl mx-auto">
 
     <button id="pauseBtn" class="mb-6 p-3 rounded-full bg-[#1e1b2e] hover:bg-[#2d2a42] text-indigo-400 hover:text-white transition-all border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
@@ -8,8 +11,12 @@
 
     <div class="flex items-center justify-center gap-12 w-full">
 
+        
         <div class="flex flex-col items-center gap-3">
-            <span class="text-gray-400 font-bold tracking-widest text-xs uppercase">Player 1</span>
+            <span id="player1Name" class="text-gray-400 font-bold tracking-widest text-xs uppercase">
+                Player 1
+            </span>
+            
             <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-l-4 border-purple-500 shadow-lg">
                 <span id="score1" class="text-3xl font-bold text-white">0</span>
             </div>
@@ -25,7 +32,10 @@
         </div>
 
         <div class="flex flex-col items-center gap-3">
-            <span class="text-gray-400 font-bold tracking-widest text-xs uppercase">Player 2</span>
+            <span id="player2Name" class="text-gray-400 font-bold tracking-widest text-xs uppercase">
+                Player 2
+            </span>
+            
             <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-r-4 border-blue-500 shadow-lg">
                 <span id="score2" class="text-3xl font-bold text-white">0</span>
             </div>
@@ -33,4 +43,24 @@
 
     </div>
 
+
+
+<!-- <div class="flex flex-col items-center gap-3">
+    <span id="player1Name" class="text-gray-400 font-bold tracking-widest text-xs uppercase">
+        Player 1
+    </span>
+    
+    <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-l-4 border-purple-500 shadow-lg">
+        <span id="score1" class="text-3xl font-bold text-white">0</span>
+    </div>
 </div>
+
+<div class="flex flex-col items-center gap-3">
+    <span id="player2Name" class="text-gray-400 font-bold tracking-widest text-xs uppercase">
+        Player 2
+    </span>
+    
+    <div class="w-24 h-16 flex items-center justify-center bg-[#151221] rounded-lg border-r-4 border-blue-500 shadow-lg">
+        <span id="score2" class="text-3xl font-bold text-white">0</span>
+    </div>
+</div> -->

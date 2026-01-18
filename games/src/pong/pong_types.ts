@@ -1,9 +1,10 @@
 
 // import { GameState } from '../game_manager/gamesTypes';
-import { GameMode, PlayMode, GameState } from '../../../shared/types';
+import { GameMode, PlayMode, GameState, PongSessionData } from '../../../shared/types';
 import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
 import { resetPlayer } from '../game_manager/games_utiles';
+import { sendWSMsg } from '../ws/ws_handler';
 
 // export type GameState = 'waiting' | 'playing' | 'finished';
 // export type GameMode = 'local' | 'remote';
@@ -156,6 +157,8 @@ class PongSessionsRoom {
 			this.remoteSessions.set(newId, newSession);
 
         console.log(`[PongRoom] Session created: ${newId} | Mode: ${gameMode}`);
+
+		console.log("pong player 2:", player2);
         
         return newId;
     }
@@ -195,26 +198,39 @@ class PongSessionsRoom {
 				// Only process games that are actually PLAYING
                 if (session.state === 'playing') {
 					// 3. Update Physics (Move Ball, Check Collisions)
-                    pongEngine.gameTick(session);
+                    const results: PongSessionData = pongEngine.gameTick(session);
+					// console.log(" ---------------- Results -------------");
+					// console.log(results);
+					// console.log("---------------------------------------");
+					// console.log("  Updating Physics ....");
 
 					// (i am not sending results yet, just updating state in memory)
 					// sending results later!!!!!
+					sendWSMsg(results, session);
 				}
 
 			});
 
-		}, 1000 / 60); // Runs every 16ms
+		}, 1000/60 ); // Runs every 1s
 
 	}
 
     /**
      * 3. Start the game: Set state = 'playing'
      */
-    public startGame(sessionId: string, gameMode: GameMode): void {
+    public startGame(sessionId: string): void {
 		let session: PongSession | undefined;
-		if (gameMode === 'local')
-	        session = this.localSessions.get(sessionId);
-        else
+		// if (gameMode === 'local')
+	    //     session = this.localSessions.get(sessionId);
+        // else
+		// 	session = this.remoteSessions.get(sessionId);
+		// if (!session) {
+        //     console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
+        //     return;
+        // }
+
+		session = this.localSessions.get(sessionId);
+		if (!session)
 			session = this.remoteSessions.get(sessionId);
 		if (!session) {
             console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
@@ -222,7 +238,7 @@ class PongSessionsRoom {
         }
 
 		// 1. Mark as ready:
-        session.state = 'ready';
+        session.state = 'playing';
         console.log(`[PongRoom] Game started: ${sessionId}`);
     }
 
@@ -269,35 +285,35 @@ class PongSessionsRoom {
 
 ///// ----------------- Client Side ---------------------
 
-type State = 'waiting' | 'playing' | 'paused' | 'finished';
-type Winner = 'player1' | 'player2' | 'none';
+// type State = 'waiting' | 'playing' | 'paused' | 'finished';
+// type Winner = 'player1' | 'player2' | 'none';
 
-interface PongSessionData {
-	sessionId: string;
-    state: State;
+// interface PongSessionData {
+// 	sessionId: string;
+//     state: State;
   
-    paddle1: {
-    	x: number;
-    	y: number;
-    };
+//     paddle1: {
+//     	x: number;
+//     	y: number;
+//     };
   
-    paddle2: {
-    	x: number;
-    	y: number;
-    };
+//     paddle2: {
+//     	x: number;
+//     	y: number;
+//     };
   
-    ball: {
-    	x: number;
-    	y: number;
-    };
+//     ball: {
+//     	x: number;
+//     	y: number;
+//     };
   
-    score1: number;
-    score2: number;
+//     score1: number;
+//     score2: number;
 
-	winner: Winner;
-	finaleScore1: number;
-	finaleScore2: number;
-}
+// 	winner: Winner;
+// 	finaleScore1: number;
+// 	finaleScore2: number;
+// }
 
 // interface PongConstants {
 // 	// World rules

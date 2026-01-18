@@ -144,10 +144,12 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 	p1.concurrentId = player2Id;
 	p1.playerId = player1Id;
 
+	// create temp local player
 	const p2: GamesPlayer = createNewPlayer(player2Id, player2Name, null);
 	p2.concurrentId = player1Id
 	p2.game = 'pong';
 	p2.playerId = player2Id;
+	p2.pongPlayer = createPongPlayer(player2Id, 'right');
 
 	// add the local player to the playing room
 	playingPlayersRoom.set(player2Id, p2);

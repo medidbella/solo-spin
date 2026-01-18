@@ -1,14 +1,15 @@
 // import { GameConfig, PongState } from "../types/PongTypes";
 
-import type { PlayerState, GameMode, AvailableGames, PlayMode
-				, HttpPongSetupReq, HttpSetupResponse } from "@shared/types";
+import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
+				, HttpPongSetupReq, HttpSetupResponse, PongSessionData } from "@shared/types";
 
-import { wsConnectionsHandler } from "./ws_handler";
+// import { wsConnectionsHandler } from "./ws_handler";
+import { WSConnectionsHandler } from "./ws_handler";
+
+// import { PongRenderer } from './pong_renderer';
 
 class GameClient {
-	// 1. The Socket (Communication Line)
-	// private socket: WebSocket | null = null;
-	public wsConnectionsHandler = wsConnectionsHandler;
+	public wsConnectionsHandler: WSConnectionsHandler;
 
 	private playerState: PlayerState;
 	private playerName: string | null = null;
@@ -16,8 +17,13 @@ class GameClient {
 	private gameMode: GameMode | null = null;
 	private playMode: PlayMode | null = null;
 	private friendName: string | null = null;
+	private side: Side | null = null;
 	
 	private gameId: string | null = null;
+
+	public canvas: HTMLCanvasElement | null = null;
+
+	// public pongRenderer: PongRenderer | null = null;
 
 	// /**
 	//  * Singleton Instance:
@@ -26,7 +32,11 @@ class GameClient {
 	private static instance: GameClient;
 
 	private constructor() {
-		this.playerState = 'INIT';
+		this.playerState = 'IDLE';
+
+		// SINGLE instance
+		this.wsConnectionsHandler = new WSConnectionsHandler();
+    	// this.pongRenderer = new PongRenderer(canvas);
 		console.log("🎮 Game Client Initialized");
 	}
 
@@ -57,15 +67,22 @@ class GameClient {
 	public setFriendName(friendName: string) { this.friendName = friendName; }
 	public getFriendName(): string | null { return this.friendName; }
 
-	public setGameId(gameId: string) { this.gameId = gameId; };
-	public getGameId(): string | null { return this.gameId; };
+	public setGameId(gameId: string) { this.gameId = gameId; }
+	public getGameId(): string | null { return this.gameId; }
+
+	public setSide(side: Side) { this.side = side; }
+	public getSide(): Side | null { return this.side; }
 
 	public reset() {
-		this.playerState = 'INIT';
+		this.playerState = 'IDLE';
 		this.game = null;
 		this.gameMode = null;
 		this.playMode = null;
 		this.friendName = null;
+		this.gameId = null;
+		this.side = null;
+		// this.pongRenderer = null;
+		// this.cleanupGamePage();
 	}
 
 
@@ -129,8 +146,38 @@ class GameClient {
 			};
 		}
 	}
-	// greet!: () => void; 
 
+	// ---------- Helpers ----------------------------
+	public initGamePage(canvas: HTMLCanvasElement) {
+        console.log("🎮 Init game page...");
+        // 2. Just store the canvas reference
+        this.canvas = canvas;
+    }
+
+    public cleanupGamePage() {
+        // Clear it when leaving so i don't draw
+        this.canvas = null;
+    }
+	// public initGamePage(canvas: HTMLCanvasElement) {
+
+	// 	console.log("🎮 Init game page logic...");
+		
+	// 	// 1. Create the Renderer
+    // 	this.pongRenderer = new PongRenderer(canvas);
+
+	// 	// // 2. Connect the WebSocket handler class to the Renderer (plug the listener).
+    // 	// this.wsConnectionsHandler.setGameUpdateListenerCallback((data) => {
+	// 	// 	// draw the data!
+	// 	// 	if (this.pongRenderer) {
+	//     //     	this.pongRenderer!.draw(data);
+	// 	// 	}
+	// 	// });
+	// }
+
+	// public cleanupGamePage() {
+	// 	// Unplug the listener
+	// 	gameClient.wsConnectionsHandler.setGameUpdateListenerCallback(null);
+	// }
 }
 
 // GameClient.prototype.createSetupRequest = function(): HttpPongSetupReq {

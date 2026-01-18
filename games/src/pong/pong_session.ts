@@ -14,6 +14,8 @@ function createLocalPongSession(players: GamesPlayer[]): string {
 	addToPlayingPlayersRoom(players[0].playerId);
 	players[0].playerState = 'READY';
 
+	console.log(`  prepare players || P1: ${players[0].playerName} || P2: ${players[1].playerName}`)
+
 	return sessionId;
 }
 

@@ -35,7 +35,7 @@ function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply
 
 	// 4. Return Success Response
 	// This matches the 'HttpSetupResponse' interface that frontend expects
-	const resBody: HttpSetupResponse = createHttpSuccessResponseBody(newGameId);
+	const resBody: HttpSetupResponse = createHttpSuccessResponseBody(newGameId, 'left');
 	// console.log(" ## Sending response ... ##");
 	return reply.status(200).send(resBody);
 }

@@ -6,7 +6,8 @@ import {
     BALL_START_X, BALL_START_Y, BALL_START_SPEED 
 } from '../../../shared/pong_constants';
 
-import { GameMode, PongMoves } from '../../../shared/types';
+import { GameMode, PongMoves, PongSessionData, ServerMessage } from '../../../shared/types';
+import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';
 import { pongGameSessionsRoom } from './pong_memory';
@@ -25,7 +26,7 @@ class PongEngine {
         return PongEngine.instance;
     }
 
-    public gameTick(session: PongSession): PongSession | null {
+    public gameTick(session: PongSession): PongSessionData {
         
         // // 1. Retrieve the specific Game Session from Memory
         // const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId, gameMode);
@@ -43,11 +44,55 @@ class PongEngine {
 		this.checkScoring(session);        // Check Goal/Game Over
 
         // 3. Return the modified session so we can send it to clients
-        return session;
+		const resultsMsg: PongSessionData = this.createResutlsMsg(session);
+        return resultsMsg;
     }
 
 	// ----------- Helper functions -----------------------
 	
+	// create the results msg
+	private createResutlsMsg(session: PongSession): PongSessionData {
+
+		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
+		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer; 
+
+		const resultsMsg: PongSessionData = {
+			type: 'GAME_STATE',
+    		game: 'pong',
+
+			payload: {
+				
+				leftPlayerName: player1.playerName,
+				rightPlayerName: player2.playerName,
+				// rightPlayerName: player1.concurrentId as string,
+
+				leftPaddle: {
+					x: player1.pongPlayer?.paddle.x as number,
+					y: player1.pongPlayer?.paddle.y as number
+				},
+
+				rightPaddle: {
+					x: player2.pongPlayer?.paddle.x as number,
+					y: player2.pongPlayer?.paddle.y as number
+				},
+
+				ball: {
+					x: session.ball.x,
+					y: session.ball.y
+				},
+
+				leftScore: player1.pongPlayer?.score as number,
+				rightScore: player2.pongPlayer?.score as number,
+
+				winner: 'none',
+				// finaleLeftScore: 0,
+				// finaleRightScore: 0
+			}
+
+		}
+		return resultsMsg;
+	}
+
     // Keeps the paddle inside the top/bottom edges
     private clamp(y: number): number {
         const minY = 0;

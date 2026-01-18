@@ -7,7 +7,8 @@ export type WSMsgType =
     | 'SELECT_GAME' // Client -> Server (player tells the server which game to play) 
     | 'START_GAME'
     | 'GAME_INPUT'   // Client -> Server (Player did something)
-    | 'GAME_STATE';  // Server -> Client (Update the screen)
+    | 'GAME_STATE'  // Server -> Client (Update the screen)
+    | 'GAME_FINISHED';
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
@@ -94,9 +95,10 @@ export interface WSSudokuInput {
 // This is what you use in your socket.onmessage function!
 export type ClientMessage = WSConnectMessage 
                             | WSPongStartGameMessage
-                            | WSPongInput | WSSudokuInput;
+                            | WSPongInput | WSSudokuInput
 export type ServerMessage = 
                             // WSConnectSuccess |
+                            PongSessionData |
                             WSConnectError; // + GameState updates later
 
 
@@ -106,6 +108,7 @@ export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
 export type GameState = 'waiting' | 'ready' | 'playing' | 'finished';
+export type Side = 'left' | 'right';
 
 
 // ----- HTTP request ---------
@@ -121,6 +124,7 @@ export interface HttpPongSetupReq {
 export interface HttpSetupSuccess {
     status: 'success';
     gameSessionId: string;
+    side: Side;
     message: string;
 }
 
@@ -135,7 +139,7 @@ export type HttpSetupResponse = HttpSetupSuccess | HttpSetupError;
 
 // ----- Client state ---------
 export type PlayerState =
-    'INIT'                 // Player created, nothing chosen yet
+    'IDLE'                 // Player created, nothing chosen yet
   | 'GAME_MODE_SELECTED'   // local / remote chosen
   | 'PLAY_MODE_SELECTED'   // friend / random chosen
   | 'FRIEND_NAME_SELECTED' // friend name entered
@@ -143,4 +147,31 @@ export type PlayerState =
   | 'READY'                // fully configured
   | 'PLAYING'              // game loop running
   | 'FINISHED';            // game ended
+
+
+
+// -------- WS message between the client and the server ----
+// type State = 'waiting' | 'playing' | 'paused' | 'finished';
+type Winner = 'player1' | 'player2' | 'none';
+
+export interface PongSessionData {
+	// sessionId: string;
+    // state: State;
+
+    type: 'GAME_STATE';
+    game: 'pong';
+    payload: PongPayload
+}
+
+// Define the shape of the data we expect
+export interface PongPayload {
+    leftPlayerName: string;
+    rightPlayerName: string;
+    leftPaddle: { x: number, y: number };
+    rightPaddle: { x: number, y: number };
+    ball: { x: number, y: number };
+    leftScore: number;
+    rightScore: number;
+    winner: Winner,
+}
 

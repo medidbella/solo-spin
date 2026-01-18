@@ -51,9 +51,12 @@ export function setWaitingPageLogic() {
 				// set sessionID
 				gameClient.setGameId(response.gameSessionId);
 
-				// send start game message
-				console.log("Sending Start Game ws message");
-				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
+				// set side
+				gameClient.setSide(response.side);
+
+				// // send start game message
+				// console.log("Sending Start Game ws message");
+				// gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 				
 				// // Navigate to the Game Canvas page
 				navigateTo('/games/pong/game-play');

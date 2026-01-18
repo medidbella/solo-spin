@@ -1,6 +1,8 @@
 
 // import { WebSocket } from 'ws';
-import type { ClientMessage, WSMsgType, ServerMessage, AvailableGames, PongMoves } from "@shared/types"; 
+import type { ClientMessage, WSMsgType, ServerMessage, AvailableGames, PongMoves, WSPongStartGameMessage, PongSessionData } from "@shared/types"; 
+import { gameClient } from "./game_client";
+import { renderPongFrame } from './pong_renderer';
 
 // Access the variables using import.meta.env
 const port = import.meta.env.VITE_NGINX_PORT;
@@ -63,9 +65,21 @@ const url = `ws://${host}:${port}/ws/games/`;
 // ---------------------------------------------------------
 
 // ------- WS connections hanlder (send/receive) ------------
-class WSConnectionsHandler {
+type GameUpdateCallback = (data: any) => void;
+
+export class WSConnectionsHandler {
 
 	private socket: WebSocket | null = null;
+	private onGameUpdate: GameUpdateCallback | null = null;
+
+	/**
+    	* Allow the Frontend to register a listener
+    	* When the Game Page loads then it will pass the 'draw()' function here.
+    */
+	public setGameUpdateListenerCallback(callback: GameUpdateCallback | null) {
+		console.log('Set the Call back');
+        this.onGameUpdate = callback;
+    }
 
 	private createWSConnectMessage(): ClientMessage {
 		const message: ClientMessage = {
@@ -77,7 +91,7 @@ class WSConnectionsHandler {
 	}
 
 	private createWSStartGameMessage(game: AvailableGames, gameId: string): ClientMessage {
-		const message: ClientMessage = {
+		const message: WSPongStartGameMessage = {
 			type: 'START_GAME',
 			game,
 			payload: {
@@ -86,16 +100,6 @@ class WSConnectionsHandler {
 		};
 		return message;
 	}
-
-	// private createWSPingMessage(game: AvailableGames, sessionId: string) {
-	// 	const message: ClientMessage = {
-	// 		type: 'PING',
-	// 		game,
-	// 		payload: {
-	// 			sessionId
-	// 		}
-	// 	};
-	// }
 
 	private sendWSMessage(msg: ClientMessage) {
 		this.socket!.send(JSON.stringify(msg));
@@ -113,7 +117,6 @@ class WSConnectionsHandler {
 
 		this.sendWSMessage(message!);
 	}
-
 	connect(): Promise<void> {
 
 		return new Promise((resolve, reject) => {
@@ -162,10 +165,41 @@ class WSConnectionsHandler {
         try {
             // 1. Parse the string data into a JSON object
             const data = JSON.parse(event.data as string);
-            
             console.log("📩 Received:", data);
+			const type: WSMsgType = data.type;
+			// const payload = data.payload as PongSessionData;
+            
+			// console.log(`Ws message received, type: ${type} `);
 
             // 2. Route the message based on its type
+			switch (type) {
+
+				case 'GAME_STATE':
+					if (this.onGameUpdate) {
+						// console.log("Calling the call Back");
+						// this.onGameUpdate(data);
+					}
+
+					// const convertedData: PongSessionData = data;
+					// Check if we have a valid canvas to draw on
+                    if (gameClient.canvas && data.payload) {
+                        renderPongFrame(gameClient.canvas, data.payload);
+                    }
+					// gameClient.pongRenderer!.draw(convertedData);
+					break ;
+
+				// Handle Game Over
+				case 'GAME_FINISHED':
+					console.log("Game Finished");
+					// I might separate callback for this !!
+					// if (this.onGameUpdate) {
+					// 	this.onGameUpdate(data.payload);
+					// }
+					break ;
+				
+				default:
+					break ;
+			}
             
 
         } catch (err) {
@@ -175,4 +209,5 @@ class WSConnectionsHandler {
 }
 
 // ## Export a SINGLE instance ##
-export const wsConnectionsHandler = new WSConnectionsHandler();
+// export WSConnectionsHandler;
+// export const wsConnectionsHandler = new WSConnectionsHandler();

@@ -3,8 +3,27 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { SocketStream } from '@fastify/websocket';
 import { WebSocket } from 'ws';
 
-import { registerNewPlayer } from '../game_manager/games_utiles';
-import { ClientMessage, ServerMessage, WSMsgType } from '../../../shared/types'
+import { getPlayer, registerNewPlayer } from '../game_manager/games_utiles';
+import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData } from '../../../shared/types'
+
+import { pongGameSessionsRoom } from '../pong/pong_memory';
+import { PongSession } from '../pong/pong_types';
+import { GamesPlayer } from '../game_manager/games_types';
+
+
+function sendWSMsg(results: PongSessionData, session: PongSession) {
+	const player1: GamesPlayer = getPlayer(session.players[0].playerId);
+	const player2: GamesPlayer = getPlayer(session.players[0].playerId);
+
+	const ws1: WebSocket = player1.ws as WebSocket;
+	let ws2: WebSocket | null = null;
+	if (player2)
+		ws2 = player2.ws as WebSocket;
+
+	ws1.send(JSON.stringify(results));
+	if (ws2)
+		ws2.send(JSON.stringify(results));
+}
 
 function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
 	console.log(` player id ==> ${playerId}`);
@@ -13,7 +32,11 @@ function connectPlayer(playerId: string, playerName: string, socket: WebSocket) 
 }
 
 function startPongGame(playerId: string, parsedMessage: ClientMessage) {
-	console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload} ###`);
+	parsedMessage = parsedMessage as WSPongStartGameMessage;
+	console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload.gameId} ###`);
+
+	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId);
+
 }
 
 function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
@@ -107,4 +130,4 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	
 }
 
-export { wsHandler };
+export { wsHandler, sendWSMsg };
