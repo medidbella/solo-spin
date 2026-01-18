@@ -239,3 +239,16 @@ services:
       - elastic
     depends_on:
       - backend
+  
+  chat:
+    build:
+      context: ./chat
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    environment:
+      - PORT=3000
+      - BACKEND_URL=http://backend:3000
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
+    depends_on:
+      - backend
