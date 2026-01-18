@@ -25,6 +25,8 @@ services:
       context: ./chat
       dockerfile: Dockerfile
       target: builder
+    expose:
+      - "3000"
     volumes:
       - ./chat:/app
       - /app/node_modules
