@@ -89,7 +89,7 @@ init: ## First-time setup: Configures .env, permissions, and certificates
 
 	@# 4. Generate SSL Certificates
 	@echo "$(YELLOW)[INFO] Generating SSL Certificates...$(RESET)"
-	@docker compose $(COMPOSE_BASE) up setup
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up setup
 	@echo ""
 	@echo "$(GREEN)[SUCCESS] Initialization complete.$(RESET)"
 	@echo "$(RED)[ACTION REQUIRED] Check your new .env file and update credentials!$(RESET)"
