@@ -71,6 +71,6 @@ services:
     environment:
       - PORT=3000
       - BACKEND_URL=http://backend:3000
-      - INTERNAL_SECRET=${INTERNAL_SECRET}
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
     depends_on:
       - backend
