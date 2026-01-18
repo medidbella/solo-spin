@@ -15,10 +15,13 @@ BOLD         := \033[1m
 RESET        := \033[0m
 
 # --- ORCHESTRATION CONFIGURATION ---
-COMPOSE_BASE := docker compose -f ./docker-compose.yml
-COMPOSE_ALI := docker compose -f ./docker-compose-withoutELK.yml
-# COMPOSE_OVERRIDE := docker compose -f ./docker-compose.override.yml
-COMPOSE      := $(COMPOSE_BASE)
+# Modular Docker Compose setup
+COMPOSE_BASE := -f docker-compose.yml
+COMPOSE_ELK  := -f docker-compose.elk.yml
+COMPOSE_DEV  := -f docker-compose.override.yml
+
+# Helper to target all definitions for logs/down/ps
+COMPOSE_ALL  := $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV)
 
 # --- ANALYTICS CONFIGURATION ---
 DASH_DIR     := dashboards
@@ -49,10 +52,10 @@ help: ## Show this help message
 
 
 # ==============================================================================
-# SYSTEM BOOTSTRAP (NEW)
+# SYSTEM BOOTSTRAP
 # ==============================================================================
 
-init: ## First-time setup: Configures .env, permissions, and certs
+init: ## First-time setup: Configures .env, permissions, and certificates
 	@echo "$(BOLD)Bootstrapping Solo-Spin Environment...$(RESET)"
 	
 	@# 1. Handle .env file
@@ -69,14 +72,14 @@ init: ## First-time setup: Configures .env, permissions, and certs
 		echo "$(CYAN)[INFO] .env already exists. Skipping.$(RESET)"; \
 	fi
 
-	@# 2. Fix Configuration Permissions (CRITICAL FOR FILEBEAT)
+	@# 2. Fix Configuration Permissions (Required by Filebeat/Elasticsearch)
 	@echo "$(YELLOW)[INFO] Securing configuration files (chmod go-w)...$(RESET)"
 	@chmod go-w filebeat.yml
 	@if [ -f logstash.yml ]; then chmod go-w logstash.yml; fi
 	@echo "$(GREEN)[OK] Config security applied.$(RESET)"
 
-	@# 3. PREPARE DATABASE FILE (Docker Mount Fix)
-	@echo "$(YELLOW)[INFO] Initializing database file to prevent Docker directory mount issue...$(RESET)"
+	@# 3. Prepare Database File (Prevents Docker directory mount issue)
+	@echo "$(YELLOW)[INFO] Initializing database file...$(RESET)"
 	@if [ ! -f backend/dev.db ]; then \
 		touch backend/dev.db; \
 		echo "$(GREEN)[OK] Empty dev.db created.$(RESET)"; \
@@ -84,9 +87,9 @@ init: ## First-time setup: Configures .env, permissions, and certs
 		echo "$(CYAN)[INFO] dev.db already exists.$(RESET)"; \
 	fi
 
-	@# 4. Generate Certs
+	@# 4. Generate SSL Certificates
 	@echo "$(YELLOW)[INFO] Generating SSL Certificates...$(RESET)"
-	@$(COMPOSE_BASE) up setup
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up setup
 	@echo ""
 	@echo "$(GREEN)[SUCCESS] Initialization complete.$(RESET)"
 	@echo "$(RED)[ACTION REQUIRED] Check your new .env file and update credentials!$(RESET)"
@@ -97,29 +100,29 @@ init: ## First-time setup: Configures .env, permissions, and certs
 # LIFECYCLE MANAGEMENT
 # ==============================================================================
 
-dev: ## Initialize development environment with Hot Module Replacement
-	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
-	@$(COMPOSE_BASE) -f ./docker-compose.override.yml up -d
+without:   ## Start development stack WITHOUT ELK (App only)
+	@echo "$(YELLOW)[INFO] Starting App without ELK...$(RESET)"
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-without: 
-	@echo "$(YELLOW)[INFO] Initializing development stack...$(RESET)"
-	@$(COMPOSE_ALI)  -f ./docker-compose.override.yml up -d 
+dev: ## Start full development stack (App + ELK)
+	@echo "$(YELLOW)[INFO] Starting Full Stack (App + ELK)...$(RESET)"
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-prod: ## Execute production-grade build and deployment
-	@echo "$(CYAN)[INFO] Executing production build sequence...$(RESET)"
-	@$(COMPOSE_BASE) up -d --build
-	@echo "$(GREEN)[SUCCESS] Production stack deployed.$(RESET)"
+prod: ## Build and deploy production stack (Immutable images, No hot-reload)
+	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build
+	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-down: ## Terminate all active service containers
+down: ## Stop and remove all containers (App & ELK)
 	@echo "$(RED)[WARN] Terminating services...$(RESET)"
-	@$(COMPOSE) down
+	@docker compose $(COMPOSE_ALL) down --remove-orphans
 
-clean: ## Purge persistent volumes, local images, and SSL artifacts
+clean: ## Danger: Deep clean volumes, images, and certificates
 	@echo "$(RED)[DANGER] Irreversible purge: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
 	@read -p "Confirm destructive action? [y/N] " ans && [ $${ans:-N} = y ]
-	@$(COMPOSE) down -v --rmi local
+	@docker compose $(COMPOSE_ALL) down -v --rmi local
 	@rm -rf nginx_certs/*.crt nginx_certs/*.key
 	@echo "$(GREEN)[INFO] System purged.$(RESET)"
 
@@ -127,37 +130,37 @@ clean: ## Purge persistent volumes, local images, and SSL artifacts
 # OBSERVABILITY & DIAGNOSTICS
 # ==============================================================================
 
-logs: ## Aggregate and stream logs from all active containers
+logs: ## Stream logs from all active services
 	@echo "$(CYAN)[INFO] Streaming system logs...$(RESET)"
-	@$(COMPOSE) logs -f --tail=100
+	@docker compose $(COMPOSE_ALL) logs -f --tail=100
 
-ps: ## Display operational status of system services
-	@$(COMPOSE) ps
+ps: ## Show status of all services
+	@docker compose $(COMPOSE_ALL) ps
 
 # ==============================================================================
 # DATA PERSISTENCE & SCHEMA MANAGEMENT
 # ==============================================================================
 
-db-gen: ## Regenerate Prisma ORM client artifacts
-	@$(COMPOSE) exec backend npx prisma generate
+db-gen: ## Regenerate Prisma Client
+	@docker compose $(COMPOSE_BASE) exec backend npx prisma generate
 
-db-push: ## Synchronize database schema with current Prisma definition
-	@$(COMPOSE) exec backend npx prisma db push
+db-push: ## Push Schema to DB
+	@docker compose $(COMPOSE_BASE) exec backend npx prisma db push
 
-db-studio: ## Launch Prisma Studio administrative interface
-	@$(COMPOSE) exec backend npx prisma studio
+db-studio: ## Open Prisma Studio (DB GUI)
+	@docker compose $(COMPOSE_BASE) exec backend npx prisma studio
 
 # ==============================================================================
 # ANALYTICS ASSETS (KIBANA)
 # ==============================================================================
 
-db-export: ## Export Kibana saved objects to local filesystem
+db-export: ## Export Kibana Dashboards to local file
 	@mkdir -p $(DASH_DIR)
 	@echo "$(YELLOW)[INFO] Exporting analytics metadata...$(RESET)"
 	@curl -s -f -X POST "$(KIBANA_URL)/api/saved_objects/_export" $(KIBANA_AUTH) $(KIBANA_HEAD) -d $(KIBANA_BODY) > $(DASH_FILE)
 	@echo "$(GREEN)[SUCCESS] Assets written to $(DASH_FILE)$(RESET)"
 
-db-import: ## Import Kibana saved objects from local filesystem
+db-import: ## Import Kibana Dashboards from local file
 	@mkdir -p $(DASH_DIR)
 	@echo "$(YELLOW)[INFO] Restoring analytics metadata...$(RESET)"
 	@curl -s -X POST "$(KIBANA_URL)/api/saved_objects/_import?overwrite=true" $(KIBANA_AUTH) -H "kbn-xsrf:true" --form file=@$(DASH_FILE) > /dev/null
