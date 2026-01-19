@@ -354,6 +354,7 @@ List all friend requests sent to the logged in user.
 
 ---
 
+
 ## GET `/api/user/friends`
 List all the friends of the logged in user.
 
@@ -362,12 +363,34 @@ List all the friends of the logged in user.
 - No error occurs -> "200 OK" + a JSON response that represents the array of friends in the following format:
   ```json
   [
-    {
-      "id": 1,
-      "username": "midbella",
-      "name": "mohamed",
-      "friendshipId": 9
-    }
+      {
+          "id": 1,
+          "username": "midbella",
+          "friendshipId": 13,
+          "blockedBy": null
+      }
+      // rest of friends
+  ]
+  ```
+  - The array is sorted (desc) by time stamp
+  - The array can be empty
+
+---
+
+## GET `/api/friends/blocked`
+List all users blocked by the logged in user.
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- No error occurs -> "200 OK" + a JSON response that represents the array of blocked users in the following format:
+  ```json
+  [
+      {
+          "id": 1,
+          "username": "midbella",
+          "friendshipId": 13
+      }
+      // rest of blocked friends
   ]
   ```
   - The array is sorted (desc) by time stamp
