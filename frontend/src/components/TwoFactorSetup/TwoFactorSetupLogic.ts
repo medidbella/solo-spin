@@ -32,7 +32,7 @@ export async function handleEnable2FA(): Promise<void> {
   try {
     const response = await apiFetch<TwoFAGenerateResponse>('/api/2fa/generate', {
       method: 'POST',
-    //   body: JSON.stringify({})
+      body: JSON.stringify({})
     });
 
     console.log('2FA Generate response:', response);
