@@ -115,7 +115,7 @@ services:
     labels:
       co.elastic.logs/module: kibana
     volumes:
-      - ./elk/certs:/usr/share/elasticsearch/config/certs
+      - ./elk/certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
     ports:
       - ${KIBANA_PORT}:5601
