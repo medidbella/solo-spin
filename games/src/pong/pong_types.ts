@@ -167,10 +167,15 @@ class PongSessionsRoom {
      * Helper: Retrieve a session by ID.
      * Useful for the WebSocket connection to find which game the user is joining.
      */
-    public getSession(sessionId: string, gameMode: GameMode): PongSession | undefined {
-        if (gameMode === 'local')
-			return this.localSessions.get(sessionId);
-		return this.remoteSessions.get(sessionId);
+    public getSession(sessionId: string): PongSession | undefined {
+        // if (gameMode === 'local')
+		// 	return this.localSessions.get(sessionId);
+		// return this.remoteSessions.get(sessionId);
+
+		let session: PongSession | undefined = this.localSessions.get(sessionId);
+		if (!session)
+			session = this.remoteSessions.get(sessionId);
+		return session;
     }
 
     /**
@@ -211,7 +216,7 @@ class PongSessionsRoom {
 
 			});
 
-		}, 1000/60 ); // Runs every 1s
+		}, 1000/100 ); // Runs every 1s
 
 	}
 

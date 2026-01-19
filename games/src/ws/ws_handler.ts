@@ -4,10 +4,12 @@ import { SocketStream } from '@fastify/websocket';
 import { WebSocket } from 'ws';
 
 import { getPlayer, registerNewPlayer } from '../game_manager/games_utiles';
-import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData } from '../../../shared/types'
+import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
+			WSPongInput, PongInput, inputPlayer
+ 		} from '../../../shared/types'
 
-import { pongGameSessionsRoom } from '../pong/pong_memory';
-import { PongSession } from '../pong/pong_types';
+import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
+import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
 
 
@@ -39,9 +41,30 @@ function startPongGame(playerId: string, parsedMessage: ClientMessage) {
 
 }
 
-function pongGameMovements(playerId: string, parsedMessage: ClientMessage) {
-	console.log(`🎮 Move received:`, parsedMessage.payload);
+function pongGameMovements(playerId: string, parsedMessage: WSPongInput) {
+	// console.log(`🎮 Move received:`, parsedMessage.payload);
 		// Handle game move...
+
+	
+	const sessionId: string = parsedMessage.payload.gameId;
+	if (!sessionId)
+		return ;
+
+	const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId);
+	if (!session)
+		return ;
+
+	const move: PongInput = parsedMessage.payload.move;
+	const inputPlayer: inputPlayer = parsedMessage.payload.inputPlayer;
+
+	let player: PongPlayer;
+	if (inputPlayer === 'LEFT')
+		player = session.players[0];
+	else
+		player = session.players[1];
+
+	pongEngine.updatePaddles(session, player, move);
+	
 }
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
@@ -94,7 +117,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					break;
 					
 				case 'GAME_INPUT':
-					pongGameMovements(playerId, parsedMessage);
+					pongGameMovements(playerId, parsedMessage as WSPongInput);
 					break;
 
 				default:

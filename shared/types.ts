@@ -12,7 +12,8 @@ export type WSMsgType =
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
-export type PongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
+export type PongInput = 'UP' | 'DOWN' | 'W' | 'S';
+export type inputPlayer = 'LEFT' | 'RIGHT';
 
 // --- SYSTEM MESSAGES (Handshake) ---
 
@@ -76,7 +77,9 @@ export interface WSPongInput {
     type: 'GAME_INPUT';
     game: 'pong';
     payload: {
-        move: PongMoves; // Simple directions
+        gameId: string;
+        inputPlayer: inputPlayer; // left/right
+        move: PongInput; // Simple directions
     };
 }
 

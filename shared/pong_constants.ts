@@ -6,7 +6,7 @@ export const CANVAS_HEIGHT = 600;
 // Paddle rules
 export const PADDLE_WIDTH = 10;
 export const PADDLE_HEIGHT = 100;
-export const PADDLE_SPEED = 6;
+export const PADDLE_SPEED = 20;
 export const PADDLE_MARGIN = 10;
 export const PADDLE_START_Y = (CANVAS_HEIGHT / 2) - (PADDLE_HEIGHT / 2);
 export const PADDLE_START_X_ON_LEFT = PADDLE_MARGIN
@@ -22,4 +22,4 @@ export const BALL_START_Y = CANVAS_HEIGHT / 2;
 
 
 // game rules
-export const WINNING_SCORE = 5;
+export const WINNING_SCORE = 20;

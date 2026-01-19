@@ -6,7 +6,7 @@ import {
     BALL_START_X, BALL_START_Y, BALL_START_SPEED 
 } from '../../../shared/pong_constants';
 
-import { GameMode, PongMoves, PongSessionData, ServerMessage } from '../../../shared/types';
+import { GameMode, PongInput, PongSessionData, ServerMessage } from '../../../shared/types';
 import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';
@@ -187,13 +187,13 @@ class PongEngine {
 
         // 2. If game continues, put ball & Paddle back in center
         this.resetBall(session.ball);
-		this.resetPaddle(session.players[0].paddle, session.players[0].side);
-		this.resetPaddle(session.players[1].paddle, session.players[1].side);
+		// this.resetPaddle(session.players[0].paddle, session.players[0].side);
+		// this.resetPaddle(session.players[1].paddle, session.players[1].side);
     }
 
 	// ------------------------------------------------------
 
-    public updatePaddles(session: PongSession, player: PongPlayer, move: PongMoves): void {
+    public updatePaddles(session: PongSession, player: PongPlayer, move: PongInput): void {
 
 		const speed = PADDLE_SPEED;
 
@@ -201,9 +201,9 @@ class PongEngine {
 		const paddle = player.paddle;
 
 		// 2. Apply the Move
-        if (move === 'UP') {
+        if (move === 'UP' || move === 'W') {
             paddle.y -= speed;
-        } else if (move === 'DOWN') {
+        } else if (move === 'DOWN' || move === 'S') {
             paddle.y += speed;
         }
 

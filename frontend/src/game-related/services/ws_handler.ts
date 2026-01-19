@@ -1,6 +1,9 @@
 
 // import { WebSocket } from 'ws';
-import type { ClientMessage, WSMsgType, ServerMessage, AvailableGames, PongMoves, WSPongStartGameMessage, PongSessionData } from "@shared/types"; 
+import type { ClientMessage, WSMsgType, ServerMessage,
+				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
+				PongSessionData, WSPongInput, 
+				GameMode} from "@shared/types"; 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 
@@ -101,20 +104,40 @@ export class WSConnectionsHandler {
 		return message;
 	}
 
+	private createWSGameInputMessage(gameId: string, move: PongInput) {
+		let inputPlayer: inputPlayer;
+
+		if (move === 'W' || move === 'S')
+			inputPlayer = 'LEFT';
+		else
+			inputPlayer = 'RIGHT';
+
+		const message: WSPongInput = {
+			type: 'GAME_INPUT',
+			game: 'pong',
+			payload: {
+				gameId,
+				inputPlayer,
+				move
+			}
+		}
+		return message;
+	}
+
 	private sendWSMessage(msg: ClientMessage) {
 		this.socket!.send(JSON.stringify(msg));
 	}
 
-	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string | null, move: PongMoves | null) {
+	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string, move: PongInput | null) {
 		let message: ClientMessage;
 
 		if (type == 'CONNECT')
 			message = this.createWSConnectMessage();
 		else if (type === "START_GAME")
 			message = this.createWSStartGameMessage(game, sessionId!);
-		// else
-		// 	// input message
-
+		else if (type === 'GAME_INPUT') {
+			message = this.createWSGameInputMessage(sessionId, move!);
+		}
 		this.sendWSMessage(message!);
 	}
 	connect(): Promise<void> {
@@ -165,7 +188,7 @@ export class WSConnectionsHandler {
         try {
             // 1. Parse the string data into a JSON object
             const data = JSON.parse(event.data as string);
-            console.log("📩 Received:", data);
+            // console.log("📩 Received:", data);
 			const type: WSMsgType = data.type;
 			// const payload = data.payload as PongSessionData;
             

@@ -37,33 +37,60 @@ export function setGamePlayPageLogic() {
 	// 2. Initialize the Game Engine (Renderer + WS Listener)
     gameClient.initGamePage(canvas);
 
-	// 3. Setup Input Listeners (Paddle Movement)
-    // We listen to the WINDOW for key presses
-    window.addEventListener('keydown', handleInput);
-    window.addEventListener('keyup', handleInput);
+	// 3. TRACKING FLAG
+    // This variable lives only as long as this page logic is running
+	// i'm using this flag to make sure that the playe sends start game message once!!
+	let hasStarted = false;
+    console.log(`  Create the hasStarted: ${hasStarted}`);
 
-	// --- Helper for Inputs ---
+	// 4. Setup Input Listeners (Paddle Movement)
+    // I listen to the WINDOW for key presses
+
+    // window.addEventListener('keydown', handleInput);
+    // window.addEventListener('keyup', handleInput);
+
+	// --- Handle 4 Keys (W, S, Up, Down) ---
     function handleInput(e: KeyboardEvent) {
+
         // Prevent scrolling with arrows
-        if(["ArrowUp","ArrowDown","Space"].indexOf(e.code) > -1) {
+        if(["ArrowUp", "ArrowDown", "KeyW", "KeyS", "Space"].includes(e.code)) {
             e.preventDefault();
         }
 
-        // Send move to server (Implementation depends on your WSHandler)
+        // check the type of pressed key
         if (e.type === 'keydown') {
+			const gameId: string | null = gameClient.getGameId();
+			if (!gameId)
+				return ;
+			
             if (e.code === 'ArrowUp') {
-                 // client.wsConnectionsHandler.sendMove('UP'); 
-                 console.log("⬆️ UP");
+                // client.wsConnectionsHandler.sendMove('UP'); 
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
+                console.log("⬆️ UP");
+
             } else if (e.code === 'ArrowDown') {
-                 // client.wsConnectionsHandler.sendMove('DOWN');
-                 console.log("⬇️ DOWN");
-            }
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'DOWN');
+                console.log("⬇️ DOWN");
+
+            } else if (e.code === 'KeyW') {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'W');
+                console.log("⬆️ W");
+
+			} else if (e.code === 'KeyS') {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'S');
+                console.log("⬇️ S");
+
+			} else if (!hasStarted && e.code === 'Space') {
+				console.log(" Space: 🚀 Sending Start Game WS message...");
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameId, null);
+				hasStarted = true;
+				console.log(` Update hasStarted flag: ${hasStarted}`);
+			}
         }
     }
 
 	// 4. send start game message: TELL SERVER I AM READY:
-    console.log("🚀 Sending Start Game WS message...");
-	gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
-
+    // console.log("🚀 Sending Start Game WS message...");
+	// gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 }
 
