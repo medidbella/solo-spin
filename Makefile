@@ -93,7 +93,7 @@ init: ## First-time setup: Configures .env, permissions, and certificates
 	@echo ""
 	@echo "$(GREEN)[SUCCESS] Initialization complete.$(RESET)"
 	@echo "$(RED)[ACTION REQUIRED] Check your new .env file and update credentials!$(RESET)"
-	@echo "$(YELLOW)[INFO] Then run 'make dev' to start.$(RESET)"
+	@echo "$(YELLOW)[INFO] Then run 'make dev' | 'make without' | 'make prod' to start.$(RESET)"
 
 
 # ==============================================================================

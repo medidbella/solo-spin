@@ -44,7 +44,7 @@ services:
     networks:
       - elastic
     volumes:
-      - certs:/usr/share/elasticsearch/config/certs
+      - ./elk/certs:/usr/share/elasticsearch/config/certs
     user: "0"
     command: >
       bash -c '
