@@ -6,7 +6,7 @@ import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
-import { renderSecurity, changePasswordFormSubmit} from './pages/Security';
+import { renderSecurity} from './pages/Security';
 import { renderChat } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
