@@ -172,7 +172,21 @@ Validate the user 2fa code to enable 2fa, used after the 2fa/generate route.
 To verify a client 2FA code, used after login to 2FA enabled account.
 
 **Request body schema:**
-- code: { type: "string", minLength: 6, maxLength: 6 }
+- code:
+
+
+
+
+
+
+
+
+
+
+
+
+
+ { type: "string", minLength: 6, maxLength: 6 }
 - mfaToken: {type: "string"}
   (mfaToken is already sent with the login response body)
 
