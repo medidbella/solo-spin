@@ -1,8 +1,28 @@
 import Fastify from 'fastify';
 import { Server } from 'socket.io';
 
-const fastify = Fastify({ 
-  logger: true 
+const fastify = Fastify({
+  logger: {
+    transport: {
+      targets: [
+        {
+          target: 'pino/file',
+          options: { 
+            destination: './logs/chat.log', 
+            mkdir: true 
+          }
+        },
+        {
+          target: 'pino-pretty',
+          options: { 
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname' 
+          }
+        }
+      ]
+    }
+  } 
 });
 
 // DEVOPS CONFIGURATION:

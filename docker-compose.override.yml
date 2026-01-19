@@ -8,6 +8,10 @@ services:
     command: npm run dev
 
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
     volumes:
       - ./frontend:/app
       - /app/node_modules
