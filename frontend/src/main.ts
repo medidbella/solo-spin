@@ -19,7 +19,7 @@ import { apiFetch } from './api_integration/api_fetch';
 import type { UserInfo } from './api_integration/api_types';
 import { redirectBasedOnAuth } from './utils/auth.ts';
 import { setupSecurityPageLogic } from './pages/Security';
-
+import { render_2fa } from './pages/2fa.ts';
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
@@ -33,7 +33,8 @@ export const routeStatesMap: Record<string, 'private' | 'public'> = {
   '/game'        : 'private',
   '/leaderboard' : 'private',
   '/profile'     : 'private',
-  '/profiles'    : 'private'
+  '/profiles'    : 'private',
+  '/2fa'         : 'public'
 };
 
 export async function router(path: string)
@@ -53,7 +54,9 @@ export async function router(path: string)
        app.innerHTML = renderSignUpPage(); 
        setupSignupLogic();
        break;
-       
+    case '/2fa':
+        app.innerHTML = render_2fa();
+        break;  
     case '/home':
       app.innerHTML = renderHome();
       setupHeaderLogic();

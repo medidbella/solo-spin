@@ -1,6 +1,7 @@
 *.db
 *.env
 backend/dist
+elk/certs
 backend/node_modules
 chat/node_modules
 frontend/node_modules
