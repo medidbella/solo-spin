@@ -18,7 +18,7 @@ services:
  
   nginx:
     build:
-      context: ./ngnix
+      context: ./nginx
       dockerfile: Dockerfile
     networks:
       - elastic
@@ -27,7 +27,7 @@ services:
       - "8443:443"
     volumes:
       - ./logs:/var/log/nginx
-      - ./ngnix/certs:/etc/nginx/certs
+      - ./nginx/certs:/etc/nginx/certs
   
   backend:
     build:
