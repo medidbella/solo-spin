@@ -154,7 +154,7 @@ services:
     volumes:
       - logstashdata01:/usr/share/logstash/data
       - ./elk/certs:/usr/share/logstash/config/certs
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - NODE_NAME="logstash"
       - xpack.monitoring.enabled=false
@@ -172,8 +172,8 @@ services:
       - elastic
     volumes:
       - ./elk/certs:/usr/share/filebeat/certs
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs:/usr/share/filebeat/logs:ro
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/usr/share/filebeat/logs
     depends_on:
       - logstash
 
