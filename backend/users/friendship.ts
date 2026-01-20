@@ -6,7 +6,7 @@ export const friendRequestSchema = {
 		type: 'object',
 		required: ["receiver_id"],
 		properties: {
-			receiver_id: { type: 'integer', minimum: 1 }
+			receiver_id: { type: 'integer', minimum: 0 }
 		},
 		additionalProperties: false
 	}
@@ -17,7 +17,7 @@ export const friendRequestActionSchema = {
 		type: 'object',
 		required: ["request_id"],
 		properties: {
-			request_id: { type: 'integer', minimum: 1 }
+			request_id: { type: 'integer', minimum: 0 }
 		},
 		additionalProperties: false
 	}
@@ -28,7 +28,7 @@ export const unfriendSchema = {
 		type: 'object',
 		required: ["id"],
 		properties: {
-			id: { type: 'integer', minimum: 1}
+			id: { type: 'integer', minimum: 0}
 		},
 		additionalProperties: false
 	}
@@ -39,7 +39,7 @@ export const friendBlockSchema = {
 		type: 'object',
 		required: ["friend_id"],
 		properties: {
-			friend_id: { type: 'integer', minimum: 1 }
+			friend_id: { type: 'integer', minimum: 0 }
 		},
 		additionalProperties: false
 	}
