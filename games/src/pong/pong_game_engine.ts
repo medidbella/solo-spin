@@ -3,10 +3,10 @@ import {
     CANVAS_WIDTH, CANVAS_HEIGHT, PADDLE_HEIGHT, PADDLE_SPEED, BALL_RADIUS,
 	PADDLE_WIDTH, BALL_MAX_SPEED, BALL_SPEED_INCREASE, WINNING_SCORE,
     PADDLE_START_X_ON_LEFT, PADDLE_START_X_ON_RIGHT, PADDLE_START_Y, 
-    BALL_START_X, BALL_START_Y, BALL_START_SPEED 
+    BALL_START_X, BALL_START_Y, BALL_START_SPEED, ROUND_START_DELAY_MS
 } from '../../../shared/pong_constants';
 
-import { GameMode, PongInput, PongSessionData, ServerMessage } from '../../../shared/types';
+import { GameMode, PongInput, PongSessionData, ServerMessage, Winner } from '../../../shared/types';
 import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';
@@ -14,7 +14,7 @@ import { pongGameSessionsRoom } from './pong_memory';
 import { Ball, Paddle, PongPlayer, PongSession } from './pong_types';
 
 class PongEngine {
-    
+
     // --- SINGLETON PATTERN (Optional, but good for consistency) ---
     private static instance: PongEngine;
     private constructor() { }
@@ -27,6 +27,7 @@ class PongEngine {
     }
 
     public gameTick(session: PongSession): PongSessionData {
+		let winner: Winner = 'none';
         
         // // 1. Retrieve the specific Game Session from Memory
         // const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId, gameMode);
@@ -41,10 +42,16 @@ class PongEngine {
         // this.updatePaddles(session, player.pongPlayer, move); // will be called only if player moves
         this.updateBall(session);
         this.checkPaddleCollisions(session);
-		this.checkScoring(session);        // Check Goal/Game Over
-
-        // 3. Return the modified session so we can send it to clients
+		this.checkScoring(session);       // Check Goal/Game Over
+		
+		
+		
+        // 3. Return the results (new coordinates, score, winner) that will send to clients
 		const resultsMsg: PongSessionData = this.createResutlsMsg(session);
+
+		// 4. end the game
+		this.checkGameOver(session);
+
         return resultsMsg;
     }
 
@@ -56,8 +63,12 @@ class PongEngine {
 		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
 		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer; 
 
+		let type: 'GAME_STATE' | 'GAME_FINISHED' = 'GAME_STATE';
+		if (session.winner != 'none')
+			type = 'GAME_FINISHED';
+
 		const resultsMsg: PongSessionData = {
-			type: 'GAME_STATE',
+			type,
     		game: 'pong',
 
 			payload: {
@@ -84,9 +95,7 @@ class PongEngine {
 				leftScore: player1.pongPlayer?.score as number,
 				rightScore: player2.pongPlayer?.score as number,
 
-				winner: 'none',
-				// finaleLeftScore: 0,
-				// finaleRightScore: 0
+				winner: session.winner
 			}
 
 		}
@@ -164,13 +173,13 @@ class PongEngine {
 
 		// player 1:
         if (player1.score >= WINNING_SCORE) {
-            session.winner = 'player1'; // Player 1 Wins
+            session.winner = 'leftPlayer'; // Player 1 Wins
             session.state = 'finished'; // Stop the game loop
             return true;
         }
         
         if (player2.score >= WINNING_SCORE) {
-            session.winner = 'player2'; // Player 2 Wins
+            session.winner = 'rightPlayer'; // Player 2 Wins
             session.state = 'finished';
             return true;
         }
@@ -179,17 +188,25 @@ class PongEngine {
     }
 
 	// handle if someone scores
-    private handleScoreEvent(session: PongSession): void {
+    private handleScoreEvent(session: PongSession): boolean { // return true if the game has a winner (finished)
         // 1. Check if the game ended
         if (this.checkWinner(session)) {
-            return; // Game Over, don't reset ball
+            // Game Over, don't reset ball (game has a winner)
+			return true; 
         }
 
         // 2. If game continues, put ball & Paddle back in center
         this.resetBall(session.ball);
-		// this.resetPaddle(session.players[0].paddle, session.players[0].side);
-		// this.resetPaddle(session.players[1].paddle, session.players[1].side);
+		// 3. SET THE DELAY (e.g., 1000ms = 1 second)
+        // The ball will freeze until this time passes
+        session.nextRoundStartTimestamp = Date.now() + ROUND_START_DELAY_MS;
+		
+		return false; // game continues (no winner yet)
     }
+
+	private getWinner(leftScore: number, rightScore: number): Winner {
+		return leftScore > rightScore ? 'leftPlayer' : 'rightPlayer';
+	}
 
 	// ------------------------------------------------------
 
@@ -212,15 +229,21 @@ class PongEngine {
     }
 
     private updateBall(session: PongSession): void {
-        const ball: Ball = session.ball;
+
+		const ball: Ball = session.ball;
+		
+		// 2. Check for Delay
+        // If current time is less than the start time, freeze the ball logic!
+        if ( session.nextRoundStartTimestamp && Date.now() < session.nextRoundStartTimestamp) {
+            return; 
+        } else if (session.nextRoundStartTimestamp)
+			session.nextRoundStartTimestamp = 0;
 
 		// 1. Update Position based on current velocity
-        // ball.x += ball.velocityX;
-        // ball.y += ball.velocityY;
-
 		ball.x += (ball.dx * ball.speed);
     	ball.y += (ball.dy * ball.speed);
 		this.checkBallCollisions(ball);
+
     }
 
     private checkPaddleCollisions(session: PongSession): void {
@@ -266,22 +289,32 @@ class PongEngine {
 
 	private checkScoring(session: PongSession): void {
 		const ball: Ball = session.ball;
-		const player1: PongPlayer = session.players[0];
-		const player2: PongPlayer = session.players[1];
+		const leftPlayer: PongPlayer = session.players[0];
+		const rightPlayer: PongPlayer = session.players[1];
+		// let winner: Winner = 'none';
 		
-		// --- Case A: Ball passed Left Wall (Player 2 Scores) ---
+		// --- Case A: Ball passed Left Wall (Right Player Scores) ---
         if (ball.x + ball.radius < 0) {
-            player2.score++; // Add point to Right Player (player 2)
-            this.handleScoreEvent(session);
+            rightPlayer.score++; // Add point to Right Player (player 2)
+            if (this.handleScoreEvent(session)) {
+				session.winner = this.getWinner(leftPlayer.score, rightPlayer.score);
+			}
         }
 
-		// --- Case B: Ball passed Right Wall (Player 1 Scores) ---
+		// --- Case B: Ball passed Right Wall (Left Player Scores) ---
         else if (ball.x - ball.radius > CANVAS_WIDTH) {
-            player1.score++; // Add point to Left Player (player 1)
-            this.handleScoreEvent(session);
+            leftPlayer.score++; // Add point to Left Player (player 1)
+            if (this.handleScoreEvent(session)) {
+				session.winner = this.getWinner(leftPlayer.score, rightPlayer.score);
+			}
         }
 	}
-	
+
+	// check if game over & handle
+	private checkGameOver(session: PongSession) {
+		if (session.winner != 'none')
+			pongGameSessionsRoom.endGame(session.sessionId, session.gameMode);
+	}
 }
 
 export { PongEngine };

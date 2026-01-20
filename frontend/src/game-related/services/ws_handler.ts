@@ -6,6 +6,7 @@ import type { ClientMessage, WSMsgType, ServerMessage,
 				GameMode} from "@shared/types"; 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
+import { handleGameOver } from '../renders/game_play';
 
 // Access the variables using import.meta.env
 const port = import.meta.env.VITE_NGINX_PORT;
@@ -214,10 +215,15 @@ export class WSConnectionsHandler {
 				// Handle Game Over
 				case 'GAME_FINISHED':
 					console.log("Game Finished");
-					// I might separate callback for this !!
-					// if (this.onGameUpdate) {
-					// 	this.onGameUpdate(data.payload);
-					// }
+					if (gameClient.canvas && data.payload) {
+
+						// 1. Draw the final frame so players see the final score
+                        renderPongFrame(gameClient.canvas, data.payload);
+
+						// 2. Show the UI Overlay
+						handleGameOver(data.payload);
+                    }
+					
 					break ;
 				
 				default:

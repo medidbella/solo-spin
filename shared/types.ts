@@ -155,13 +155,13 @@ export type PlayerState =
 
 // -------- WS message between the client and the server ----
 // type State = 'waiting' | 'playing' | 'paused' | 'finished';
-type Winner = 'player1' | 'player2' | 'none';
+export type Winner = 'leftPlayer' | 'rightPlayer' | 'none';
 
 export interface PongSessionData {
 	// sessionId: string;
     // state: State;
 
-    type: 'GAME_STATE';
+    type: 'GAME_STATE' | 'GAME_FINISHED';
     game: 'pong';
     payload: PongPayload
 }

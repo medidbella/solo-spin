@@ -1,6 +1,6 @@
 
 // import { GameState } from '../game_manager/gamesTypes';
-import { GameMode, PlayMode, GameState, PongSessionData } from '../../../shared/types';
+import { GameMode, PlayMode, GameState, PongSessionData, Winner } from '../../../shared/types';
 import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
 import { resetPlayer } from '../game_manager/games_utiles';
@@ -102,7 +102,9 @@ interface PongSession {
 	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
 	ball: Ball;				// shared ball objetc instance
 
-	winner: 'player1' | 'player2' | null; // the id of the winnere player
+	winner: Winner; // the id of the winnere player
+
+	nextRoundStartTimestamp: number; // time to start the next round
 }
 
 // ----------- Pong Game Session ------------------------
@@ -148,7 +150,8 @@ class PongSessionsRoom {
             gameMode,
             players: [player1, player2],
             ball: createBall(),
-			winner: null
+			winner: 'none',
+			nextRoundStartTimestamp: 0
         };
 
 		if (gameMode === 'local')
@@ -282,7 +285,6 @@ class PongSessionsRoom {
         setTimeout(() => {
             this.removeSession(sessionId, gameMode);
         }, 10000);
-
     }
 }
 

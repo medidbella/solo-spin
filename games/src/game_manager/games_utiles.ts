@@ -85,7 +85,11 @@ function registerNewPlayer(playerId: string, playerName: string, socket: WebSock
 
 function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
 	const player1: GamesPlayer = getPlayer(player1Id);
-	const player2: GamesPlayer = getPlayer(player2Id);
+	let player2: GamesPlayer; 
+	if (gameMode === 'remote')
+		player2 = getPlayer(player2Id);
+	else
+		player2 = playingPlayersRoom.get(player2Id)!;
 
 	if (player1) {
 		player1.playerState = 'IDLE';
@@ -98,8 +102,12 @@ function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
 	}
 
 
-	if (gameMode === 'local')
+	if (gameMode === 'local') {
+		// console.log(`  ===>>> player2Id: ${player2Id}  <<=========`);
+		// console.log(`  ===>>> player2.playerId: ${player2.playerId}  <<=========`);
 		playingPlayersRoom.delete(player2.playerId);
+
+	}
 	else {
 		if (player2) {
 			player2.playerState = 'IDLE';
@@ -150,6 +158,8 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 	p2.game = 'pong';
 	p2.playerId = player2Id;
 	p2.pongPlayer = createPongPlayer(player2Id, 'right');
+	p2.pongPlayer.playerId = player2Id;
+	console.log(` **** set Id for player2: ${p2.pongPlayer.playerId} ****`);
 
 	// add the local player to the playing room
 	playingPlayersRoom.set(player2Id, p2);

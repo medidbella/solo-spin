@@ -20,6 +20,10 @@ class GameClient {
 	private side: Side | null = null;
 	
 	private gameId: string | null = null;
+	private	hasStarted: boolean = false;
+	private inputLoopId: number | null = null;
+	// I store the specific function references here so i can remove them later (when the game finished or the client leaves the game page)
+    private cleanupListeners: (() => void) | null = null;
 
 	public canvas: HTMLCanvasElement | null = null;
 
@@ -73,6 +77,16 @@ class GameClient {
 	public setSide(side: Side) { this.side = side; }
 	public getSide(): Side | null { return this.side; }
 
+	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; }
+	public getHasStarted(): boolean { return this.hasStarted; }
+
+	public setInputLoopId(id: number | null) { this.inputLoopId = id; }
+	public getInputLoopId(): number | null { return this.inputLoopId; }
+
+	public setCleanupListeners(cleanupFn: () => void) {
+        this.cleanupListeners = cleanupFn;
+    }
+
 	public reset() {
 		this.playerState = 'IDLE';
 		this.game = null;
@@ -81,8 +95,31 @@ class GameClient {
 		this.friendName = null;
 		this.gameId = null;
 		this.side = null;
+		this.cleanupGamePage();
+		// this.hasStarted = false;
+		// this.inputLoopId = null;
 		// this.pongRenderer = null;
 		// this.cleanupGamePage();
+	}
+
+	public cleanupGamePage() {
+		console.log("🧹 Cleaning up game page...");
+
+		// 1. Stop the Input Loop
+        if (this.inputLoopId) {
+            window.clearInterval(this.inputLoopId);
+            this.inputLoopId = null;
+        }
+
+		// 2. Remove Event Listeners
+        if (this.cleanupListeners) {
+            this.cleanupListeners();
+            this.cleanupListeners = null;
+        }
+
+		// set the started flag to false (game is not running anymore)
+		this.hasStarted = false;
+
 	}
 
 
@@ -154,10 +191,13 @@ class GameClient {
         this.canvas = canvas;
     }
 
-    public cleanupGamePage() {
-        // Clear it when leaving so i don't draw
-        this.canvas = null;
-    }
+    // public cleanupGamePage() {
+    //     // Clear it when leaving so i don't draw
+    //     this.canvas = null;
+    // }
+
+	public inputHandlerCleanup() {};
+
 	// public initGamePage(canvas: HTMLCanvasElement) {
 
 	// 	console.log("🎮 Init game page logic...");

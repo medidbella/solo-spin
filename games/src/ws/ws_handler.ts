@@ -64,6 +64,7 @@ function pongGameMovements(playerId: string, parsedMessage: WSPongInput) {
 		player = session.players[1];
 
 	pongEngine.updatePaddles(session, player, move);
+	// sendWSMsg(pongEngine.gameTick(session), session);
 	
 }
 
