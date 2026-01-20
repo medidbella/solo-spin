@@ -1,15 +1,12 @@
+import { apiFetch } from "../api_integration/api_fetch";
 import { io } from "socket.io-client";
 
 async function getchatcontext() 
 {
     try 
     {
-        const [meres, friendsres] = await Promise.all([
-            fetch('/api/me'),
-            fetch('/api/user/friends')
-        ]);
-        const me = meres.ok ? await meres.json() : null;
-        const friends = friendsres.ok ? await friendsres.json() : [];
+        const me = await apiFetch<any>('/api/me');
+        const friends = await apiFetch<any[]>('/api/user/friends');
         return { currentuserid: me?.user?.id, friends };
     } 
     catch (err) 
@@ -90,8 +87,15 @@ export async function setupchatlogic()
                 if (messagecontainer) 
                 {
                     messagecontainer.innerHTML = '';
-                    const res = await fetch(`/api/messages?user1_id=${currentuserid}&user2_id=${friend.id}`);
-                    if (res.ok) (await res.json()).forEach((msg: any) => appendmessage(msg, currentuserid));
+                    try 
+                    {
+                        const history = await apiFetch<any[]>(`/api/messages?user1_id=${currentuserid}&user2_id=${friend.id}`);
+                        history.forEach((msg: any) => appendmessage(msg, currentuserid));
+                    }
+                    catch (err) 
+                    {
+                        console.error(err);
+                    }
                 }
             };
             contactscontainer.appendChild(userelement);

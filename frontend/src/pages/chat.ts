@@ -43,4 +43,4 @@ export function renderChat(): string {
     </main>`;
 }
 
-export { setupchatlogic};
+export {setupchatlogic};
