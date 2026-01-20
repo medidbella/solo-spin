@@ -13,77 +13,22 @@ const port = import.meta.env.VITE_NGINX_PORT;
 const host = import.meta.env.VITE_HOST;
 const url = `ws://${host}:${port}/ws/games/`;
 
-// // import { gameClient } from './game_client';
-
-// type pongMoves = 'UP' | 'DOWN' | 'STOP' | 'CONTINUE';
-
-// // ---------- SYSTEM MESSAGES (Handshake) ----------------
-
-// export interface WSConnectMessage {
-// 	type: 'CONNECT';
-// 	payload: {
-// 		// game: GameType;
-// 		// username: string;
-// 	};
-// }
-
-// export interface WSConnectSuccess {
-// 	type: 'CONNECT_SUCCESS';
-// 	payload: {
-// 		playerId: string;
-// 		ready: boolean;
-// 	};
-// }
-
-// export interface WSConnectError {
-// 	type: 'CONNECT_ERROR';
-// 	payload: {
-// 		error: string;
-// 	};
-// }
-// // ----------------------------------------------------
-
-// // ---------------- GAME MESSAGES (The Fun Part) ------
-
-// // A. PONG
-// export interface WSPongInput {
-// 	type: 'GAME_INPUT';
-// 	game: 'pong';
-// 	payload: {
-// 		move: pongMoves; // Simple directions
-// 	};
-// }
-
-// // B. SUDOKU (Placeholder for later)
-// export interface WSSudokuInput {
-// 	type: 'GAME_INPUT';
-// 	game: 'sudoku';
-// 	payload: {
-// 		row: number;
-// 		col: number;
-// 		value: number;
-// 	};
-// }
-
-// type ClientMessage = WSConnectMessage | WSPongInput | WSSudokuInput;
-// ---------------------------------------------------------
-
 // ------- WS connections hanlder (send/receive) ------------
 type GameUpdateCallback = (data: any) => void;
 
 export class WSConnectionsHandler {
 
 	private socket: WebSocket | null = null;
-	private onGameUpdate: GameUpdateCallback | null = null;
+	// private onGameUpdate: GameUpdateCallback | null = null;
 
 	/**
     	* Allow the Frontend to register a listener
     	* When the Game Page loads then it will pass the 'draw()' function here.
     */
-	public setGameUpdateListenerCallback(callback: GameUpdateCallback | null) {
-		console.log('Set the Call back');
-        this.onGameUpdate = callback;
-    }
+	// public setGameUpdateListenerCallback(callback: GameUpdateCallback | null) {
+	// 	console.log('Set the Call back');
+    //     this.onGameUpdate = callback;
+    // }
 
 	private createWSConnectMessage(): ClientMessage {
 		const message: ClientMessage = {
@@ -199,10 +144,10 @@ export class WSConnectionsHandler {
 			switch (type) {
 
 				case 'GAME_STATE':
-					if (this.onGameUpdate) {
-						// console.log("Calling the call Back");
-						// this.onGameUpdate(data);
-					}
+					// if (this.onGameUpdate) {
+					// 	// console.log("Calling the call Back");
+					// 	// this.onGameUpdate(data);
+					// }
 
 					// const convertedData: PongSessionData = data;
 					// Check if we have a valid canvas to draw on

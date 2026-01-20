@@ -10,9 +10,19 @@ import { renderHomePage, setHomeLogic } from './game-related/renders/home'; // T
 // import { renderGamePlayPage } from './game-related/renders/game_play'; // The actual game
 
 import { handlePongRoutes } from './game-related/services/handle_pong_routes';
+import { gameClient } from './game-related/services/game_client';
 
 
 const app = document.getElementById('app') as HTMLDivElement;
+
+function cleanUpGamePageIfRunAway(nextPath: string) {
+	if (nextPath !== '/games/pong/game-play' && gameClient.canvas && !gameClient.getHasReseted()) {	
+		// console.log(`  ===>>> HAS RESETED Condition: ${gameClient.getHasReseted} <<<====`);
+		
+		console.log("Navigating away from game. Resetting...");
+		gameClient.reset();
+	}
+}
 
 // 2. ROUTER FUNCTION
 function router(path: string) {
@@ -23,6 +33,8 @@ function router(path: string) {
     if (!path.startsWith('/games/')) {
         app.innerHTML = ''; 
     }
+
+	cleanUpGamePageIfRunAway(path);
 
   	switch (true) {
     case path === '/':

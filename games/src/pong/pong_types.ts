@@ -5,6 +5,7 @@ import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
 import { resetPlayer } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
+import { GAME_STATE_UPDATE_INTERVAL_MS } from '../../../shared/pong_constants';
 
 // export type GameState = 'waiting' | 'playing' | 'finished';
 // export type GameMode = 'local' | 'remote';
@@ -199,7 +200,7 @@ class PongSessionsRoom {
 	private startGlobalLoop(): void {
         console.log("[PongRoom] Global Game Loop Started!");
 
-		// 2. The Heartbeat (60 FPS)
+		// 2. The Heartbeat
         setInterval(() => {
 			// Loop through ALL Local Sessions
             this.localSessions.forEach((session: PongSession, sessionId: string) => {
@@ -219,7 +220,7 @@ class PongSessionsRoom {
 
 			});
 
-		}, 1000/100 ); // Runs every 1s
+		},  GAME_STATE_UPDATE_INTERVAL_MS);
 
 	}
 

@@ -5,7 +5,7 @@ import { gameClient } from '../services/game_client';
 import { FRAME_TIME_MS } from '../services/pong_constants';
 
 // import { withLayout } from './layout';
-// import { navigateTo } from '../services/handle_pong_routes';
+import { navigateTo } from '../services/handle_pong_routes';
 
 function withGameLayout(contentHTML: string): string {
 	return /* html */ `
@@ -129,24 +129,13 @@ function updateKeyState(e: KeyboardEvent, isPressed: boolean, keysPressed: any) 
 	if (keysPressed.hasOwnProperty(e.code)) {
 		keysPressed[e.code] = isPressed;
 	}
-
-	// 	// 4. CLEANUP
-	// 	gameClient.inputHandlerCleanup = () => {
-	// 	// Stop the loop
-	// 	if (gameClient.getInputLoopId()) window.clearInterval(gameClient.getInputLoopId() as number);
-		
-	// 	// Remove listeners
-	// 	window.removeEventListener('keydown', updateKeyState as any);
-	// 	window.removeEventListener('keyup', updateKeyState as any);
-	// };
-
 }
 
 
 export function handleGameOver(payload: any) {
 	const gameOverEl = document.getElementById('gameOverMessage');
     const winnerTextEl = document.getElementById('winnerText');
-    // const homeBtn = document.getElementById('backHomeBtn');
+    const homeBtn = document.getElementById('backHomeBtn');
 
 	if (gameOverEl && winnerTextEl) {
         
@@ -160,14 +149,23 @@ export function handleGameOver(payload: any) {
 
 		// 3. Show the Overlay
         gameOverEl.classList.remove('hidden');
-        gameOverEl.classList.add('flex'); // Ensure flex display works
+        gameOverEl.classList.add('flex');
 
-		// // 4. Attach Navigation to Button
-		// if (homeBtn) {
-		// 	homeBtn.onclick = () => {
-		// 		// Use your router to go home
-		// 		router('/home'); 
-		// 	};
-		// }
+		// 4. Attach Navigation to Button
+        if (homeBtn) {
+
+            homeBtn.onclick = () => {
+
+                // Hide the modal
+                gameOverEl.classList.add('hidden');
+                gameOverEl.classList.remove('flex');
+                
+                // Navigate to home
+                navigateTo('/home');
+            };
+        }
+
+		// 5. reset states: STOP THE GAME LOGIC
+		gameClient.reset()
 	}
 }

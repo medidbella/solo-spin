@@ -50,7 +50,7 @@ class PongEngine {
 		const resultsMsg: PongSessionData = this.createResutlsMsg(session);
 
 		// 4. end the game
-		this.checkGameOver(session);
+		this.checkGameOver(session, resultsMsg);
 
         return resultsMsg;
     }
@@ -64,6 +64,8 @@ class PongEngine {
 		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer; 
 
 		let type: 'GAME_STATE' | 'GAME_FINISHED' = 'GAME_STATE';
+
+		// update state: game is finished
 		if (session.winner != 'none')
 			type = 'GAME_FINISHED';
 
@@ -311,8 +313,9 @@ class PongEngine {
 	}
 
 	// check if game over & handle
-	private checkGameOver(session: PongSession) {
+	private checkGameOver(session: PongSession, results: PongSessionData) {
 		if (session.winner != 'none')
+			// end the game: cleanup the session in the game engine
 			pongGameSessionsRoom.endGame(session.sessionId, session.gameMode);
 	}
 }
