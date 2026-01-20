@@ -12,8 +12,8 @@ export const storeMatchSchema = {
 		type: 'object',
 		required: ["winner_id", "loser_id", "winner_score", "loser_score"],
 		properties: {
-			winner_id: {type: 'integer', minimum: 1},
-			loser_id: {type: 'integer', minimum: 1},
+			winner_id: {type: 'integer', minimum: 0},
+			loser_id: {type: 'integer', minimum: 0},
 			winner_score: {type: 'integer', minimum: 1},
 			loser_score: {type: 'integer', minimum: 0}
 		},
