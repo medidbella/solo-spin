@@ -173,8 +173,8 @@ export type FriendRequestsResponse = FriendRequest[];
 export interface Friend {
   id: number;
   username: string;
-  name: string;
   friendshipId: number;
+  blockedBy: number | null
 }
 
 // GET /api/user/friends response
@@ -185,6 +185,13 @@ export interface LeaderboardEntry {
   id: number;
   username: string;
   total_xp_points: number;
+}
+
+// GET /api/friends/blocked item
+export interface BlockedFriend {
+  id: number,
+  username: string,
+  friendshipId: string
 }
 
 // GET /api/leaderboard response
