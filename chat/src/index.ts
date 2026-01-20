@@ -1,92 +1,77 @@
-import Fastify from 'fastify';
+import fastify_lib from 'fastify';
 import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import cookie from 'cookie';
 
-const fastify = Fastify({
-  logger: {
-    transport: {
-      targets: [
-        {
-          target: 'pino/file',
-          options: { 
-            destination: './logs/chat.log', 
-            mkdir: true 
-          }
-        },
-        {
-          target: 'pino-pretty',
-          options: { 
-            colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname' 
-          }
-        }
-      ]
-    }
-  } 
+const fastify = fastify_lib({
+  logger: { transport: { target: 'pino-pretty', options: { colorize: true } } } 
 });
 
-// DEVOPS CONFIGURATION:
-// These values are controlled by the Docker environment.
-// WARNING: Do not hardcode the port to a different value, or Nginx will lose connection.
-const PORT = Number(process.env.PORT) || 3000;
-const HOST = '0.0.0.0'; // Required for Docker container exposure
+const port = Number(process.env.PORT) || 3000;
+const host = '0.0.0.0';
+const onlineusers = new Map<string, string>();
 
-// Health check route to verify if the container is running properly
-fastify.get('/health', async () => { 
-  return { status: 'ok', service: 'chat-service' };
+fastify.get('/health', async () => 
+{ 
+  return { status: 'ok' }; 
 });
 
-const start = async () => {
-  try {
-    // 1. Initialize the HTTP Server first
-    await fastify.listen({ port: PORT, host: HOST });
-    fastify.log.info(`Server initialization complete on ${HOST}:${PORT}`);
+const start = async () => 
+{
+  try 
+  {
+    await fastify.listen({ port: port, host: host });
 
-    // 2. Attach Socket.io to the HTTP server
-    // NOTE: This setup uses the same port (3000) for both HTTP and WebSockets
     const io = new Server(fastify.server, {
-      // NETWORK CONSTRAINT: 
-      // Nginx is configured to proxy requests specifically to '/socket.io/'.
-      // Changing this path will break the connection through the gateway.
       path: '/socket.io/',
-      
-      cors: {
-        origin: "*", // Allowed for development flexibility
-        methods: ["GET", "POST"]
+      cors: { origin: "*", credentials: true }
+    });
+
+    io.use((socket, next) => 
+    {
+      try 
+      {
+        const headercookie = socket.handshake.headers.cookie;
+        if (!headercookie) return next(new Error('unauthorized'));
+
+        const cookies = cookie.parse(headercookie);
+        const token = cookies.accessToken;
+        if (!token) return next(new Error('token missing'));
+
+        const secret = process.env.JWT_SECRET || 'fallback';
+        const decoded = jwt.verify(token, secret) as any;
+        const userid = decoded.id || decoded.user_id || decoded.sub;
+
+        if (!userid) return next(new Error('id not found'));
+
+        socket.data.user = { id: String(userid), username: decoded.username || `user_${userid}` };
+        next();
+      } 
+      catch (err) 
+      { 
+        next(new Error('invalid token')); 
       }
     });
 
-    // ========================================================
-    // DEVELOPER ZONE: Implement Chat Logic Below
-    // ========================================================
-    
-    io.on('connection', (socket) => {
-      // Log connection for debugging
-      fastify.log.info(`Client connected with Socket ID: ${socket.id}`);
+    io.on('connection', (socket) => 
+    {
+      const { id } = socket.data.user;
+      onlineusers.set(id, socket.id);
+      io.emit('update_user_list', Array.from(onlineusers.keys()));
 
-      // TODO: Implement your event listeners here
-      // Example: Handling a 'message' event from the client
-      socket.on('message', (data) => {
-        // Log the received data
-        fastify.log.info(`Received payload: ${JSON.stringify(data)}`);
-        
-        // Example: Broadcast the message to all connected clients
-        io.emit('message', data);
-      });
-
-      // Cleanup on disconnect
-      socket.on('disconnect', () => {
-        fastify.log.info(`Client disconnected: ${socket.id}`);
+      socket.on('disconnect', () => 
+      {
+        if (onlineusers.get(id) === socket.id) 
+        {
+          onlineusers.delete(id);
+        }
+        io.emit('update_user_list', Array.from(onlineusers.keys()));
       });
     });
-    
-    // ========================================================
-    // END OF DEVELOPER ZONE
-    // ========================================================
-
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
+  } 
+  catch (err) 
+  { 
+    process.exit(1); 
   }
 };
 

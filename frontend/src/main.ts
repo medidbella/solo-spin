@@ -7,7 +7,7 @@ import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
 import { renderSecurity, changePasswordFormSubmit} from './pages/Security';
-import { renderChat } from './pages/chat';
+import { renderChat, setupchatlogic } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
@@ -105,6 +105,7 @@ export async function router(path: string)
     case '/chat':
       app.innerHTML = renderChat();
       setupHeaderLogic();
+      setupchatlogic();
       break;
       
     case '/leaderBoard':

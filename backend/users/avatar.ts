@@ -46,6 +46,7 @@ export async function GetUserAvatar(req: FastifyRequest, res:FastifyReply)
 				avatar_path:true
 			}
 		})
+		console.log(user.avatar_path)
 		if (!user)
 			return res.code(404).send({message: "user not found", statusCode: 404})
 		else if (!fs.existsSync(user.avatar_path))
