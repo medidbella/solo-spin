@@ -7,8 +7,8 @@ export const storeMessageSchema = {
 		type: 'object',
 		required: ["sender_id", "receiver_id", "content"],
 		properties: {
-			sender_id: {type: 'integer', minimum: 1},
-			receiver_id: {type: 'integer', minimum: 1},
+			sender_id: {type: 'integer', minimum: 0},
+			receiver_id: {type: 'integer', minimum: 0},
 			content: {type: 'string', minLength : 1, maxLength: 2000}
 		},
 		additionalProperties: false
@@ -20,8 +20,8 @@ export const listMessagesSchema = {
 		type: 'object',
 		required: ["user1_id", "user2_id"],
 		properties: {
-			user1_id: {type: 'integer', minimum: 1},
-			user2_id: {type: 'integer', minimum: 1}
+			user1_id: {type: 'integer', minimum: 0},
+			user2_id: {type: 'integer', minimum: 0}
 		}
 	}
 }
@@ -31,8 +31,8 @@ export const markConversationSeenSchema = {
 		type: 'object',
 		required: ["user_id", "peer_id"],
 		properties: {
-			user_id: {type: 'integer', minimum: 1},
-			peer_id: {type: 'integer', minimum: 1}
+			user_id: {type: 'integer', minimum: 0},
+			peer_id: {type: 'integer', minimum: 0}
 		},
 		additionalProperties: false
 	}

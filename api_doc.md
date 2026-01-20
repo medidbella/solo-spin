@@ -94,7 +94,7 @@ Only a valid access token is required.
 Get a user's details by their ID.
 
 **Request param schema:**
-- id: { type: 'integer', minimum: 1 }
+- id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid access token -> "403 Unauthorized"
@@ -270,7 +270,7 @@ Change the logged in user avatar picture.
 Get user avatar by id.
 
 **Request param schema:**
-- id: { type: 'integer', minimum: 1 }
+- id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid access token -> "403 Unauthorized"
@@ -314,7 +314,7 @@ Change logged in user password.
 Make logged in user send a friend request to a user.
 
 **Request body schema:**
-- receiver_id: { type: 'integer', minimum: 1 }
+- receiver_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid access token or the user associated with it not found -> "401 Unauthorized"
@@ -354,6 +354,7 @@ List all friend requests sent to the logged in user.
 
 ---
 
+
 ## GET `/api/user/friends`
 List all the friends of the logged in user.
 
@@ -362,12 +363,34 @@ List all the friends of the logged in user.
 - No error occurs -> "200 OK" + a JSON response that represents the array of friends in the following format:
   ```json
   [
-    {
-      "id": 1,
-      "username": "midbella",
-      "name": "mohamed",
-      "friendshipId": 9
-    }
+      {
+          "id": 1,
+          "username": "midbella",
+          "friendshipId": 13,
+          "blockedBy": null
+      }
+      // rest of friends
+  ]
+  ```
+  - The array is sorted (desc) by time stamp
+  - The array can be empty
+
+---
+
+## GET `/api/friends/blocked`
+List all users blocked by the logged in user.
+
+**Responses:**
+- Invalid access token or the user associated with it not found -> "401 Unauthorized"
+- No error occurs -> "200 OK" + a JSON response that represents the array of blocked users in the following format:
+  ```json
+  [
+      {
+          "id": 1,
+          "username": "midbella",
+          "friendshipId": 13
+      }
+      // rest of blocked friends
   ]
   ```
   - The array is sorted (desc) by time stamp
@@ -379,7 +402,7 @@ List all the friends of the logged in user.
 Accept a pending friend request.
 
 **Request body schema:**
-- request_id: { type: 'integer', minimum: 1 }
+- request_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
@@ -394,7 +417,7 @@ Accept a pending friend request.
 Reject a pending user friend request.
 
 **Request body schema:**
-- request_id: { type: 'integer', minimum: 1 }
+- request_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
@@ -409,7 +432,7 @@ Reject a pending user friend request.
 Delete a user from your friend list by id.
 
 **Request param schema:**
-- id: { type: 'integer', minimum: 1} // all digits
+- id: { type: 'integer', minimum: 0} // all digits
 
 **Responses:**
 - Invalid access token -> "401 Unauthorized"
@@ -422,7 +445,7 @@ Delete a user from your friend list by id.
 Make the logged in user block another one (no further messages can be sent between users).
 
 **Request body schema:**
-- friend_id: { type: 'integer', minimum: 1 }
+- friend_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid token -> "401 Unauthorized"
@@ -437,7 +460,7 @@ Make the logged in user block another one (no further messages can be sent betwe
 Unblock an already blocked friend.
 
 **Request body schema:**
-- friend_id: { type: 'integer', minimum: 1 }
+- friend_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - Invalid token -> "401 Unauthorized"
@@ -520,8 +543,8 @@ so all the endpoints that starts with '/internal' in this doc are instead starti
 Make a user send a message to another (they must be friends).
 
 **Request body schema:**
-- sender_id: { type: 'integer', minimum: 1 }
-- receiver_id: { type: 'integer', minimum: 1 }
+- sender_id: { type: 'integer', minimum: 0 }
+- receiver_id: { type: 'integer', minimum: 0 }
 - content: { type: 'string', minLength: 1, maxLength: 2000 }
 
 **Responses:**
@@ -535,8 +558,8 @@ Make a user send a message to another (they must be friends).
 Fetch all messages between two users.
 
 **Request query string schema:**
-- user1_id: { type: 'integer', minimum: 1 }
-- user2_id: { type: 'integer', minimum: 1 }
+- user1_id: { type: 'integer', minimum: 0 }
+- user2_id: { type: 'integer', minimum: 0 }
   - Example: `url:3000/internal/messages?user1_id=1&user2_id=2`
 
 **Responses:**
@@ -563,8 +586,8 @@ Fetch all messages between two users.
 Mark all the messages between users as seen.
 
 **Request body schema:**
-- user_id: { type: 'integer', minimum: 1 }
-- peer_id: { type: 'integer', minimum: 1 }
+- user_id: { type: 'integer', minimum: 0 }
+- peer_id: { type: 'integer', minimum: 0 }
 
 **Responses:**
 - The users are not friends -> "404 Not found"
@@ -576,8 +599,8 @@ Mark all the messages between users as seen.
 Store a game result and update user stats.
 
 **Request body schema:**
-- winner_id: { type: 'integer', minimum: 1 }
-- loser_id: { type: 'integer', minimum: 1 }
+- winner_id: { type: 'integer', minimum: 0 }
+- loser_id: { type: 'integer', minimum: 0 }
 - winner_score: { type: 'integer', minimum: 1 }
 - loser_score: { type: 'integer', minimum: 0 }
 

@@ -32,7 +32,7 @@ import {
   friendRequestActionSchema, friendRequestSchema,
   unfriendSchema, sendFriendRequest, listFriendRequests,
   listFriends, acceptRequest, rejectRequest, removeFriendship,
-  friendBlockSchema, blockFriend, unBlockFriend
+  friendBlockSchema, blockFriend, unBlockFriend, listBlockedFriends
 } from './users/friendship.js'
 import {
   storeMessageSchema, listMessagesSchema,
@@ -194,6 +194,8 @@ app.post("/api/friends/block", {preHandler: authVerifier, schema: friendBlockSch
 
 app.post("/api/friends/unblock", {preHandler: authVerifier, schema: friendBlockSchema}, unBlockFriend)
 
+app.get("/api/friends/blocked", {preHandler: authVerifier}, listBlockedFriends)
+
 const protectedRoutesPrefix = process.env.NODE_ENV == "development" ? 'api' : 'internal'  
 
 app.post(`/${protectedRoutesPrefix}/messages`, {schema: storeMessageSchema}, storeMessage)
@@ -210,7 +212,7 @@ app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema
 
 await app.ready()
 
-console.log(app.printRoutes());
+// console.log(app.printRoutes());
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 
