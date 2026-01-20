@@ -123,7 +123,8 @@ clean: ## Danger: Deep clean volumes, images, and certificates
 	@echo "$(RED)[DANGER] Irreversible purge: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
 	@read -p "Confirm destructive action? [y/N] " ans && [ $${ans:-N} = y ]
 	@docker compose $(COMPOSE_ALL) down -v --rmi local
-	@rm -rf nginx_certs/*.crt nginx_certs/*.key
+	@rm -rf nginx/certs/*
+	@rm -rf elk/certs/*
 	@echo "$(GREEN)[INFO] System purged.$(RESET)"
 
 # ==============================================================================

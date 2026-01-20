@@ -1,6 +1,7 @@
 *.db
 *.env
 backend/dist
+nginx/certs/
 elk/certs
 backend/node_modules
 chat/node_modules
@@ -10,3 +11,5 @@ frontend/node_modules
 .DS_Store
 *.log
 .vscode
+*.crt
+*.key
