@@ -13,7 +13,7 @@ export function renderFriendRow(friend: Friend): string {
           onerror="this.src='/default-avatar.png'"
         />
         <div>
-          <p class="text-white font-medium">${friend.name}</p>
+          <p class="text-white font-medium">${friend.username}</p>
           <p class="text-gray-400 text-sm">@${friend.username}</p>
         </div>
       </div>

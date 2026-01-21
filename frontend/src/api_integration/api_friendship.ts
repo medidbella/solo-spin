@@ -13,7 +13,7 @@ import type {
 // GET here all Friends list
 export async function getFriendsList() : Promise<FriendsListResponse>
 {
-    return apiFetch<FriendsListResponse>("/api/friends/requests");
+    return apiFetch<FriendsListResponse>("/api/user/friends");
 }
 
 // GET all friend requests and returning it as an array
