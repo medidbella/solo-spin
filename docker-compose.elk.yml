@@ -153,7 +153,7 @@ services:
     # user: root
     volumes:
       - logstashdata01:/usr/share/logstash/data
-      - ./elk/certs:/usr/share/logstash/config/certs
+      - ./elk/certs:/usr/share/logstash/certs
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - NODE_NAME="logstash"
