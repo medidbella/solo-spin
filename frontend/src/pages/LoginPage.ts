@@ -1,10 +1,11 @@
 import { apiFetch } from "../api_integration/api_fetch";
+import { TwoFactorVerificationLogic } from "../components/TwoFactorSetup/TwoFactorLoginLogic";
 import type {LoginRequest } from "../api_integration/api_types"
 
 export function renderLoginPage(): string {
   return /* html */ `
     <main class="flex justify-between min-h-screen">
-        <div class="w-1/2 flex items-center flex-col">
+        <div id="login-left-content" class="w-1/2 flex items-center flex-col">
             <!-- Logo -->
             <div class="mb-0.5">
                 <img src="../../public/imgs/logo.png" alt="Logo">
@@ -176,16 +177,14 @@ export function setUpLoginLogic() {
                 },
                   body: JSON.stringify(payLoad),
                 });
-                // if ("mfaToken" in response)
-                // {
-                //   display the 2fa page and add logic
-                // }
-                // else
-                // {
-                  console.log("logged successfully");
+                if ("requires2FA" in response){
+                  return TwoFactorVerificationLogic(response)
+                }
+                else
+                {
                   console.log(response.message);
                   window.location.href = '/home';
-                // }
+                }
         }
         catch(Error : any) {
             if ("statusCode" in Error)

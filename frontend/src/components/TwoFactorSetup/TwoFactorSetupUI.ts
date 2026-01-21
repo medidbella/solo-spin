@@ -20,7 +20,7 @@ export function renderLoading(): string {
   `;
 }
 
-export function renderTwoFactorSetup(manualCode: string): string {
+export function renderTwoFactorSetup(manualCode: string, qrCodeSrc:string): string {
   return /* html */ `
     <div class="flex flex-col items-center justify-center h-full space-y-6 p-4">
       
@@ -35,7 +35,7 @@ export function renderTwoFactorSetup(manualCode: string): string {
       <div class="bg-white p-4 rounded-lg">
         <img 
           id="qr-code-image" 
-          src="" 
+          src="${qrCodeSrc}" 
           alt="2FA QR Code" 
           class="w-40 h-40"
         />
@@ -64,9 +64,7 @@ export function renderTwoFactorSetup(manualCode: string): string {
                  rounded-full px-6 py-4 text-center text-lg tracking-widest 
                  placeholder-gray-400 outline-none transition-all"
         />
-        
         <p id="two-factor-error" class="text-red-400 text-center text-sm hidden"></p>
-        
         <div class="flex justify-end">
           <button 
             type="submit" 
