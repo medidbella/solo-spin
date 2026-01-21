@@ -168,3 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   router(window.location.pathname);
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    window.location.reload();
+  });
+}
