@@ -212,3 +212,11 @@ export interface GameHistoryEntry {
 
 //GET /api/games/history response
 export type GamesHistoryResponse = GameHistoryEntry[];
+
+// GET /api/fiends/blocked response
+
+export interface BlockedUser {
+  id: number,
+  username: string,
+  name: string
+}

@@ -11,7 +11,7 @@ import { renderChat } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
-import { renderProfilesPage } from './pages/profiles';
+import { renderProfilesPage, setupProfilesPageLogic } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
 import { setupHeaderLogic } from './components/Header.ts';
@@ -135,6 +135,7 @@ export async function router(path: string)
 
     case '/profiles':
       app.innerHTML = renderProfilesPage();
+      setupProfilesPageLogic();
       setupHeaderLogic();
       break;
 
