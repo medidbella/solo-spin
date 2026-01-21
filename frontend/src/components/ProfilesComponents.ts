@@ -17,13 +17,24 @@ export function renderFriendRow(friend: Friend): string {
           <p class="text-gray-400 text-sm">@${friend.username}</p>
         </div>
       </div>
-      <button 
-        class="bg-[#6b4c9a] hover:bg-[#7d5cb0] text-white px-6 py-2 rounded-md transition-colors"
-        data-action="remove-friend"
-        data-friendship-id="${friend.friendshipId}"
-      >
-        Remove
-      </button>
+      <div class="flex gap-2 ">
+        <button 
+          class="bg-[#6b4c9a] cursor-pointer hover:bg-[#7d5cb0] text-white px-6 py-2 rounded-md transition-colors"
+          data-action="remove-friend"
+          data-friendship-id="${friend.friendshipId}"
+          data-friend-id="${friend.id}"
+        >
+          Remove
+        </button>
+        <button 
+          class="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+          data-action="block-user"
+          data-friend-id="${friend.id}"
+          data-friendship-id="${friend.friendshipId}"
+          >
+            Block
+        </button>
+      </div>
     </div>
   `;
 }
