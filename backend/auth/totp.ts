@@ -150,7 +150,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 		const decoded = req.server.jwt.verify(mfaToken)
 		console.log("token verified successfully")
 		if ((decoded as any).type != "2fa_temp")
-			return (res.code(401).send({message: "Invalid token type", statusCode: 401}))
+			return (res.code(400).send({message: "Invalid token type", statusCode: 400}))
 		const user_id = parseInt((decoded as any).sub)
 		const user = await prisma.user.findUnique({
 			where: {
@@ -168,7 +168,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 			return ;
 		SetAccessTokenCookie(res, user_id)
 		const token = SetRefreshTokenCookie(res, user_id)
-		prisma.user.update({
+		await prisma.user.update({
 			where: {
 				id:user_id
 			},
@@ -179,11 +179,10 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 	}
 	catch (error:any)
 	{
-		console.log(error.name)
 		if (error.code == 'FAST_JWT_EXPIRED'){
 			return res.code(401).send({message: "expired temp token, please try to login again", statusCode: 401})
 		}
-		else if (error.code == 'FAST_JWT_INVALID_SIGNATURE'){
+		else if (error.code == 'FAST_JWT_INVALID_SIGNATURE' || error.code == 'FAST_JWT_MALFORMED'){
 			return res.code(401).send({message: "invalid temp token, please try to login again", statusCode: 401})
 		}
 		req.log.error(error);

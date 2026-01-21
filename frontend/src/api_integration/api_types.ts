@@ -142,6 +142,7 @@ export interface UserProfileResponse {
 // POST /api/login response when 2FA is enabled
 export interface Login2FAResponse {
   mfaToken: string;
+  requires2FA: boolean
 }
 
 // POST /api/2fa/generate response
