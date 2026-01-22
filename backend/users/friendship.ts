@@ -308,7 +308,7 @@ export async function removeFriendship(req:FastifyRequest, res:FastifyReply)
 	const user_id = (req.user as any).sub
 	const { id } = req.params as { id: string };
 	const friend_id = parseInt(id)
-
+	// console.log(`user_id = ${user_id}, friend_id = ${friend_id}`)
 	try {
 		const relation = await getRelation(user_id, friend_id)
 		if (!relation)
@@ -318,6 +318,7 @@ export async function removeFriendship(req:FastifyRequest, res:FastifyReply)
 		});
 	}
 	catch (error) {
+		req.log.error(error);
 		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 	return res.code(200).send({ message: "Friend removed successfully" });
@@ -345,6 +346,7 @@ export async function blockFriend(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error) {
+		req.log.error(error);
 		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 	return res.code(200).send({message: "Blocked the user successfully"})
@@ -372,6 +374,7 @@ export async function unBlockFriend(req:FastifyRequest, res:FastifyReply)
 		})
 	}
 	catch (error) {
+		req.log.error(error);
 		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 	return res.code(200).send({message: "user unblocked successfully"})

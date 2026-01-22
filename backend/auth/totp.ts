@@ -69,6 +69,7 @@ export async function EnableTwoFactoAuth(req: FastifyRequest, res: FastifyReply)
 	}
 	catch (err:any)
 	{
+		req.log.error(err);
 		return res.code(500).send({
 			message: "Server unexpected error",
 			statusCode: 500

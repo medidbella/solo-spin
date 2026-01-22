@@ -94,6 +94,7 @@ export async function listMessages(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(messages)
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 }
@@ -103,9 +104,9 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 	const {user_id, peer_id} = req.body as {user_id:number, peer_id:number}
 	try {
 		const relation = await getRelation(user_id, peer_id)
-		console.log(relation)
+		// console.log(relation)
 		if (!relation){
-			console.log("no relation")
+			// console.log("no relation")
 			return res.code(404).send({message: "No conversation found between the two users", statusCode: 404})
 		}
 		await prisma.directMessage.updateMany({
@@ -119,6 +120,7 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send({message: "All conversation messages are marked as seen"})
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 }

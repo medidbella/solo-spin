@@ -125,6 +125,26 @@ Get a user's details by their ID.
 
 ---
 
+## GET `/api/user/search`
+Search for a user by their username.
+
+**Request query schema:**
+- username: { type: 'string', minLength: 4 }
+  - Example: `https://[ip/hostname]:443/api/user/search?username=midbella`
+
+**Responses:**
+- Invalid access token -> "401 Unauthorized"
+- User not found -> "404 Not found"
+- Otherwise -> "200 OK" + the body will be in this format:
+  ```json
+  {
+    "id": 1,
+    "username": "midbella",
+    "name": "mohamed"
+  }
+  ```
+
+---
 ## POST `/api/refresh`
 Used when access token is expired to get a new one. Only a valid refresh token is required.
 

@@ -6,8 +6,11 @@ import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
 import { authVerifier } from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me, getUserProfile, fetchUserDataSchema, personalInfos} from "./users/profile.js";
 import { logout } from "./auth/logout.js"
+import {
+  getUserProfile, fetchUserDataSchema, personalInfos,
+  searchForUserSchema, searchForUser, me
+} from "./users/profiles.js";
 import {
   twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
   TwoFactorValidator, TwoFactorLoginVerify
@@ -147,6 +150,8 @@ app.get("/api/me", { preHandler: authVerifier }, me)
 app.get("/api/basic-info", { preHandler: authVerifier }, personalInfos)
 
 app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
+
+app.get("/api/user/search", {preHandler: authVerifier, schema: searchForUserSchema}, searchForUser)
 
 app.post("/api/refresh", refresh)
 
