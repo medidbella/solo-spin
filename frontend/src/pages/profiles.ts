@@ -165,11 +165,10 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
   try {
     switch (action) {
       case "remove-friend": {
-        const friendshipId = Number(button.dataset.friendshipId);
-        await removeFriend(friendshipId);
+        const friendId = Number(button.dataset.friendId);
+        await removeFriend(friendId);
         
         // Remove from local data and DOM
-        const friendId = Number(button.dataset.friendId);
         friendsData = friendsData.filter((f) => f.id !== friendId);
         removeRowFromDOM(`[data-friend-row="${friendId}"]`);
         break;
@@ -177,7 +176,7 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
 
       case "block-user": {
         const friendId = Number(button.dataset.friendId);
-        const friendshipId = Number(button.dataset.friendshipId);
+        // const friendshipId = Number(button.dataset.friendshipId);
         
         // Block also removes from friends, so we call block endpoint
         await blockUser(friendId);

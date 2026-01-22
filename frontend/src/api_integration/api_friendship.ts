@@ -27,8 +27,8 @@ export async function getBlockedUsers(): Promise<BlockedUser[]>{
 }
 
 //REMOVE a friend here using his friendshipId
-export async function removeFriend(friendshipId: number) : Promise<GeneralSuccessRes>{
-    return apiFetch<GeneralSuccessRes>(`/api/friends/${friendshipId}`,
+export async function removeFriend(friendId: number) : Promise<GeneralSuccessRes>{
+    return apiFetch<GeneralSuccessRes>(`/api/friends/${friendId}`,
         { method: "DELETE",}
     );
 }
