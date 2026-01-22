@@ -1,3 +1,5 @@
+import { router } from "../main";
+
 export function renderHeader() : string{
     return /* html */ `
         <header class="h-16 flex-none flex justify-between items-center px-1 py-10 z-10 relative">
@@ -28,12 +30,13 @@ export function setupHeaderLogic() : void
       });
       if (response.ok)
       {
-        window.location.href = '/login'; //redirect my user to login and midbella handles the remove of tokens
+        history.pushState(null, '', '/login'); //redirect my user to login and midbella handles the remove of token
+        router('/login');
       }
     }
     catch (error)
     {
-
+      console.error('Logout failed: ', error);
     }
   });
 }

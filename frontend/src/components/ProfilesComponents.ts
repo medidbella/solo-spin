@@ -1,7 +1,5 @@
 import type { Friend, FriendRequest, BlockedUser } from "../api_integration/api_types";
-/**
- * Renders a single friend row with avatar and remove button
- */
+
 export function renderFriendRow(friend: Friend): string {
   return /* html */ `
     <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
@@ -39,9 +37,6 @@ export function renderFriendRow(friend: Friend): string {
   `;
 }
 
-/**
- * Renders the friends list or empty state
- */
 export function renderFriendsList(friends: Friend[]): string {
   if (friends.length === 0) {
     return /* html */ `
@@ -54,9 +49,6 @@ export function renderFriendsList(friends: Friend[]): string {
   return friends.map(renderFriendRow).join("");
 }
 
-/**
- * Renders a single request row with accept/reject buttons
- */
 export function renderRequestRow(request: FriendRequest): string {
   return /* html */ `
     <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
@@ -74,14 +66,14 @@ export function renderRequestRow(request: FriendRequest): string {
       </div>
       <div class="flex gap-2">
         <button 
-          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+          class="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors"
           data-action="accept-request"
           data-request-id="${request.id}"
         >
           Accept
         </button>
         <button 
-          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+          class="bg-red-600 hover:bg-red-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors"
           data-action="reject-request"
           data-request-id="${request.id}"
         >
@@ -92,9 +84,6 @@ export function renderRequestRow(request: FriendRequest): string {
   `;
 }
 
-/**
- * Renders the requests list or empty state
- */
 export function renderRequestsList(requests: FriendRequest[]): string {
   if (requests.length === 0) {
     return /* html */ `
@@ -107,9 +96,6 @@ export function renderRequestsList(requests: FriendRequest[]): string {
   return requests.map(renderRequestRow).join("");
 }
 
-/**
- * Renders a single blocked user row with unblock button
- */
 export function renderBlockedRow(user: BlockedUser): string {
   return /* html */ `
     <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
@@ -126,7 +112,7 @@ export function renderBlockedRow(user: BlockedUser): string {
         </div>
       </div>
       <button 
-        class="bg-[#6b4c9a] hover:bg-[#7d5cb0] text-white px-6 py-2 rounded-md transition-colors"
+        class="bg-[#6b4c9a] hover:bg-[#7d5cb0] cursor-pointer text-white px-6 py-2 rounded-md transition-colors"
         data-action="unblock-user"
         data-user-id="${user.id}"
       >
@@ -136,9 +122,6 @@ export function renderBlockedRow(user: BlockedUser): string {
   `;
 }
 
-/**
- * Renders the blocked users list or empty state
- */
 export function renderBlockedList(users: BlockedUser[]): string {
   if (users.length === 0) {
     return /* html */ `
