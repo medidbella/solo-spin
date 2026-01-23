@@ -1,12 +1,12 @@
 import {render_2fa} from "./TwoFactorLoginUI"
 import { showError } from "./TwoFactorSetupLogic"
-import type {TwoFAVerifyRequest, Login2FAResponse} from "../../api_integration/api_types"
+import type {TwoFAVerifyRequest} from "../../api_integration/api_types"
 import { apiFetch } from "../../api_integration/api_fetch"
 import { router } from "../../main"
 
 const CONTENT_CONTAINER_ID = "login-left-content"
 
-async function handleVerifyTwoFaButton(event: Event, loginResponse: Login2FAResponse)
+async function handleVerifyTwoFaButton(event: Event)
 {
 	event.preventDefault()
 	const codeInput = (document.getElementById('2fa-code-input') as HTMLInputElement).value.trim()
@@ -24,8 +24,7 @@ async function handleVerifyTwoFaButton(event: Event, loginResponse: Login2FAResp
     	submitButton.textContent = 'Verifying...';
     	submitButton.classList.add('opacity-50', 'cursor-not-allowed');
   	}
-	const payload:TwoFAVerifyRequest = {code:codeInput,
-		  mfaToken:loginResponse.mfaToken}
+	const payload:TwoFAVerifyRequest = {code:codeInput}
 	try {
 		await apiFetch("/api/2fa/verify", {method:'POST', body:JSON.stringify(payload)})
 		history.pushState(null, '', `/home`);
@@ -50,7 +49,7 @@ async function handleVerifyTwoFaButton(event: Event, loginResponse: Login2FAResp
 	}
 }
 
-export async function TwoFactorVerificationLogic(Response:Login2FAResponse)
+export async function TwoFactorVerificationLogic()
 {
 	const left_container = document.getElementById(CONTENT_CONTAINER_ID)
 	if (!left_container){
@@ -66,7 +65,5 @@ export async function TwoFactorVerificationLogic(Response:Login2FAResponse)
     	alert('Something went wrong. Please refresh the page.');
 		return
 	}
-	form.addEventListener('submit', (event) => {
-		handleVerifyTwoFaButton(event, Response)
-	})
+	form.addEventListener('submit', handleVerifyTwoFaButton)
 }

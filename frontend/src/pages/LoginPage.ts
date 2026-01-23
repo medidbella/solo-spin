@@ -110,6 +110,32 @@ export function renderLoginPage(): string {
 }
 
 
+function check2FaLoginQuery(): boolean
+{
+  const urlParams = new URLSearchParams(window.location.search);
+  const mfaParam = urlParams.get('requires2FA');
+  if (mfaParam === 'true')
+  {
+    console.log("2FA Mode Detected from OAuth redirect");
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    return true
+  }
+  return false
+}
+
+function checkAndDisplayErrorQuery()
+{
+  const urlParams = new URLSearchParams(window.location.search);  
+  const errorParam = urlParams.get('error')
+
+  if (errorParam){
+    alert(errorParam)
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+  }
+}
+
 export function setUpLoginLogic() {
     const loginForm = document.getElementById('login-form') as HTMLFormElement;
     const LoginButton = document.getElementById('loginButton') as HTMLButtonElement;
@@ -130,7 +156,6 @@ export function setUpLoginLogic() {
         window.location.href = '/api/login/github';
       })
     }
-
     if (!loginForm) return;
 
     //handel toggle password logic
@@ -157,6 +182,9 @@ export function setUpLoginLogic() {
                    </svg>`;
         });
     }
+    checkAndDisplayErrorQuery()
+    if (check2FaLoginQuery())
+      TwoFactorVerificationLogic()
     loginForm.addEventListener('submit', async (event) =>{
         event.preventDefault(); //to make sure the page not reloaded
 
@@ -178,7 +206,7 @@ export function setUpLoginLogic() {
                   body: JSON.stringify(payLoad),
                 });
                 if ("requires2FA" in response){
-                  return TwoFactorVerificationLogic(response)
+                  return TwoFactorVerificationLogic()
                 }
                 else
                 {
@@ -207,9 +235,6 @@ export function setUpLoginLogic() {
         finally{
             LoginButton.disabled = false;
         }
-    }
-
-    )
-    
+    })
 
 }
