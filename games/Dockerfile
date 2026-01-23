@@ -1,5 +1,5 @@
 # 1. Use the same Node version as your other services
-FROM node:18-alpine
+FROM node:24-alpine
 
 # 2. Set the working directory inside the container
 WORKDIR /app
