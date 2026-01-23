@@ -13,18 +13,13 @@ import {
   rejectFriendRequest,
 } from "../api_integration/api_friendship";
 
-// Type definitions
 type TabType = "friends" | "requests" | "blocked";
 
-// STATE: Current tab and cached data
 let activeTab: TabType = "friends";
 let friendsData: Friend[] = [];
 let requestsData: FriendRequest[] = [];
 let blockedData: BlockedUser[] = [];
 
-/**
- * Shows a loading spinner in the content area
- */
 function showLoading(): void {
   const contentArea = document.getElementById("profiles-content");
   if (contentArea) {
@@ -36,9 +31,6 @@ function showLoading(): void {
   }
 }
 
-/**
- * Shows an error message in the content area
- */
 function showError(message: string): void {
   const contentArea = document.getElementById("profiles-content");
   if (contentArea) {
@@ -57,9 +49,6 @@ function showError(message: string): void {
   }
 }
 
-/**
- * Fetches data for the current tab from the API
- */
 async function fetchTabData(): Promise<void> {
   showLoading();
 
@@ -82,9 +71,6 @@ async function fetchTabData(): Promise<void> {
   }
 }
 
-/**
- * Renders content based on cached data
- */
 function renderTabContent(): void {
   const contentArea = document.getElementById("profiles-content");
   if (!contentArea) return;
@@ -102,9 +88,6 @@ function renderTabContent(): void {
   }
 }
 
-/**
- * Returns tab button classes based on whether it's active
- */
 function getTabClasses(tab: TabType): string {
   const baseClasses = "flex-1 py-4 font-[solo] cursor-pointer text-[#f2f2f2] text-center font-semibold text-4xl shadow-[-5px_-5px_0px_#441563]";
 
@@ -114,9 +97,6 @@ function getTabClasses(tab: TabType): string {
   return `${baseClasses} bg-[#441563]`;
 }
 
-/**
- * Renders the tab bar
- */
 function renderTabBar(): string {
   return /* html */ `
     <div class="flex overflow-hidden">
@@ -133,9 +113,6 @@ function renderTabBar(): string {
   `;
 }
 
-/**
- * Updates the tab bar UI
- */
 function updateTabBar(): void {
   const tabBar = document.getElementById("profiles-tab-bar");
   if (tabBar) {
@@ -143,9 +120,6 @@ function updateTabBar(): void {
   }
 }
 
-/**
- * Removes a row from the DOM with animation
- */
 function removeRowFromDOM(selector: string): void {
   const row = document.querySelector(selector);
   if (row) {
@@ -154,9 +128,6 @@ function removeRowFromDOM(selector: string): void {
   }
 }
 
-/**
- * Handles all action button clicks
- */
 async function handleAction(action: string, button: HTMLElement): Promise<void> {
   // Disable button to prevent double clicks
   button.setAttribute("disabled", "true");
@@ -165,10 +136,9 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
   try {
     switch (action) {
       case "remove-friend": {
+        const friendshipId = Number(button.dataset.friendshipId);
+        await removeFriend(friendshipId);
         const friendId = Number(button.dataset.friendId);
-        await removeFriend(friendId);
-        
-        // Remove from local data and DOM
         friendsData = friendsData.filter((f) => f.id !== friendId);
         removeRowFromDOM(`[data-friend-row="${friendId}"]`);
         break;
@@ -176,12 +146,7 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
 
       case "block-user": {
         const friendId = Number(button.dataset.friendId);
-        // const friendshipId = Number(button.dataset.friendshipId);
-        
-        // Block also removes from friends, so we call block endpoint
         await blockUser(friendId);
-        
-        // Remove from friends data and DOM
         friendsData = friendsData.filter((f) => f.id !== friendId);
         removeRowFromDOM(`[data-friend-row="${friendId}"]`);
         break;
@@ -190,8 +155,6 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
       case "unblock-user": {
         const userId = Number(button.dataset.userId);
         await unblockUser(userId);
-        
-        // Remove from blocked data and DOM
         blockedData = blockedData.filter((u) => u.id !== userId);
         removeRowFromDOM(`[data-blocked-row="${userId}"]`);
         break;
@@ -200,12 +163,8 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
       case "accept-request": {
         const requestId = Number(button.dataset.requestId);
         await acceptFriendRequest(requestId);
-        
-        // Remove from requests data and DOM
         requestsData = requestsData.filter((r) => r.id !== requestId);
         removeRowFromDOM(`[data-request-row="${requestId}"]`);
-        
-        // Invalidate friends cache so it refetches when user switches tab
         friendsData = [];
         break;
       }
@@ -213,8 +172,6 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
       case "reject-request": {
         const requestId = Number(button.dataset.requestId);
         await rejectFriendRequest(requestId);
-        
-        // Remove from requests data and DOM
         requestsData = requestsData.filter((r) => r.id !== requestId);
         removeRowFromDOM(`[data-request-row="${requestId}"]`);
         break;
@@ -228,27 +185,20 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
   } catch (error: any) {
     console.error(`Action ${action} failed:`, error);
     alert(error.message || "Action failed. Please try again.");
-    
-    // Re-enable button on error
     button.removeAttribute("disabled");
     button.classList.remove("opacity-50", "cursor-not-allowed");
   }
 }
 
-/**
- * Sets up event listeners for the profiles page
- */
 export function setupProfilesPageLogic(): void {
   const container = document.getElementById("profiles-container");
   if (!container) return;
 
-  // Initial data fetch
   fetchTabData();
 
   container.addEventListener("click", async (e) => {
     const target = e.target as HTMLElement;
 
-    // Handle tab switching
     const tabButton = target.closest("[data-tab]") as HTMLElement;
     if (tabButton) {
       const newTab = tabButton.dataset.tab as TabType;
@@ -256,7 +206,6 @@ export function setupProfilesPageLogic(): void {
         activeTab = newTab;
         updateTabBar();
         
-        // Fetch data if cache is empty, otherwise render from cache
         const hasData =
           (activeTab === "friends" && friendsData.length > 0) ||
           (activeTab === "requests" && requestsData.length > 0) ||
@@ -271,7 +220,6 @@ export function setupProfilesPageLogic(): void {
       return;
     }
 
-    // Handle action buttons
     const actionButton = target.closest("[data-action]") as HTMLElement;
     if (actionButton) {
       const action = actionButton.dataset.action;
@@ -282,11 +230,7 @@ export function setupProfilesPageLogic(): void {
   });
 }
 
-/**
- * Main render function for the Profiles page
- */
 export function renderProfilesPage(): string {
-  // Reset state when page loads
   activeTab = "friends";
   friendsData = [];
   requestsData = [];
@@ -307,7 +251,6 @@ export function renderProfilesPage(): string {
               ${renderTabBar()}
             </div>
             <div id="profiles-content" class="bg-[#2A3FA1] rounded-b-lg p-6 min-h-[400px]">
-              <!-- Content loaded via fetchTabData() -->
               <div class="flex justify-center items-center py-12">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
               </div>
