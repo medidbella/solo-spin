@@ -4,7 +4,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyOauth2 from "@fastify/oauth2"
 import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
-import { authVerifier } from './auth/jwt.js';
+import { authVerifier, twoFactorTokenVerify} from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
 import { logout } from "./auth/logout.js"
 import {
@@ -12,7 +12,7 @@ import {
   searchForUserSchema, searchForUser, me
 } from "./users/profiles.js";
 import {
-  twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
+  twoFaValidatorSchema, EnableTwoFactoAuth,
   TwoFactorValidator, TwoFactorLoginVerify
 } from './auth/totp.js';
 import { 
@@ -51,6 +51,11 @@ import {
 
 
 const app = Fastify({
+  ajv: {
+    customOptions: {
+      removeAdditional: false
+    }
+  },
   logger: {
     transport: {
       targets: [
@@ -162,7 +167,7 @@ app.post("/api/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
 app.post("/api/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
   TwoFactorValidator)
 
-app.post("/api/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
+app.post("/api/2fa/verify", {schema: twoFaValidatorSchema, preHandler: twoFactorTokenVerify }, TwoFactorLoginVerify)
 
 app.get("/api/login/github", githubOauthLogin)
 

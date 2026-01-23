@@ -27,7 +27,6 @@ export interface TwoFAValidateRequest {
 // POST /api/2fa/verify
 export interface TwoFAVerifyRequest {
   code: string;
-  mfaToken: string;
 }
 
 // PATCH /api/user/update
@@ -141,7 +140,6 @@ export interface UserProfileResponse {
 
 // POST /api/login response when 2FA is enabled
 export interface Login2FAResponse {
-  mfaToken: string;
   requires2FA: boolean
 }
 
