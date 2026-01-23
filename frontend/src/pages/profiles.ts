@@ -136,9 +136,8 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
   try {
     switch (action) {
       case "remove-friend": {
-        const friendshipId = Number(button.dataset.friendshipId);
-        await removeFriend(friendshipId);
         const friendId = Number(button.dataset.friendId);
+        await removeFriend(friendId);
         friendsData = friendsData.filter((f) => f.id !== friendId);
         removeRowFromDOM(`[data-friend-row="${friendId}"]`);
         break;
