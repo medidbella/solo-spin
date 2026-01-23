@@ -509,12 +509,12 @@ Fetch top ranked users based on total XP gained.
 
 ---
 
-## GET `/api/games/history`
+## GET `/api/user/games/history`
 Get the last few games.
 
 **Request query schema:**
 - limit: { type: 'integer', minimum: 1 }
-  - Example: `https://ip:443/api/games/history?limit=2`
+  - Example: `https://ip:443/api/user/games/history?limit=2`
 
 **Responses:**
 - Invalid access token -> "403 Unauthorized"

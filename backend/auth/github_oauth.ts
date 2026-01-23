@@ -150,13 +150,13 @@ export async function githubOauthRedirectHandler(this:FastifyInstance, req:Fasti
 			},
 		})
 		if (user) {
-			githubOauthAuthenticate(res, user, githubUserData, req.host)
+			await githubOauthAuthenticate(res, user, githubUserData, req.host)
 			if (res.sent)
 				return
 			res.redirect(`https://localhost:8443/home`)
 		}
 		else { 
-			githubOauthRegistration(res, githubUserData)
+			await githubOauthRegistration(res, githubUserData)
 			res.redirect(`https://localhost:8443/home`)
 		}
 	}

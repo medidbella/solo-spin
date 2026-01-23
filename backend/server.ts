@@ -218,7 +218,7 @@ app.post(`/${protectedRoutesPrefix}/games`, {schema: storeMatchSchema}, storeMat
 
 app.get("/api/leaderboard", {preHandler:authVerifier, schema:gameLeaderboardSchema}, getLeaderboard)
 
-app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
+app.get("/api/user/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
 
 await app.ready()
 
