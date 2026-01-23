@@ -100,9 +100,14 @@ init: ## First-time setup: Configures .env, permissions, and certificates
 # LIFECYCLE MANAGEMENT
 # ==============================================================================
 
-without:   ## Start development stack WITHOUT ELK (App only)
+dev-app:   ## Start development stack WITHOUT ELK (App only)
 	@echo "$(YELLOW)[INFO] Starting App without ELK...$(RESET)"
 	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d
+	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
+
+dev-app-build: ## Start development stack WITHOUT ELK (App only) + build
+	@echo "$(YELLOW)[INFO] Starting App without ELK + build ...$(RESET)"
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d --build
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 dev: ## Start full development stack (App + ELK)

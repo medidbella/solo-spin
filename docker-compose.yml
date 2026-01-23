@@ -59,6 +59,8 @@ services:
       dockerfile: Dockerfile
     networks:
       - elastic
+    volumes:
+      - ./shared:/app/shared
     depends_on:
       - backend
   
@@ -76,3 +78,12 @@ services:
       - ./logs:/app/logs
     depends_on:
       - backend
+
+  games:
+    build:
+      context: ./games
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    volumes:
+      - ./shared:/app/shared
