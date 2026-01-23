@@ -28,7 +28,7 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 		if (!user || !await bcrypt.compare(password, user.password_hash!))
 			return res.code(401).send({message: "invalid username or password", statusCode: 401})
 		if (user.two_factor_enabled)
-			return TwoFactoLoginController(res, user)
+			return TwoFactoLoginController(res, req.host, user.id, false)
 		SetAccessTokenCookie(res, user.id)
 		const token = SetRefreshTokenCookie(res, user.id)
 		await prisma.user.update({

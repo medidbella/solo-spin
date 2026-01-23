@@ -3,6 +3,7 @@ import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 import { prisma } from "../prisma/database.js";
 import { User } from "@prisma/client";
 import { GetRandomAvatarPath } from "../users/avatar.js";
+import { TwoFactoLoginController } from "./totp.js"
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -91,6 +92,8 @@ async function githubOauthAuthenticate(res:FastifyReply, localUser:User, remoteU
 			}
 		})
 	}
+	if (localUser.two_factor_enabled)
+		return TwoFactoLoginController(res, host, localUser.id, true)
 	SetAccessTokenCookie(res, localUser.id)
 	const token = SetRefreshTokenCookie(res, localUser.id)
 	localUser = await prisma.user.update({

@@ -25,6 +25,26 @@ export function SetRefreshTokenCookie(res: FastifyReply, user_id :number)
 	return jwtToken;
 }
 
+export async function twoFactorTokenVerify(req: FastifyRequest, res: FastifyReply)
+{
+	const token:string | undefined = req.cookies["mfaToken"]
+
+	if (!token)
+		return (res.code(400).send({message: "token cookie not found", statusCode: 400}))
+	try {
+		const decoded = req.server.jwt.verify(token)
+		if ((decoded as any).type != "2fa_temp")
+			return (res.code(400).send({message: "Invalid token type", statusCode: 400}))
+		req.user = decoded
+	}
+	catch (err){
+		res.code(401).send({
+			message: "expired token please login again",
+			statusCode: 401
+		})
+	}
+}
+
 export async function authVerifier(req: FastifyRequest, res: FastifyReply)
 {
 	try {
