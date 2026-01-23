@@ -13,7 +13,20 @@ export function renderHome(): string {
         
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col p-12 relative gap-6 h-full overflow-hidden">
-          
+          <!-- Search Bar -->
+          <div class="w-full flex justify-center">
+            <div class="relative w-1/2">
+              <input 
+                type="text" 
+                id="search-input"
+                placeholder="Search for a player by username..." 
+                class="w-full px-4 py-3 pl-12 bg-[#1a1a2e] text-[#F2F2F2] rounded-lg border-2 border-[#441563] focus:outline-none focus:border-[#2A3FA1] placeholder-gray-400"
+              />
+              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
           <!-- Hero Section (Top Half) -->
           <div class="relative bg-[#2A3FA1] flex items-center justify-between h-1/2 px-6 py-4 shadow-[-10px_-10px_0px_#441563]">
             <img class="w-1/4 object-contain origin-bottom h-[284px]" src="./../../public/imgs/orange-boy.png" alt="Orange Team Player">
