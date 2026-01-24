@@ -108,7 +108,20 @@ export async function router(path: string)
       break;
       
     case '/leaderBoard':
-        app.innerHTML = renderLeaderBoard();
+        app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';
+        try {
+          const leaderboardHtml = await renderLeaderBoard();
+          app.innerHTML = leaderboardHtml;
+        } 
+        catch (error: any)
+        {
+          console.error("Failed to load leaderboard", error);
+          if (error.message === "Failed to fetch") {
+            app.innerHTML = '<div class="text-red-500 text-center mt-20">Server error. Please try again later.</div>';
+          } else {
+            app.innerHTML = '<div class="text-red-500 text-center mt-20">Error loading leaderboard</div>';
+          }
+        }
         setupHeaderLogic();
         break;
         
