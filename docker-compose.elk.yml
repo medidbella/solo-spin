@@ -25,7 +25,6 @@ services:
             fi;
             echo "Setting file permissions";
             chown -R 1000:0 config/certs;
-            # 👇👇 التصحيح هنا: حددنا المسار بدقة
             find config/certs -type d -exec chmod 750 \{\} \;;
             find config/certs -type f -exec chmod 640 \{\} \;;
             echo " Certs ready. Setup Finished.";
@@ -153,8 +152,8 @@ services:
     # user: root
     volumes:
       - logstashdata01:/usr/share/logstash/data
-      - ./elk/certs:/usr/share/logstash/config/certs
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./elk/certs:/usr/share/logstash/certs
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     environment:
       - NODE_NAME="logstash"
       - xpack.monitoring.enabled=false
@@ -172,8 +171,8 @@ services:
       - elastic
     volumes:
       - ./elk/certs:/usr/share/filebeat/certs
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs:/usr/share/filebeat/logs:ro
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/usr/share/filebeat/logs
     depends_on:
       - logstash
 

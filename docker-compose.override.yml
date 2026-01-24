@@ -21,9 +21,9 @@ services:
 
   nginx:
     volumes:
-      - ./ngnix/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./logs:/var/log/nginx
-      - ./ngnix/certs:/etc/nginx/certs:ro
+      - ./nginx/certs:/etc/nginx/certs
   chat:
     build:
       context: ./chat

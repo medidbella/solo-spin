@@ -7,8 +7,8 @@ export const storeMessageSchema = {
 		type: 'object',
 		required: ["sender_id", "receiver_id", "content"],
 		properties: {
-			sender_id: {type: 'integer', minimum: 1},
-			receiver_id: {type: 'integer', minimum: 1},
+			sender_id: {type: 'integer', minimum: 0},
+			receiver_id: {type: 'integer', minimum: 0},
 			content: {type: 'string', minLength : 1, maxLength: 2000}
 		},
 		additionalProperties: false
@@ -20,8 +20,8 @@ export const listMessagesSchema = {
 		type: 'object',
 		required: ["user1_id", "user2_id"],
 		properties: {
-			user1_id: {type: 'integer', minimum: 1},
-			user2_id: {type: 'integer', minimum: 1}
+			user1_id: {type: 'integer', minimum: 0},
+			user2_id: {type: 'integer', minimum: 0}
 		}
 	}
 }
@@ -31,8 +31,8 @@ export const markConversationSeenSchema = {
 		type: 'object',
 		required: ["user_id", "peer_id"],
 		properties: {
-			user_id: {type: 'integer', minimum: 1},
-			peer_id: {type: 'integer', minimum: 1}
+			user_id: {type: 'integer', minimum: 0},
+			peer_id: {type: 'integer', minimum: 0}
 		},
 		additionalProperties: false
 	}
@@ -94,6 +94,7 @@ export async function listMessages(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(messages)
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({ message: "Server unexpected Error", statusCode: 500});
 	}
 }
@@ -103,9 +104,9 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 	const {user_id, peer_id} = req.body as {user_id:number, peer_id:number}
 	try {
 		const relation = await getRelation(user_id, peer_id)
-		console.log(relation)
+		// console.log(relation)
 		if (!relation){
-			console.log("no relation")
+			// console.log("no relation")
 			return res.code(404).send({message: "No conversation found between the two users", statusCode: 404})
 		}
 		await prisma.directMessage.updateMany({
@@ -119,6 +120,7 @@ export async function markConversationSeen(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send({message: "All conversation messages are marked as seen"})
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({message: "Server unexpected Error", statusCode: 500})
 	}
 }

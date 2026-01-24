@@ -1,10 +1,11 @@
 import { apiFetch } from "../api_integration/api_fetch";
+import { TwoFactorVerificationLogic } from "../components/TwoFactorSetup/TwoFactorLoginLogic";
 import type {LoginRequest } from "../api_integration/api_types"
 
 export function renderLoginPage(): string {
   return /* html */ `
     <main class="flex justify-between min-h-screen">
-        <div class="w-1/2 flex items-center flex-col">
+        <div id="login-left-content" class="w-1/2 flex items-center flex-col">
             <!-- Logo -->
             <div class="mb-0.5">
                 <img src="../../public/imgs/logo.png" alt="Logo">
@@ -109,6 +110,32 @@ export function renderLoginPage(): string {
 }
 
 
+function check2FaLoginQuery(): boolean
+{
+  const urlParams = new URLSearchParams(window.location.search);
+  const mfaParam = urlParams.get('requires2FA');
+  if (mfaParam === 'true')
+  {
+    console.log("2FA Mode Detected from OAuth redirect");
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    return true
+  }
+  return false
+}
+
+function checkAndDisplayErrorQuery()
+{
+  const urlParams = new URLSearchParams(window.location.search);  
+  const errorParam = urlParams.get('error')
+
+  if (errorParam){
+    alert(errorParam)
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+  }
+}
+
 export function setUpLoginLogic() {
     const loginForm = document.getElementById('login-form') as HTMLFormElement;
     const LoginButton = document.getElementById('loginButton') as HTMLButtonElement;
@@ -129,7 +156,6 @@ export function setUpLoginLogic() {
         window.location.href = '/api/login/github';
       })
     }
-
     if (!loginForm) return;
 
     //handel toggle password logic
@@ -156,6 +182,9 @@ export function setUpLoginLogic() {
                    </svg>`;
         });
     }
+    checkAndDisplayErrorQuery()
+    if (check2FaLoginQuery())
+      TwoFactorVerificationLogic()
     loginForm.addEventListener('submit', async (event) =>{
         event.preventDefault(); //to make sure the page not reloaded
 
@@ -176,16 +205,14 @@ export function setUpLoginLogic() {
                 },
                   body: JSON.stringify(payLoad),
                 });
-                // if ("mfaToken" in response)
-                // {
-                //   display the 2fa page and add logic
-                // }
-                // else
-                // {
-                  console.log("logged successfully");
+                if ("requires2FA" in response){
+                  return TwoFactorVerificationLogic()
+                }
+                else
+                {
                   console.log(response.message);
                   window.location.href = '/home';
-                // }
+                }
         }
         catch(Error : any) {
             if ("statusCode" in Error)
@@ -208,9 +235,6 @@ export function setUpLoginLogic() {
         finally{
             LoginButton.disabled = false;
         }
-    }
-
-    )
-    
+    })
 
 }

@@ -11,7 +11,7 @@ export async function renderProfile()
 {
 	try {
 		const userData = await apiFetch<MeResponse>('/api/me');
-		const matchHistory = await apiFetch<GamesHistoryResponse>('/api/games/history?limit=10');
+		const matchHistory = await apiFetch<GamesHistoryResponse>('/api/user/games/history?limit=10');
 
     console.log(matchHistory)
 

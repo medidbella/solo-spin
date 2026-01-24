@@ -15,18 +15,6 @@ export const twoFaValidatorSchema = {
 	}
 }
 
-export const twoFaVerifySchema = {
-	body: {
-		type: "object",
-		required: ["code", "mfaToken"],
-		properties: {
-			code: { type: "string", minLength: 6, maxLength: 6},
-			mfaToken: {type: "string"}
-		},
-		additionalProperties: false
-	}
-}
-
 export async function EnableTwoFactoAuth(req: FastifyRequest, res: FastifyReply)
 {
 	let otpAuthUrl: string
@@ -69,6 +57,7 @@ export async function EnableTwoFactoAuth(req: FastifyRequest, res: FastifyReply)
 	}
 	catch (err:any)
 	{
+		req.log.error(err);
 		return res.code(500).send({
 			message: "Server unexpected error",
 			statusCode: 500
@@ -131,27 +120,31 @@ export async function TwoFactorValidator(req: FastifyRequest, res: FastifyReply)
 	return res.code(201).send({message: "2FA is enabled successfully"})
 }
 
-export function TwoFactoLoginController(res:FastifyReply, user:User)
+export function TwoFactoLoginController(res:FastifyReply, host:string, user_id:number, oauth_case:boolean)
 {
 	const mfaToken = res.server.jwt.sign({
-		sub:user.id,
+		sub:user_id,
 		type:"2fa_temp"},
-		{ expiresIn: "4m"}
-	)
-	res.code(202).send({requires2FA: true, mfaToken})
+		{ expiresIn: "4m"
+	})
+	res.cookie("mfaToken", mfaToken, {
+		path: '/api/2fa/verify',
+		httpOnly: true,
+		secure: true,
+		sameSite: 'lax',
+		expires: new Date(Date.now() + 4 * 60 * 1000)
+	})
+	if (oauth_case)
+		return (res.redirect(`https://${host}:8443/login?requires2FA=true`))
+	return (res.code(202).send({requires2FA: true}));
 }
 
 export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyReply)
 {
-	const {code, mfaToken} = req.body as {code:string, mfaToken:string}
-	console.log(`code: ${code}`)
-	console.log(`token:\n\t${mfaToken}`)
+	const {code} = req.body as {code:string}
 	try {
-		const decoded = req.server.jwt.verify(mfaToken)
-		console.log("token verified successfully")
-		if ((decoded as any).type != "2fa_temp")
-			return (res.code(401).send({message: "Invalid token type", statusCode: 401}))
-		const user_id = parseInt((decoded as any).sub)
+		const user_id = (req.user as any).sub
+		console.log(`\nuser id = ${user_id}\n`)
 		const user = await prisma.user.findUnique({
 			where: {
 				id : user_id
@@ -168,7 +161,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 			return ;
 		SetAccessTokenCookie(res, user_id)
 		const token = SetRefreshTokenCookie(res, user_id)
-		prisma.user.update({
+		await prisma.user.update({
 			where: {
 				id:user_id
 			},
@@ -179,11 +172,10 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 	}
 	catch (error:any)
 	{
-		console.log(error.name)
 		if (error.code == 'FAST_JWT_EXPIRED'){
 			return res.code(401).send({message: "expired temp token, please try to login again", statusCode: 401})
 		}
-		else if (error.code == 'FAST_JWT_INVALID_SIGNATURE'){
+		else if (error.code == 'FAST_JWT_INVALID_SIGNATURE' || error.code == 'FAST_JWT_MALFORMED'){
 			return res.code(401).send({message: "invalid temp token, please try to login again", statusCode: 401})
 		}
 		req.log.error(error);

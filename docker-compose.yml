@@ -18,7 +18,7 @@ services:
  
   nginx:
     build:
-      context: ./ngnix
+      context: ./nginx
       dockerfile: Dockerfile
     networks:
       - elastic
@@ -27,7 +27,7 @@ services:
       - "8443:443"
     volumes:
       - ./logs:/var/log/nginx
-      - ./ngnix/certs:/etc/nginx/certs
+      - ./nginx/certs:/etc/nginx/certs
   
   backend:
     build:
@@ -37,6 +37,7 @@ services:
       - elastic
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_ACCESS_SECRET}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - SALT_ROUNDS=${SALT_ROUNDS}
@@ -59,6 +60,8 @@ services:
       dockerfile: Dockerfile
     networks:
       - elastic
+    volumes:
+      - ./shared:/app/shared
     depends_on:
       - backend
   
@@ -77,3 +80,12 @@ services:
       - ./logs:/app/logs
     depends_on:
       - backend
+
+  games:
+    build:
+      context: ./games
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    volumes:
+      - ./shared:/app/shared

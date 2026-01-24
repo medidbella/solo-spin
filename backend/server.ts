@@ -4,12 +4,15 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyOauth2 from "@fastify/oauth2"
 import { register, registrationSchema } from "./auth/register.js";
 import { login, loginSchema } from './auth/login.js';
-import { authVerifier } from './auth/jwt.js';
+import { authVerifier, twoFactorTokenVerify} from './auth/jwt.js';
 import { refresh } from './auth/refresh.js';
-import { me, getUserProfile, fetchUserDataSchema, personalInfos} from "./users/profile.js";
 import { logout } from "./auth/logout.js"
 import {
-  twoFaVerifySchema, twoFaValidatorSchema, EnableTwoFactoAuth,
+  getUserProfile, fetchUserDataSchema, personalInfos,
+  searchForUserSchema, searchForUser, me
+} from "./users/profiles.js";
+import {
+  twoFaValidatorSchema, EnableTwoFactoAuth,
   TwoFactorValidator, TwoFactorLoginVerify
 } from './auth/totp.js';
 import { 
@@ -32,7 +35,7 @@ import {
   friendRequestActionSchema, friendRequestSchema,
   unfriendSchema, sendFriendRequest, listFriendRequests,
   listFriends, acceptRequest, rejectRequest, removeFriendship,
-  friendBlockSchema, blockFriend, unBlockFriend
+  friendBlockSchema, blockFriend, unBlockFriend, listBlockedFriends
 } from './users/friendship.js'
 import {
   storeMessageSchema, listMessagesSchema,
@@ -48,6 +51,11 @@ import {
 
 
 const app = Fastify({
+  ajv: {
+    customOptions: {
+      removeAdditional: false
+    }
+  },
   logger: {
     transport: {
       targets: [
@@ -148,6 +156,8 @@ app.get("/api/basic-info", { preHandler: authVerifier }, personalInfos)
 
 app.get("/api/user/:id", {preHandler: authVerifier, schema: fetchUserDataSchema}, getUserProfile)
 
+app.get("/api/user/search", {preHandler: authVerifier, schema: searchForUserSchema}, searchForUser)
+
 app.post("/api/refresh", refresh)
 
 app.post("/api/logout", logout)
@@ -157,7 +167,7 @@ app.post("/api/2fa/generate", { preHandler: authVerifier }, EnableTwoFactoAuth)
 app.post("/api/2fa/validate", { schema: twoFaValidatorSchema, preHandler: authVerifier },
   TwoFactorValidator)
 
-app.post("/api/2fa/verify", { schema: twoFaVerifySchema }, TwoFactorLoginVerify)
+app.post("/api/2fa/verify", {schema: twoFaValidatorSchema, preHandler: twoFactorTokenVerify }, TwoFactorLoginVerify)
 
 app.get("/api/login/github", githubOauthLogin)
 
@@ -194,6 +204,8 @@ app.post("/api/friends/block", {preHandler: authVerifier, schema: friendBlockSch
 
 app.post("/api/friends/unblock", {preHandler: authVerifier, schema: friendBlockSchema}, unBlockFriend)
 
+app.get("/api/friends/blocked", {preHandler: authVerifier}, listBlockedFriends)
+
 const protectedRoutesPrefix = process.env.NODE_ENV == "development" ? 'api' : 'internal'  
 
 app.post(`/${protectedRoutesPrefix}/messages`, {schema: storeMessageSchema}, storeMessage)
@@ -206,11 +218,11 @@ app.post(`/${protectedRoutesPrefix}/games`, {schema: storeMatchSchema}, storeMat
 
 app.get("/api/leaderboard", {preHandler:authVerifier, schema:gameLeaderboardSchema}, getLeaderboard)
 
-app.get("/api/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
+app.get("/api/user/games/history", {preHandler:authVerifier, schema:gameHistorySchema}, getGameHistory)
 
 await app.ready()
 
-console.log(app.printRoutes());
+// console.log(app.printRoutes());
 
 app.listen({ port: 3000, host: '0.0.0.0'});
 

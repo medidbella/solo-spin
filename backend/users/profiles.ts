@@ -8,7 +8,18 @@ export const fetchUserDataSchema = {
 		type: 'object',
 		required: ["id"],
 		properties: {
-			id: { type: 'integer', minimum: 1}
+			id: { type: 'integer', minimum: 0}
+		},
+		additionalProperties: false
+	}
+}
+
+export const searchForUserSchema = {
+	querystring:{
+		type: 'object',
+		required:  ["username"],
+		properties:{
+			username: {type: 'string', minLength: 4}
 		},
 		additionalProperties: false
 	}
@@ -73,6 +84,32 @@ function getLevelProgressPercentage(level:number, xp:number):number
 	return result
 }
 
+export async function searchForUser(req:FastifyRequest, res:FastifyReply)// route: /api/user/search
+{
+	// console.log("query string from request = ", req.query)
+	const {username} = req.query as {username:string}
+	try {
+		const user = await prisma.user.findUnique({
+			where:{
+				username: username
+			},
+			select:{
+				id: true,
+				username: true,
+				name: true
+			}
+		})
+		if (!user){
+			return res.code(404).send({message: `no user found`, statusCode: 404})
+		}
+		return res.code(200).send(user)
+	}
+	catch (error){
+		req.log.error(error);
+		return res.code(500).send({message:"Server unexpected error", statusCode: 500})
+	}
+}
+
 export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 {
 	const { id } = req.params as { id: string };
@@ -131,7 +168,7 @@ export async function personalInfos(req:FastifyRequest, res:FastifyReply)// rout
 		return res.code(200).send(user);
 	}
 	catch (err){
-		console.log(err)
+		req.log.error(err);
 		return res.code(500).send({message:"Server unexpected error", statusCode: 500})
 	}
 }

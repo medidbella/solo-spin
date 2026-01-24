@@ -27,7 +27,6 @@ export interface TwoFAValidateRequest {
 // POST /api/2fa/verify
 export interface TwoFAVerifyRequest {
   code: string;
-  mfaToken: string;
 }
 
 // PATCH /api/user/update
@@ -141,7 +140,7 @@ export interface UserProfileResponse {
 
 // POST /api/login response when 2FA is enabled
 export interface Login2FAResponse {
-  mfaToken: string;
+  requires2FA: boolean
 }
 
 // POST /api/2fa/generate response
@@ -173,8 +172,8 @@ export type FriendRequestsResponse = FriendRequest[];
 export interface Friend {
   id: number;
   username: string;
-  name: string;
   friendshipId: number;
+  blockedBy: number | null
 }
 
 // GET /api/user/friends response
@@ -187,10 +186,17 @@ export interface LeaderboardEntry {
   total_xp_points: number;
 }
 
+// GET /api/friends/blocked item
+export interface BlockedFriend {
+  id: number,
+  username: string,
+  friendshipId: string
+}
+
 // GET /api/leaderboard response
 export type LeaderboardResponse = LeaderboardEntry[];
 
-// GET /api/games/history response item
+// GET /api/user/games/history response item
 export interface GameHistoryEntry {
   loser: {
     id:number,
@@ -203,5 +209,13 @@ export interface GameHistoryEntry {
   score: string;
 }
 
-//GET /api/games/history response
+//GET /api/user/games/history response
 export type GamesHistoryResponse = GameHistoryEntry[];
+
+// GET /api/fiends/blocked response
+
+export interface BlockedUser {
+  id: number,
+  username: string,
+  name: string
+}

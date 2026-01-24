@@ -6,18 +6,19 @@ import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
-import { renderSecurity, changePasswordFormSubmit} from './pages/Security';
+import { renderSecurity} from './pages/Security';
 import { renderChat, setupchatlogic } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
 import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
-import { renderProfilesPage } from './pages/profiles';
+import { renderProfilesPage, setupProfilesPageLogic } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
 import { setUpLoginLogic } from './pages/LoginPage';
 import { setupHeaderLogic } from './components/Header.ts';
 import { apiFetch } from './api_integration/api_fetch';
 import type { UserInfo } from './api_integration/api_types';
 import { redirectBasedOnAuth } from './utils/auth.ts';
+import { setupSecurityPageLogic } from './pages/Security';
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
@@ -31,7 +32,7 @@ export const routeStatesMap: Record<string, 'private' | 'public'> = {
   '/game'        : 'private',
   '/leaderboard' : 'private',
   '/profile'     : 'private',
-  '/profiles'    : 'private'
+  '/profiles'    : 'private',
 };
 
 export async function router(path: string)
@@ -51,7 +52,7 @@ export async function router(path: string)
        app.innerHTML = renderSignUpPage(); 
        setupSignupLogic();
        break;
-       
+
     case '/home':
       app.innerHTML = renderHome();
       setupHeaderLogic();
@@ -84,9 +85,8 @@ export async function router(path: string)
       try {
         const userInfo = await apiFetch<UserInfo>("/api/basic-info")
         app.innerHTML = renderSecurity(userInfo);
-        const newPasswordForm = document.getElementById('new-password-form')
-        if (newPasswordForm)
-          newPasswordForm.addEventListener('submit', changePasswordFormSubmit)
+        // Use the new combined setup function instead of individual listener
+        setupSecurityPageLogic();
       }
       catch (error: any) {
         if (error.message == "Failed to fetch"){
@@ -132,6 +132,7 @@ export async function router(path: string)
 
     case '/profiles':
       app.innerHTML = renderProfilesPage();
+      setupProfilesPageLogic();
       setupHeaderLogic();
       break;
 
@@ -165,3 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   router(window.location.pathname);
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    window.location.reload();
+  });
+}

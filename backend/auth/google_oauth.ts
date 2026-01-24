@@ -3,6 +3,7 @@ import { SetAccessTokenCookie, SetRefreshTokenCookie} from "./jwt.js";
 import { prisma } from "../prisma/database.js";
 import { User } from "@prisma/client";
 import { GetRandomAvatarPath } from "../users/avatar.js";
+import { TwoFactoLoginController } from "./totp.js";
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -49,6 +50,8 @@ async function googleOauthAuthenticate(res:FastifyReply, localUser:User, remoteU
 			}
 		})
 	}
+	 if (localUser.two_factor_enabled)
+			return TwoFactoLoginController(res, host, localUser.id, true)
 	SetAccessTokenCookie(res, localUser.id)
 	const token = SetRefreshTokenCookie(res, localUser.id)
 	localUser = await prisma.user.update({
@@ -106,13 +109,13 @@ export async function googleOauthRedirectHandler(this:FastifyInstance, req:Fasti
 			},
 		})
 		if (user){
-			googleOauthAuthenticate(res, user, googleUserData, req.host)
+			await googleOauthAuthenticate(res, user, googleUserData, req.host)
 			if (res.sent)
 				return
 			res.redirect(`https://localhost:8443/home`)
 		}
 		else {
-			googleOauthRegistration(res, googleUserData)
+			await googleOauthRegistration(res, googleUserData)
 			res.redirect(`https://localhost:8443/home`)
 		}
 	}

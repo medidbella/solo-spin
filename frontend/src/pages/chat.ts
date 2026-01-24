@@ -1,6 +1,6 @@
 import { renderHeader } from "../components/Header";
 import { renderSideBar } from "../components/SideBar";
-import { setupchatlogic} from "../logic/chatlogic";
+import { setupchatlogic} from "../logic/chatlogic.ts";
 
 export function renderChat(): string {
   return /* html */`

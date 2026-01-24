@@ -12,8 +12,8 @@ export const storeMatchSchema = {
 		type: 'object',
 		required: ["winner_id", "loser_id", "winner_score", "loser_score"],
 		properties: {
-			winner_id: {type: 'integer', minimum: 1},
-			loser_id: {type: 'integer', minimum: 1},
+			winner_id: {type: 'integer', minimum: 0},
+			loser_id: {type: 'integer', minimum: 0},
 			winner_score: {type: 'integer', minimum: 1},
 			loser_score: {type: 'integer', minimum: 0}
 		},
@@ -131,6 +131,7 @@ export async function storeMatchResult(req:FastifyRequest, res:FastifyReply)
 		await updateUserStats(game.winner, winner_score , loser_score, game.loser)
 	}
 	catch (error:any) {
+		req.log.error(error);
 		if (error.code === 'P2003'){
 			const field = error.meta?.field_name?.[0] || 'unknown';
 			const userId = field.includes('winner') ? winner_id : loser_id;
@@ -176,6 +177,7 @@ export async function getGameHistory(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(games)
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({message: "Server unexpected Error", statusCode: 401})
 	}
 }
@@ -198,6 +200,7 @@ export async function getLeaderboard(req:FastifyRequest, res:FastifyReply)
 		return res.code(200).send(top_users)
 	}
 	catch (error){
+		req.log.error(error);
 		return res.code(500).send({message: "Server unexpected Error", statusCode: 401})
 	}
 }

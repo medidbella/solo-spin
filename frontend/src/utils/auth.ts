@@ -9,7 +9,7 @@ async function isAuthenticated() :Promise<boolean>
     try {
         await apiFetch<UserInfo>("/api/basic-info")
     }
-    catch {
+    catch (err) {
         return false
     }
     return true
@@ -17,19 +17,19 @@ async function isAuthenticated() :Promise<boolean>
 
 export async function redirectBasedOnAuth(path:string)
 {
-    console.log(`checking route ${path}`)
+    // console.log(`checking route ${path}`)
     if (routeStatesMap[path] == 'private' && ! (await isAuthenticated())){
-        console.log('the user is not authenticated redirecting to login')
+        // console.log('the user is not authenticated redirecting to login')
         history.pushState(null, '', '/login');
         return '/login'
     }
     else if (routeStatesMap[path] == 'public' && (await isAuthenticated())){
-        console.log('the user already authenticated redirecting to home')
+        // console.log('the user already authenticated redirecting to home')
         history.pushState(null, '', '/home')
         return '/home'
     }
-    else
-        console.log('either the path is private and user authed or public path and user unauthed')
+    // else
+        // console.log('either the path is private and user authed or public path and user unauthed')
     return path
 }
 
