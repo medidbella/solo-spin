@@ -62,10 +62,19 @@ const start = async () => {
                 content: data.content
               })
             });
-  
-            if (!response.ok) {
-              console.error(`DB Save Failed: ${response.status}`);
+            if (!response.ok)
+            {
+              const errData = await response.json() as any;
+              console.error(`Message rejected by Backend: ${response.status} - ${errData.message}`);
+              return;
             }
+            if (recipientsocketid) 
+              {
+                io.to(recipientsocketid).emit('private_message', {
+                  from: Number(id),
+                  content: data.content
+                });
+              }
           } 
           catch (err) 
           {
