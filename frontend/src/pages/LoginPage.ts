@@ -95,8 +95,13 @@ export function renderLoginPage(): string {
                   Enter the world!
                 </a>
             </div>
-        </div>
-        
+              <p class="mt-8 text-xs text-gray-500 max-w-sm text-center leading-relaxed">
+              By entering the website, you agree to our 
+              <a href="/terms-of-service#terms" class="underline hover:text-[#2A3FA1] transition-colors">Terms of Service</a> 
+              and 
+              <a href="/terms-of-service#privacy" class="underline hover:text-[#2A3FA1] transition-colors">Privacy Policy</a>.
+            </p>
+          </div>
         <!-- Right Side Image -->
         <div class="w-1/2 h-screen relative">
             <img 
