@@ -1,53 +1,89 @@
+volumes:
+  certs:
+    driver: local
+  esdata01:
+    driver: local
+  kibanadata:
+    driver: local
+  logstashdata01:
+    driver: local
+
+
+networks:
+  elastic:
+    driver: bridge
+
 
 services:
-
+ 
   nginx:
-    build: ./nginx
-    container_name: nginx-proxy
-    ports:
-      - "8080:8080"
-    depends_on:
-      - frontend
-      - user-management
-      - games
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     networks:
-      - transcendence-network
-  
-  frontend:
-    build: ./frontend
-    container_name: frontend
+      - elastic
     ports:
-      - "3000:3000"
-    env_file:
-      - .env
+      - "8080:80"
+      - "8443:443"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    # This ensures Vite listens on all network interfaces inside the container
-    command: npm run dev -- --host
+      - ./logs:/var/log/nginx
+      - ./nginx/certs:/etc/nginx/certs
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     networks:
-      - transcendence-network
+      - elastic
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - SALT_ROUNDS=${SALT_ROUNDS}
+      - GOOGLE_OAUTH_ID=${GOOGLE_OAUTH_ID}
+      - AVATARS_STORAGE_PATH=${AVATARS_STORAGE_PATH}
+      - GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET}
+      - GITHUB_OAUTH_ID=${GITHUB_OAUTH_ID}
+      - GITHUB_OAUTH_SECRET=${GITHUB_OAUTH_SECRET}
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - ./backend/avatars:/app/avatars
+      - ./backend/dev.db:/app/dev.db
+      - ./logs:/app/logs
 
-  user-management:
-    build: ./user-management
-    container_name: user-management
-    ports:
-      - "3001:3001"
-    env_file:
-      - .env
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     networks:
-      - transcendence-network
+      - elastic
+    volumes:
+      - ./shared:/app/shared
+    depends_on:
+      - backend
+  
+  chat:
+    build:
+      context: ./chat
+      dockerfile: Dockerfile
+    networks:
+      - elastic
+    environment:
+      - PORT=3000
+      - BACKEND_URL=http://backend:3000
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - backend
 
   games:
     build:
-      context: .
-      dockerfile: ./games/Dockerfile
-    container_name: games
-    ports:
-      - "3002:3002"
+      context: ./games
+      dockerfile: Dockerfile
     networks:
-      - transcendence-network
-
-networks:
-  transcendence-network:
-    driver: bridge
+      - elastic
+    volumes:
+      - ./shared:/app/shared

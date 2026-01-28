@@ -1,183 +1,173 @@
+import './style.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
-// 1. IMPORT YOUR VIEWS AND ITS LOGICS
-import { renderSignUpPage, setupSignupLogic } from './game-related/renders/signup';
-import { renderLoginPage, setUpLoginLogic } from './game-related/renders/login';
-import { renderHomePage, setHomeLogic } from './game-related/renders/home'; // The "Start Play" page
-// import { renderGameModePage } from './game-related/renders/game_mode'; // New: Choose Local/Remote
-// import { renderPlayModePage } from './game-related/renders/play_mode'; // New: Choose Random/Friend
-// import { renderFriendSetUpPage } from './game-related/renders/friend_setup'; // New: Enter Friend Name
-// import { renderWaitingRoomPage } from './game-related/renders/waiting-room'; // New: Waiting Room
-// import { renderGamePlayPage } from './game-related/renders/game_play'; // The actual game
-
-import { handlePongRoutes } from './game-related/services/handle_pong_routes';
-import { gameClient } from './game-related/services/game_client';
-
-
+import { renderHome } from './pages/Home';
+import { renderSettings, settingsFormSubmit} from './pages/Settings';
+import { renderLandingPage }  from './pages/LandingPage';
+import { renderLoginPage } from './pages/LoginPage';
+import { renderSignUpPage } from './pages/SignUpPage';
+import { renderSecurity} from './pages/Security';
+import { renderChat } from './pages/chat';
+import { renderLeaderBoard } from './pages/leaderBoard';
+import { renderGamePage } from './pages/game';
+import { renderProfile } from './pages/Profile';
+import { renderProfilesPage, setupProfilesPageLogic } from './pages/profiles';
+import { setupSignupLogic } from './pages/SignUpPage';
+import { setUpLoginLogic } from './pages/LoginPage';
+import { setupHeaderLogic } from './components/Header.ts';
+import { apiFetch } from './api_integration/api_fetch';
+import type { UserInfo } from './api_integration/api_types';
+import { redirectBasedOnAuth } from './utils/auth.ts';
+import { setupSecurityPageLogic } from './pages/Security';
 const app = document.getElementById('app') as HTMLDivElement;
 
-function cleanUpGamePageIfRunAway(nextPath: string) {
-	if (nextPath !== '/games/pong/game-play' && gameClient.canvas && !gameClient.getHasReseted()) {	
-		// console.log(`  ===>>> HAS RESETED Condition: ${gameClient.getHasReseted} <<<====`);
-		
-		console.log("Navigating away from game. Resetting...");
-		gameClient.reset();
-	}
-}
+export const routeStatesMap: Record<string, 'private' | 'public'> = {
+  '/'            : 'public',
+  '/login'       : 'public',
+  '/signup'      : 'public',
+  '/home'        : 'private',
+  '/settings'    : 'private',
+  '/security'    : 'private',
+  '/chat'        : 'private',
+  '/game'        : 'private',
+  '/leaderboard' : 'private',
+  '/profile'     : 'private',
+  '/profiles'    : 'private',
+};
 
-// 2. ROUTER FUNCTION
-function router(path: string) {
-	let innerHTML: string | undefined
-	// app.innerHTML = ''; // Clear the current view
+export async function router(path: string)
+{  
+  path = await redirectBasedOnAuth(path)
+  switch (path) {
+    case '/':
+      app.innerHTML = renderLandingPage();
+      break;
+      
+    case '/login':
+      app.innerHTML = renderLoginPage();
+      setUpLoginLogic();
+      break;
+      
+    case '/signup':
+       app.innerHTML = renderSignUpPage(); 
+       setupSignupLogic();
+       break;
 
-	// Clear view for root paths only (optional, depends on my preference)
-    if (!path.startsWith('/games/')) {
-        app.innerHTML = ''; 
-    }
+    case '/home':
+      app.innerHTML = renderHome();
+      setupHeaderLogic();
+      break;
+      
+    case '/settings':
+      try {
+        const userInfo = await apiFetch<UserInfo>("/api/basic-info")
+        app.innerHTML = renderSettings(userInfo);
+        const settingsFrom = document.getElementById('settings-form')
+        if (settingsFrom)
+          settingsFrom.addEventListener('submit', settingsFormSubmit)
+      }
+      catch (error: any) {
+        console.log('Failed fetching settings:', error);
+        if (error.message == "Failed to fetch"){
+          alert('server error please try again later')
+        }
+        else {
+          console.log(error.message)
+          history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+          router('/login');
+          return;
+        }
+      }
+      setupHeaderLogic();
+      break;
+      
+    case '/security':
+      try {
+        const userInfo = await apiFetch<UserInfo>("/api/basic-info")
+        app.innerHTML = renderSecurity(userInfo);
+        // Use the new combined setup function instead of individual listener
+        setupSecurityPageLogic();
+      }
+      catch (error: any) {
+        if (error.message == "Failed to fetch"){
+          alert('server error please try again later')
+        }
+        else {
+          console.log(error.message)
+          history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+          router('/login');
+          return;
+        }
+      }
+      setupHeaderLogic();
+      break;
+      
+    case '/chat':
+      app.innerHTML = renderChat();
+      setupHeaderLogic();
+      break;
+      
+    case '/leaderBoard':
+        app.innerHTML = renderLeaderBoard();
+        setupHeaderLogic();
+        break;
+        
+    case '/game':
+      app.innerHTML = renderGamePage();
+      setupHeaderLogic();
+      break;
 
-	cleanUpGamePageIfRunAway(path);
+    case '/profile':
+      app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';
+      try {
+        const profileHtml = await renderProfile(); 
+        app.innerHTML = profileHtml;
+      } catch (error) {
+        console.error("Failed to load profile", error);
+        app.innerHTML = '<div class="text-red-500 text-center mt-20">Error loading profile</div>';
+      }
+      setupHeaderLogic();
+      break;
 
-  	switch (true) {
-    case path === '/':
-        router('/signup');
-		break;
-
-    // --- USER MANAGEMENT (Temporary) ---
-    case path === '/signup':
-		innerHTML = renderSignUpPage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./signup');
-			break;
-		}
-    	app.innerHTML = innerHTML;
-    	setupSignupLogic(); // Attaches event listeners for the form
-    	break;
-
-	case path === '/login':
-		innerHTML = renderLoginPage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./login');
-			break;
-		}
-		app.innerHTML = innerHTML;
-		setUpLoginLogic();
-		break;
-
-    // --- HOME: selecting the game (pong/sudoku) ---
-    case path === '/home': 
-    	// This is your "Start Play" page
-		innerHTML = renderHomePage();
-		if (!innerHTML) {
-			console.log(" ERROR: can't read the file, try again!!");
-			router('./home');
-			break;
-		}
-    	app.innerHTML = innerHTML;
-		setHomeLogic();
-    	break;
-
-    // --- GAME FLOW START ---
-	case path.startsWith("/games/pong/"):
-		// pong routes
-		handlePongRoutes(path, app);
-		break;
-
-	// case path.startsWith("/games/sudoku/"):
-	// 	innerHTML = handleSudokuRoutes(path);
-	// 	if (innerHTML === 'none')
-	// 		app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
-	// 	break;
-
-
-    // case '/games/games/pong/game-mode':
-    // 	// Choose Local vs Remote
-	// 	innerHTML = renderGameModePage();
-	// 	if (!innerHTML) {
-	// 		console.log(" ERROR: can't read the file, try again!!");
-	// 		router('./game-mode');
-	// 		break
-	// 	}
-    // 	app.innerHTML = innerHTML;
-    // 	break;
-
-    // case '/games/pong/play-mode':
-    // 	// Choose Friend vs Random
-	// 	innerHTML = renderPlayModePage();
-	// 	if (!innerHTML) {
-	// 		console.log(" ERROR: can't read the file, try again!!");
-	// 		router('./play-mode');
-	// 		break
-	// 	}
-    // 	app.innerHTML = innerHTML;
-    // 	break;
-
-    // case '/games/pong/friend-match':
-    // 	// Enter Friend's Name
-	// 	innerHTML = renderFriendSetUpPage();
-	// 	if (!innerHTML) {
-	// 		console.log(" ERROR: can't read the file, try again!!");
-	// 		router('./friend-match');
-	// 		break
-	// 	}
-    // 	app.innerHTML = innerHTML;
-    // 	break;
-
-    // case '/games/pong/waiting-room':
-    // 	// Waiting room
-	// 	innerHTML = renderWaitingRoomPage();
-	// 	if (!innerHTML) {
-	// 		console.log(" ERROR: can't read the file, try again!!");
-	// 		router('/games/pong/waiting-room');
-	// 		break
-	// 	}
-    // 	app.innerHTML = innerHTML;
-    // 	break;
-
-    // case '/games/pong/game-play':
-    // 	// The actual pong canvas
-	// 	innerHTML = renderGamePlayPage();
-	// 	if (!innerHTML) {
-	// 		console.log(" ERROR: can't read the file, try again!!");
-	// 		router('/games/pong/game-play');
-	// 		break
-	// 	}
-    // 	app.innerHTML = innerHTML;
-    // 	break;
+    case '/profiles':
+      app.innerHTML = renderProfilesPage();
+      setupProfilesPageLogic();
+      setupHeaderLogic();
+      break;
 
     default:
-    	app.innerHTML = '<h1 class="text-white">404 - Page Not Found</h1>';
+      app.innerHTML = '<div class="text-center mt-20"><h1 class="text-3xl font-bold text-red-600">404 - Not Found</h1><a href="/" data-link class="text-white underline">Go Home</a></div>';
   }
 }
 
-// 3. HANDLE BROWSER BACK BUTTON
 window.addEventListener('popstate', () => {
     router(window.location.pathname);
 });
 
-// 4. GLOBAL NAVIGATION HANDLER
 document.addEventListener('DOMContentLoaded', () => {
   
-  	document.body.addEventListener('click', (e) => {
-  	  	const target = e.target as HTMLElement;
-  	  	const link = target.closest('a');
-		
-  	  	// Only intercept links with data-link attribute
-  	  	if (link && link.hasAttribute('data-link')) {
-  	  	    e.preventDefault(); 
-  	  	    const href = link.getAttribute('href'); 
+  document.body.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
 
-  	  	    if (href) {
-  	  	        history.pushState(null, '', href); 
-  	  	        router(href); 
-  	  	    }
-  	  	}
-  	});
+    if (link && link.hasAttribute('data-link')) {
+        e.preventDefault();
+        
+        const href = link.getAttribute('href');
+        
+        if (href) {
+            history.pushState(null, '', href);
+            router(href);
+        }
+    }
+  });
 
-  	// Load initial page based on current URL
-  	router(window.location.pathname);
+  
+  router(window.location.pathname);
 });
 
-export { router };
-
-// notice that my teammate who's responsible for frontend set up something called components like header and side bar, i don't know 
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    window.location.reload();
+  });
+}
