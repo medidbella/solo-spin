@@ -1,6 +1,4 @@
 volumes:
-  certs:
-    driver: local
   esdata01:
     driver: local
   kibanadata:
@@ -62,6 +60,7 @@ services:
       - elastic
     volumes:
       - ./shared:/app/shared
+      - ./logs:/app/logs
     depends_on:
       - backend
   
@@ -89,3 +88,4 @@ services:
       - elastic
     volumes:
       - ./shared:/app/shared
+      - ./logs:/app/logs
