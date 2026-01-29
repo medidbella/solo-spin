@@ -109,13 +109,13 @@ export async function googleOauthRedirectHandler(this:FastifyInstance, req:Fasti
 			},
 		})
 		if (user){
-			googleOauthAuthenticate(res, user, googleUserData, req.host)
+			await googleOauthAuthenticate(res, user, googleUserData, req.host)
 			if (res.sent)
 				return
 			res.redirect(`https://localhost:8443/home`)
 		}
 		else {
-			googleOauthRegistration(res, googleUserData)
+			await googleOauthRegistration(res, googleUserData)
 			res.redirect(`https://localhost:8443/home`)
 		}
 	}

@@ -1,33 +1,21 @@
 
 // import { WebSocket } from 'ws';
-// import type { ClientMessage, WSMsgType, ServerMessage,
-				// AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
-				// PongSessionData, WSPongInput, 
-				// GameMode} from "@shared/types"; 
-
-import type { ClientMessage, WSPongStartGameMessage, WSMsgType,
-			WSPongInput, PongInput, inputPlayer, AvailableGames
-		} from '../../../../shared/types';
-
-// import type { ClientMessage } from '../../../../shared/types';
-
-
+import type { ClientMessage, WSMsgType, ServerMessage,
+				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
+				PongSessionData, WSPongInput, 
+				GameMode} from "@shared/types"; 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 import { handleGameOver } from '../renders/game_play';
 
 // Automatically detects if you are using 'http' or 'https'
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-
 // Automatically uses the current host (localhost or domain.com)
 const host = window.location.hostname; 
-
 // Automatically sets port (443 for https, 80 for http, or specific port if needed)
 const port = window.location.port ? window.location.port : (protocol === 'wss' ? '443' : '80');
-
 const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
 console.log(` Game ES Url: ${gameWSUrl}`);
-
 
 // ------- WS connections hanlder (send/receive) ------------
 // type GameUpdateCallback = (data: any) => void;
@@ -106,6 +94,12 @@ export class WSConnectionsHandler {
 
 		return new Promise((resolve, reject) => {
 
+			// Check: If already connected, just stop and say "OK"
+			if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+				// console.log("⚠️ Socket already connected, skipping...");
+				resolve(); 
+				return;
+			}
 
 			if (this.socket) {
 				console.warn("⚠️ Socket already connected");
@@ -196,18 +190,4 @@ export class WSConnectionsHandler {
             console.error("❌ received invalid JSON:", event.data);
         }
     }
-}
-
-export function setUpWsConnection() {
-	// 1. set player name
-	// console.log("   ## Setting the name ##");
-	// gameClient.setPlayerName(username);
-	if (!gameClient || !gameClient.wsConnectionsHandler) {
-		console.log("  *****  UNDEFINED ***** ");
-		return ;
-	}
-
-	console.log("   ## connecting WS ##");
-	// 2. Connect the WebSocket (it stays alive as long as the client is connected !!!)
-	gameClient.wsConnectionsHandler.connect();
 }

@@ -70,14 +70,15 @@ function pongGameMovements(playerId: string, parsedMessage: WSPongInput) {
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log('🔌 New WebSocket connection established');
+	// console.log('🔌 ');
 
 	const socket: WebSocket = connection.socket;
-	// const playerId: string = req.cookies.playerId as string;
-
-	const token: string | undefined = req.cookies.accessToken;
-
 	let playerId: string | undefined;
-	const playerName: string = req.cookies.playerName as string;
+
+	// const playerId: string = req.cookies.playerId as string;
+	const token: string | undefined = req.cookies.accessToken;
+	console.log(" ==> token: ", token);
+
 
 	if (token) {
 		try {
@@ -101,6 +102,8 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			return;
         }
 	}
+
+	const playerName: string = req.cookies.playerName as string; // !!!!!!
 
 	// // 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
 	// if (!playerId || !playerName) {

@@ -196,7 +196,7 @@ export interface BlockedFriend {
 // GET /api/leaderboard response
 export type LeaderboardResponse = LeaderboardEntry[];
 
-// GET /api/games/history response item
+// GET /api/user/games/history response item
 export interface GameHistoryEntry {
   loser: {
     id:number,
@@ -209,7 +209,7 @@ export interface GameHistoryEntry {
   score: string;
 }
 
-//GET /api/games/history response
+//GET /api/user/games/history response
 export type GamesHistoryResponse = GameHistoryEntry[];
 
 // GET /api/fiends/blocked response

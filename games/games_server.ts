@@ -16,8 +16,8 @@ console.log(`  secrete ===> ${process.env.JWT_ACCESS_SECRET}`);
 
 server.register(fastifyJwt, {
 	secret: process.env.JWT_ACCESS_SECRET!
+	// secret: 'temp'
 });
-
 
 // Register CORS
 server.register(cors, {
