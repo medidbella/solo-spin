@@ -150,28 +150,14 @@ setup-ilm: ## Configure Log Retention Policy (7 days) automatically
 		-u "elastic:$(ELASTIC_PASSWORD)" \
 		--cacert elk/certs/ca/ca.crt \
 		-H "Content-Type: application/json" \
-		-d '{ \
-		  "policy": { \
-			"phases": { \
-			  "hot": { "min_age": "0ms", "actions": { "rollover": { "max_age": "1d", "max_size": "50gb" } } }, \
-			  "delete": { "min_age": "7d", "actions": { "delete": {} } } \
-			} \
-		  } \
-		}'
+		-d '{"policy":{"phases":{"hot":{"min_age":"0ms","actions":{"rollover":{"max_age":"1d","max_size":"50gb"}}},"delete":{"min_age":"7d","actions":{"delete":{}}}}}}'
 	@echo ""
 	@echo "$(YELLOW)[INFO] Applying Policy to Index Template...$(RESET)"
 	@curl -s -X PUT "https://localhost:9201/_index_template/solo-spin-template" \
 		-u "elastic:$(ELASTIC_PASSWORD)" \
 		--cacert elk/certs/ca/ca.crt \
 		-H "Content-Type: application/json" \
-		-d '{ \
-		  "index_patterns": ["solo-spin-app-*"], \
-		  "template": { \
-			"settings": { \
-			  "index.lifecycle.name": "solo-spin-retention" \
-			} \
-		  } \
-		}'
+		-d '{"index_patterns":["solo-spin-app-*"],"template":{"settings":{"index.lifecycle.name":"solo-spin-retention"}}}'
 	@echo ""
 	@echo "$(GREEN)[SUCCESS] Log retention policy enforced!$(RESET)"
 
