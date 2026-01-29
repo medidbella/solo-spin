@@ -72,23 +72,50 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log('🔌 New WebSocket connection established');
 
 	const socket: WebSocket = connection.socket;
-	const playerId: string = req.cookies.playerId as string;
+	// const playerId: string = req.cookies.playerId as string;
+
+	const token: string | undefined = req.cookies.accessToken;
+
+	let playerId: string | undefined;
 	const playerName: string = req.cookies.playerName as string;
 
-	// 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
-	if (!playerId || !playerName) {
-		if (!playerId)
-			console.warn("❌ Connection rejected: Missing cookie ID");
-		else
-			console.warn("❌ Connection rejected: Missing cookie Name");
-		const errorMsg: ServerMessage = {
-			type: 'CONNECT_ERROR',
-			payload: { error: 'Authentication missing. Please log in.' }
-		};
-		socket.send(JSON.stringify(errorMsg));
-		socket.close(); // Close connection
-		return;
+	if (token) {
+		try {
+            // STEP 1: Verify/Decode the token string into an object
+            // Use the same tool you used to sign it (req.server.jwt)
+            const decoded = req.server.jwt.verify(token) as { sub: string };
+
+            // STEP 2: Now you can read the data
+            playerId = decoded.sub;
+            console.log(" ==> sub (User ID): ", playerId);
+            
+        } catch (err) {
+            console.log("Token is invalid or expired");
+
+			const errorMsg: ServerMessage = {
+				type: 'CONNECT_ERROR',
+				payload: { error: 'Authentication missing. Please log in.' }
+			};
+			socket.send(JSON.stringify(errorMsg));
+			socket.close(); // Close connection
+			return;
+        }
 	}
+
+	// // 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
+	// if (!playerId || !playerName) {
+	// 	if (!playerId)
+	// 		console.warn("❌ Connection rejected: Missing cookie ID");
+	// 	else
+	// 		console.warn("❌ Connection rejected: Missing cookie Name");
+	// 	const errorMsg: ServerMessage = {
+	// 		type: 'CONNECT_ERROR',
+	// 		payload: { error: 'Authentication missing. Please log in.' }
+	// 	};
+	// 	socket.send(JSON.stringify(errorMsg));
+	// 	socket.close(); // Close connection
+	// 	return;
+	// }
 
 
 
@@ -110,15 +137,15 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			const type: WSMsgType = parsedMessage.type;
 			switch (type) {
 				case 'CONNECT':
-					connectPlayer(playerId, playerName, socket);
+					connectPlayer(playerId!, playerName, socket);
 					break;
 				
 				case 'START_GAME':
-					startPongGame(playerId, parsedMessage);
+					startPongGame(playerId!, parsedMessage);
 					break;
 					
 				case 'GAME_INPUT':
-					pongGameMovements(playerId, parsedMessage as WSPongInput);
+					pongGameMovements(playerId!, parsedMessage as WSPongInput);
 					break;
 
 				default:

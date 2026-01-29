@@ -35,3 +35,9 @@ services:
       - ./chat:/app
       - /app/node_modules
     command: npm run dev
+
+  games:
+    volumes:
+      - ./games:/app/games                 # Syncs game code
+      - ./shared:/app/shared               # Syncs shared code
+      - /app/games/node_modules            # PREVENTS the host from deleting container dependencies

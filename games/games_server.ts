@@ -2,6 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cookie from '@fastify/cookie';
 import webSocket from '@fastify/websocket';
 import cors from '@fastify/cors';
+import fastifyJwt from '@fastify/jwt';
 
 import { registerGamesRoutes } from "./src/routes/routes";
 
@@ -10,6 +11,13 @@ const server: FastifyInstance = Fastify( { logger: true });
 server.register(cookie);
 
 server.register(webSocket);
+
+console.log(`  secrete ===> ${process.env.JWT_ACCESS_SECRET}`);
+
+server.register(fastifyJwt, {
+	secret: process.env.JWT_ACCESS_SECRET!
+});
+
 
 // Register CORS
 server.register(cors, {

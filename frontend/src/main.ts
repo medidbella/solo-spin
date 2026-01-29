@@ -1,6 +1,9 @@
 import './style.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
+import { gameClient } from "./game-related/services/game_client.ts";
+gameClient as any;
+
 import { renderHome } from './pages/Home';
 import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';

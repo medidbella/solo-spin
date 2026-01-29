@@ -1,20 +1,36 @@
 
 // import { WebSocket } from 'ws';
-import type { ClientMessage, WSMsgType, ServerMessage,
-				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
-				PongSessionData, WSPongInput, 
-				GameMode} from "@shared/types"; 
+// import type { ClientMessage, WSMsgType, ServerMessage,
+				// AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
+				// PongSessionData, WSPongInput, 
+				// GameMode} from "@shared/types"; 
+
+import type { ClientMessage, WSPongStartGameMessage, WSMsgType,
+			WSPongInput, PongInput, inputPlayer, AvailableGames
+		} from '../../../../shared/types';
+
+// import type { ClientMessage } from '../../../../shared/types';
+
+
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 import { handleGameOver } from '../renders/game_play';
 
-// Access the variables using import.meta.env
-const port = import.meta.env.VITE_NGINX_PORT;
-const host = import.meta.env.VITE_HOST;
-const url = `ws://${host}:${port}/ws/games/`;
+// Automatically detects if you are using 'http' or 'https'
+const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+
+// Automatically uses the current host (localhost or domain.com)
+const host = window.location.hostname; 
+
+// Automatically sets port (443 for https, 80 for http, or specific port if needed)
+const port = window.location.port ? window.location.port : (protocol === 'wss' ? '443' : '80');
+
+const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
+console.log(` Game ES Url: ${gameWSUrl}`);
+
 
 // ------- WS connections hanlder (send/receive) ------------
-type GameUpdateCallback = (data: any) => void;
+// type GameUpdateCallback = (data: any) => void;
 
 export class WSConnectionsHandler {
 
@@ -74,7 +90,7 @@ export class WSConnectionsHandler {
 		this.socket!.send(JSON.stringify(msg));
 	}
 
-	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string, move: PongInput | null) {
+	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string | null, move: PongInput | null) {
 		let message: ClientMessage;
 
 		if (type == 'CONNECT')
@@ -82,7 +98,7 @@ export class WSConnectionsHandler {
 		else if (type === "START_GAME")
 			message = this.createWSStartGameMessage(game, sessionId!);
 		else if (type === 'GAME_INPUT') {
-			message = this.createWSGameInputMessage(sessionId, move!);
+			message = this.createWSGameInputMessage(sessionId!, move!);
 		}
 		this.sendWSMessage(message!);
 	}
@@ -97,8 +113,8 @@ export class WSConnectionsHandler {
 			}	
 
 			// 1. Create Socket
-			console.log(`🔌 Connecting to ${url}...`);
-			this.socket = new WebSocket(url);
+			console.log(`🔌 Connecting to ${gameWSUrl}...`);
+			this.socket = new WebSocket(gameWSUrl);
 
 			// 2. Handle Connection Success
 			this.socket.onopen = () => {
@@ -182,6 +198,16 @@ export class WSConnectionsHandler {
     }
 }
 
-// ## Export a SINGLE instance ##
-// export WSConnectionsHandler;
-// export const wsConnectionsHandler = new WSConnectionsHandler();
+export function setUpWsConnection() {
+	// 1. set player name
+	// console.log("   ## Setting the name ##");
+	// gameClient.setPlayerName(username);
+	if (!gameClient || !gameClient.wsConnectionsHandler) {
+		console.log("  *****  UNDEFINED ***** ");
+		return ;
+	}
+
+	console.log("   ## connecting WS ##");
+	// 2. Connect the WebSocket (it stays alive as long as the client is connected !!!)
+	gameClient.wsConnectionsHandler.connect();
+}
