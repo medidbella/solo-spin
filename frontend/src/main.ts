@@ -52,10 +52,23 @@ export async function router(path: string)
 	if (!publicRoutes.includes(path)) {
 			// If the user is on /home, /game, /chat, etc... they MUST be logged in.
 			// So we ensure the socket is connected.
-			console.log("🔒 Protected route detected, ensuring WS connection...");
-			gameClient.wsConnectionsHandler.connect().catch(err => {
-					console.error("Failed to auto-connect WS:", err);
-			});
+			try {
+					console.log("🔒 Protected route detected, ensuring WS connection...");
+					gameClient.wsConnectionsHandler.connect().catch(err => {
+						console.error("Failed to auto-connect WS:", err);
+						throw new Error(err);
+					});
+
+					// set player info
+					console.log("  ==>> fetching '/api/basic-info' <<== ");
+					const user = await apiFetch<UserInfo>("/api/basic-info")
+					gameClient.setPlayerName(user.username)
+			}
+			catch (err: any)
+			{
+				history.pushState(null, '', `/login?error=${encodeURIComponent(err.message)}`);
+				router('/login')
+			}
 	}
 
 	console.log(`  next path: ${path}`);
@@ -148,11 +161,6 @@ export async function router(path: string)
 				}
 				setupHeaderLogic();
 				break;
-				
-		// case path == '/game':
-		// 	app.innerHTML = renderGamePage();
-		// 	setupHeaderLogic();
-		// 	break;
 
 		case path == '/profile':
 			app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';

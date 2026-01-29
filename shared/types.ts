@@ -116,6 +116,7 @@ export type Side = 'left' | 'right';
 
 // ----- HTTP request ---------
 export interface HttpPongSetupReq { 
+    playerName: string;
     game: AvailableGames,
     gameMode: GameMode,
     playMode: PlayMode,

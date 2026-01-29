@@ -26,6 +26,7 @@ function setGameModeLogic() {
 	// 1. local Game event listener
 	localModeBtn.addEventListener('click', () => {
 		console.log('🎮 User selected: Local Game');
+		gameClient.setGame('pong');
 		gameClient.setGameMode('local');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
 

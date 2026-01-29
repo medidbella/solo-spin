@@ -1,5 +1,4 @@
 import { router } from "../main";
-import { gameClient } from '../game-related/services/game_client';
 
 export function renderHeader() : string{
     return /* html */ `
@@ -22,23 +21,8 @@ export function renderHeader() : string{
 export function setupHeaderLogic() : void
 {
   const logoutBtn = document.getElementById("logoutButton");
-  const playBtn = document.getElementById('btn-play-home');
 
-  if (!logoutBtn || !playBtn) return;
-
-  if (playBtn) {
-    playBtn.addEventListener('click', () => {
-        console.log("🚀 User clicked Play");
-
-        // 1. Optional: Reset any old game state to be safe
-        gameClient.reset();
-
-        // 2. Navigate to the Game Page
-        // This triggers the router, which renders renderGamePage()
-        history.pushState(null, '', '/games/pong/game-mode');
-        router('/games/pong/game-mode');
-    });
-}
+  if (!logoutBtn) return;
 
   logoutBtn.addEventListener('click', async() => {
     try{

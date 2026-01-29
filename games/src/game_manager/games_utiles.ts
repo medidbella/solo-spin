@@ -122,18 +122,21 @@ function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
 }
 
 
-function initializePlayerGameContext(playerId: string, gameType: AvailableGames) {
+function initializePlayerGameContext(playerId: string, playerName: string, gameType: AvailableGames) {
 
 	const player: GamesPlayer = getPlayer(playerId);
 
     // 1. Set the game type (Pong or Sudoku)
+	player.playerName = playerName;
     player.game = gameType;
+	console.log(`  game:  ${gameType}  `);
 
     // 2. Instantiate the specific game object based on type
     if (gameType === 'pong') {
         // Create the PongPlayer instance (assuming it needs name & side)
         player.pongPlayer = createPongPlayer(playerId, 'left');
         player.sudokuPlayer = null; // Ensure other games are null
+		console.log("   ## Create pong player1",  player);
 
 		player.playerState = 'WAITING_MATCH';
     } 

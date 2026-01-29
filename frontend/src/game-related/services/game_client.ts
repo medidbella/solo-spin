@@ -1,7 +1,7 @@
 // import { GameConfig, PongState } from "../types/PongTypes";
 
 import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
-				, HttpPongSetupReq, HttpSetupResponse, PongSessionData } from "@shared/types";
+				, HttpPongSetupReq, HttpSetupResponse } from '../../../../shared/types';
 
 // import { wsConnectionsHandler } from "./ws_handler";
 import { WSConnectionsHandler } from "./ws_handler";
@@ -128,8 +128,10 @@ class GameClient {
 	}
 
 
-	private createSetupRequest(): HttpPongSetupReq {		
+	private createSetupRequest(): HttpPongSetupReq {
+		
 		const req: HttpPongSetupReq = {
+			playerName: this.playerName!,
 			game: this.game!,
 			gameMode: this.gameMode!,
 			playMode: this.playMode!,
@@ -146,7 +148,7 @@ class GameClient {
 			// 1. Get the data
 			const reqData = this.createSetupRequest();
 	
-			console.log("📤 Sending Game Setup:", reqData);
+			// console.log("📤 Sending Game Setup:", reqData);
 	
 			// 2. Send the Request
 			const response = await fetch('/api/games/pong', {

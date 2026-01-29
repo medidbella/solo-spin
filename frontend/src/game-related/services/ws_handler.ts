@@ -7,6 +7,7 @@ import type { ClientMessage, WSMsgType, ServerMessage,
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 import { handleGameOver } from '../renders/game_play';
+import { router } from '../../main';
 
 // Automatically detects if you are using 'http' or 'https'
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -26,13 +27,13 @@ export class WSConnectionsHandler {
 	// private onGameUpdate: GameUpdateCallback | null = null;
 
 	/**
-    	* Allow the Frontend to register a listener
-    	* When the Game Page loads then it will pass the 'draw()' function here.
-    */
+		* Allow the Frontend to register a listener
+		* When the Game Page loads then it will pass the 'draw()' function here.
+	*/
 	// public setGameUpdateListenerCallback(callback: GameUpdateCallback | null) {
 	// 	console.log('Set the Call back');
-    //     this.onGameUpdate = callback;
-    // }
+	//     this.onGameUpdate = callback;
+	// }
 
 	private createWSConnectMessage(): ClientMessage {
 		const message: ClientMessage = {
@@ -123,9 +124,10 @@ export class WSConnectionsHandler {
 			};
 
 			// Handle Incoming Messages
-            this.socket.onmessage = (event: MessageEvent) => {
-                this.handleIncomingMessage(event);
-            };
+			this.socket.onmessage = (event: MessageEvent) => {
+				console.log("  ### Detect incoming Message ###");
+				this.handleIncomingMessage(event);
+			};
 
 			this.socket.onerror = (error: any) => {
 				console.error('❌ WebSocket error:', error);
@@ -135,22 +137,24 @@ export class WSConnectionsHandler {
 			this.socket.onclose = () => {
 				console.log('🔌 WebSocket Closed');
 				this.socket = null;
+				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
+				router('/login');
 				reject();
 			};
 		});
 	}
 
 	private handleIncomingMessage(event: MessageEvent) {
-        try {
-            // 1. Parse the string data into a JSON object
-            const data = JSON.parse(event.data as string);
-            // console.log("📩 Received:", data);
+		try {
+			// 1. Parse the string data into a JSON object
+			const data = JSON.parse(event.data as string);
+			// console.log("📩 Received:", data);
 			const type: WSMsgType = data.type;
 			// const payload = data.payload as PongSessionData;
-            
+			
 			// console.log(`Ws message received, type: ${type} `);
 
-            // 2. Route the message based on its type
+			// 2. Route the message based on its type
 			switch (type) {
 
 				case 'GAME_STATE':
@@ -161,9 +165,9 @@ export class WSConnectionsHandler {
 
 					// const convertedData: PongSessionData = data;
 					// Check if we have a valid canvas to draw on
-                    if (gameClient.canvas && data.payload) {
-                        renderPongFrame(gameClient.canvas, data.payload);
-                    }
+					if (gameClient.canvas && data.payload) {
+						renderPongFrame(gameClient.canvas, data.payload);
+					}
 					// gameClient.pongRenderer!.draw(convertedData);
 					break ;
 
@@ -173,21 +177,21 @@ export class WSConnectionsHandler {
 					if (gameClient.canvas && data.payload) {
 
 						// 1. Draw the final frame so players see the final score
-                        renderPongFrame(gameClient.canvas, data.payload);
+						renderPongFrame(gameClient.canvas, data.payload);
 
 						// 2. Show the UI Overlay
 						handleGameOver(data.payload);
-                    }
+					}
 					
 					break ;
 				
 				default:
 					break ;
 			}
-            
+			
 
-        } catch (err) {
-            console.error("❌ received invalid JSON:", event.data);
-        }
-    }
+		} catch (err) {
+			console.error("❌ received invalid JSON:", event.data);
+		}
+	}
 }

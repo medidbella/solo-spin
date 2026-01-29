@@ -20,18 +20,6 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 
 	console.log("  ## Pong Routes ## ");
-
-	// return ; ////////////////////////////////////  !!!!!! 
-	
-	// this should be in the top on the main routes cases (main.ts), tmp for now !!!!
-	// if (window.location.pathname === '/games/pong/game-play' && path !== '/games/pong/game-play') {
-	// 	// We are navigating AWAY from the game
-	// 	gameClient.cleanupGamePage();
-		
-	// 	// Also remove window event listeners for keys if you added them
-	// 	// window.removeEventListener('keydown', handleInput); 
-	// 	// window.removeEventListener('keyup', handleInput);
-	// }
 	
 	switch (path) {
 
@@ -100,7 +88,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
 			// Initialize the Canvas & start logic
 			if (canvas) {
-				gameClient.initGamePage(canvas);
+				// gameClient.initGamePage(canvas);
 				
 				// Start logic
 				setGamePlayPageLogic(); 

@@ -13,8 +13,10 @@ import { isPlayerExist, showOnlinePlayers } from '../game_manager/games_utiles';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
 	
+	// console.log(" ## Local Mode ###");
+
 	// Check Player 2
-	 if (!body.player2 || body.player2.trim() === "") {
+	if (!body.player2 || body.player2.trim() === "") {
 		const resBody: HttpSetupResponse = createHttpErrorResponseBody('Local mode requires a name for Player 2.');
 		return reply.status(400).send(resBody);
 	}
@@ -52,10 +54,23 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		
 		// showOnlinePlayers();
 
-		// return ;
+		// 1. Get the token from the cookie
+        const token: string | undefined = req.cookies.accessToken;
+		// console.log(" ==> token: ", token);
+
+		if (!token) {
+            return reply.status(401).send({ error: "Authentication required" });
+        }
+
+		// 2. Verify the token (Security Check)
+        // This ensures the token was signed by your server and hasn't been tampered with.
+        const decoded = req.server.jwt.verify(token) as { sub: string };
+
+		// 3. Extract the Secure Player ID
+        const playerId = decoded.sub;
 
 		// player id
-		const playerId: string = req.cookies.playerId as string;
+		// const playerId: string = req.cookies.playerId as string;
 		// console.log(`  ==> Player Id: ${playerId} <==`);
 		if (!playerId) {
 			const resBody: HttpSetupResponse = createHttpErrorResponseBody('Unauthorized: Missing Player ID cookie.');
@@ -72,7 +87,7 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		// 1. Cast the body to our expected type
 		const body = req.body as HttpPongSetupReq;
 		
-		console.log(`📩 [SERVER] Received Setup Request:`, body);
+		// console.log(`📩 [SERVER] Received Setup Request:`, body);
 
 		// 2. basic Validation
 		if (!body.player1 || !body.gameMode) {
@@ -81,7 +96,8 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		}
 
 		// ---- initialize selected game ----
-		initializePlayerGameContext(playerId, body.game);	
+		// console.log(" ===>   INIT SELECTED GAME  <====");
+		initializePlayerGameContext(playerId, body.playerName, body.game);	
 
 		// --- HANDLE LOCAL MODE ---
 
