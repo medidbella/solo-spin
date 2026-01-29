@@ -5,6 +5,8 @@ services:
       - /app/node_modules
       - ./backend/dev.db:/app/dev.db
       - ./backend/avatars:/app/avatars
+      - ./scripts/init-backend.sh:/app/init-backend.sh
+    entrypoint: ["/bin/sh", "/app/init-backend.sh"]
     command: npm run dev
 
   frontend:

@@ -1,62 +1,42 @@
 services:
-  
+# 1. Certificate Generator
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     networks:
       - elastic
     volumes:
       - ./elk/certs:/usr/share/elasticsearch/config/certs
+      - ./scripts/setup-certs.sh:/usr/share/elasticsearch/config/setup-certs.sh
     user: "0"
-    command: >
-          bash -c '
-            if [ x${ELASTIC_PASSWORD} == x ]; then
-              echo "Set the ELASTIC_PASSWORD variable"; exit 1;
-            fi;
-            if [ ! -f config/certs/ca.zip ]; then
-              echo "Creating CA";
-              bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
-              unzip config/certs/ca.zip -d config/certs;
-            fi;
-            if [ ! -f config/certs/certs.zip ]; then
-              echo "Creating certs";
-              echo -ne "instances:\n  - name: es01\n    dns:\n      - es01\n      - localhost\n    ip:\n      - 127.0.0.1\n" > config/certs/instances.yml;
-              bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
-              unzip config/certs/certs.zip -d config/certs;
-            fi;
-            echo "Setting file permissions";
-            chown -R 1000:0 config/certs;
-            find config/certs -type d -exec chmod 750 \{\} \;;
-            find config/certs -type f -exec chmod 640 \{\} \;;
-            echo " Certs ready. Setup Finished.";
-          '
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    command: /usr/share/elasticsearch/config/setup-certs.sh
     healthcheck:
       test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
       interval: 1s
       timeout: 5s
       retries: 120
 
-  setup-passwords:
+  # 2. Stack Configurator (Passwords, ILM, Dashboards)
+  setup-stack:
     depends_on:
       es01:
         condition: service_healthy
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+      kibana:
+        condition: service_healthy
+    image: curlimages/curl:latest
     networks:
       - elastic
     volumes:
-      - ./elk/certs:/usr/share/elasticsearch/config/certs
-    user: "0"
-    command: >
-      bash -c '
-        echo "Waiting for Elasticsearch to set passwords..."
-        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" \
-          -H "Content-Type: application/json" \
-          https://es01:9200/_security/user/kibana_system/_password \
-          -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do 
-            echo "Elasticsearch not ready yet for password setup... sleeping";
-            sleep 5; 
-        done;
-        echo "kibana_system password set successfully!";
-      '
+      - ./elk/certs:/config/certs
+      - ./scripts/setup-stack.sh:/scripts/setup-stack.sh
+      - ./dashboards:/dashboards  # Mount dashboard file here
+    user: "root"
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+    command: /bin/sh /scripts/setup-stack.sh
+
   es01:
     depends_on:
       setup:
@@ -74,9 +54,9 @@ services:
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
-      - discovery.type=single-node         # <--- CRITICAL CHANGE for single node
+      - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - bootstrap.memory_lock=false        # <--- Fixes memory lock error
+      - bootstrap.memory_lock=false
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
       - xpack.security.http.ssl.key=certs/es01/es01.key
@@ -88,8 +68,8 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
-      - node.store.allow_mmap=false        # <--- Fixes "max_map_count" / no sudo
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"   # <--- Limits RAM usage
+      - node.store.allow_mmap=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - cluster.routing.allocation.disk.watermark.low=5gb
       - cluster.routing.allocation.disk.watermark.high=3gb
       - cluster.routing.allocation.disk.watermark.flood_stage=2gb
@@ -106,8 +86,8 @@ services:
 
   kibana:
     depends_on:
-      setup-passwords:
-        condition: service_completed_successfully
+      es01:
+        condition: service_healthy
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     networks:
       - elastic    
@@ -149,7 +129,6 @@ services:
       - elastic    
     labels:
       co.elastic.logs/module: logstash
-    # user: root
     volumes:
       - logstashdata01:/usr/share/logstash/data
       - ./elk/certs:/usr/share/logstash/certs
@@ -167,15 +146,16 @@ services:
   
   filebeat:
     image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    user: root
     networks:
       - elastic
     volumes:
       - ./elk/certs:/usr/share/filebeat/certs
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./logs:/usr/share/filebeat/logs
+      # Mount the entrypoint script
+      - ./scripts/entrypoint-filebeat.sh:/usr/local/bin/entrypoint-filebeat.sh
     depends_on:
       - logstash
-
-  nginx:
-    depends_on:
-      - filebeat
+    # Use the custom entrypoint to fix permissions
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint-filebeat.sh"]
