@@ -5,6 +5,7 @@ nginx/certs/
 elk/certs
 backend/node_modules
 chat/node_modules
+games/node_modules
 frontend/node_modules
 *.txt
 .vscode.env

@@ -5,7 +5,30 @@ import cors from '@fastify/cors';
 
 import { registerGamesRoutes } from "./src/routes/routes";
 
-const server: FastifyInstance = Fastify( { logger: true });
+const server: FastifyInstance = Fastify( { 
+	logger: {
+	transport: {
+	  targets: [
+		{
+		  target: 'pino/file',
+		  options: { 
+			destination: '../logs/games.log',
+			mkdir: true 
+		  }
+		},
+		{
+		  target: 'pino-pretty',
+		  options: { 
+			colorize: true, 
+			translateTime: "SYS:standard",
+			ignore: 'pid,hostname',
+			singleLine: true
+		  }
+		}
+	  ]
+	}
+  } 
+});
 
 server.register(cookie);
 

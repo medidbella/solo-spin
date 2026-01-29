@@ -102,22 +102,22 @@ init: ## First-time setup: Configures .env, permissions, and certificates
 
 dev-app:   ## Start development stack WITHOUT ELK (App only)
 	@echo "$(YELLOW)[INFO] Starting App without ELK...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 dev-app-build: ## Start development stack WITHOUT ELK (App only) + build
 	@echo "$(YELLOW)[INFO] Starting App without ELK + build ...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d --build
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d --build --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 dev: ## Start full development stack (App + ELK)
 	@echo "$(YELLOW)[INFO] Starting Full Stack (App + ELK)...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 prod: ## Build and deploy production stack (Immutable images, No hot-reload)
 	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 down: ## Stop and remove all containers (App & ELK)

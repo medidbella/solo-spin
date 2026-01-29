@@ -1,23 +1,33 @@
 filebeat.inputs:
+# =========================================
+# 1. JSON LOGS (Backend, Chat, Games, Nginx Access)
+# =========================================
 - type: filestream
   id: json-logs
   enabled: true
   paths:
     - /usr/share/filebeat/logs/access.log
     - /usr/share/filebeat/logs/backend.log
+    - /usr/share/filebeat/logs/chat.log
+    - /usr/share/filebeat/logs/games.log
   parsers:
     - ndjson:
         keys_under_root: true
         overwrite_keys: true
+  
+  prospector.scanner.fingerprint.length: 64
 
+# =========================================
+# 2. TEXT LOGS (Frontend, Nginx Error)
+# =========================================
 - type: filestream
   id: plain-text-logs
   enabled: true
   paths:
     - /usr/share/filebeat/logs/error.log
-
-prospector.scanner.fingerprint.enabled: true
-prospector.scanner.fingerprint.length: 128
+    - /usr/share/filebeat/logs/frontend.log
+  
+  prospector.scanner.fingerprint.length: 64
 
 output.logstash:
   hosts: ["logstash:5044"]
