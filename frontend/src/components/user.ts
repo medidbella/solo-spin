@@ -1,20 +1,6 @@
-// This function returns the HTML for the user card popup
-// For now it's static, you can make it dynamic later by passing user data as parameters
 export function renderUser(): string {
     return /* html */ `
-    <!-- 
-        User Card Container
-        - This is the actual card content
-        - It sits inside the modal-container overlay
-        - 'relative' allows the close button to be positioned inside it
-    -->
     <div class="bg-[#2A3FA1] w-full max-w-2xl shadow-xl flex flex-col items-center justify-center relative p-6">
-        
-        <!-- 
-            Close Button
-            - 'absolute top-4 right-4' positions it at top-right corner of the card
-            - 'id="closeCardBtn"' is used to attach the click event listener
-        -->
         <button id="closeCardBtn" class="absolute top-4 right-4 hover:scale-110 transition-transform">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>

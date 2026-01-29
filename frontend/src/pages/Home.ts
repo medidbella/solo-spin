@@ -16,8 +16,9 @@ export function renderHome(): string {
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col p-12 relative gap-4 h-full overflow-hidden">
           <!-- Search Bar -->
-          <div class="relative w-full flex justify-center shrink-0">
-            <div class="relative w-1/2">
+          <div class="relative w-full flex justify-center shrink-0 -mt-9">
+          <div class="w-1/2">
+            <div class="relative ">
               <input 
                 type="text"
                 id="search-input"
@@ -28,6 +29,8 @@ export function renderHome(): string {
               <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
+              </div>
+              <p class="text-center text-sm text-red-500" id="input_error"></p>
               <!-- Error message container - hidden by default -->
               <p id="search-error" class="hidden text-red-500 text-sm m-1 absolute">User not found</p>
             </div>
@@ -51,7 +54,6 @@ export function renderHome(): string {
           
           <!-- Game Modes Section -->
           <div class="flex-3 min-h-0 w-full flex gap-6">
-            <!-- Quick Match Card -->
             <div class="flex justify-around items-center bg-[#2A3FA1] w-full h-full shadow-[-10px_-10px_0px_#441563] p-4">
               <article class="flex flex-col items-center text-[#F2F2F2] gap-3">
                 <h2 class="text-4xl lg:text-6xl text-center text-[#441563] font-[solo]">Ready to play?</h2>
@@ -67,15 +69,8 @@ export function renderHome(): string {
         </main>
       </div>
       
-      <!-- 
-        MODAL CONTAINER - This is where the popup will appear
-        - 'hidden' class hides it by default
-        - 'fixed inset-0' makes it cover the entire screen
-        - 'z-50' puts it on top of everything
-        - 'bg-black/50' creates a semi-transparent dark overlay
-      -->
+      
       <div id="modal-container" class="hidden fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <!-- The user card will be injected here dynamically -->
       </div>
     </main>
   `;
@@ -83,118 +78,90 @@ export function renderHome(): string {
 
 
 
-/**
- * Sets up the search bar functionality
- * This function should be called after the Home page is rendered
- */
 export function setupSearchLogic(): void {
-    // Step 1: Get references to DOM elements we need
     const searchInput = document.getElementById('search-input') as HTMLInputElement;
     const searchError = document.getElementById('search-error') as HTMLParagraphElement;
     const modalContainer = document.getElementById('modal-container') as HTMLDivElement;
+    const input_error = document.getElementById('input_error');
 
-    // Safety check - make sure elements exist before adding listeners
     if (!searchInput || !searchError || !modalContainer) {
         console.error('Search elements not found in DOM');
         return;
     }
 
-    // Step 2: Listen for 'keydown' event on the search input
-    // We use 'keydown' to detect when user presses Enter
     searchInput.addEventListener('keydown', async (event: KeyboardEvent) => {
         
-        // Only proceed if the pressed key is 'Enter'
         if (event.key !== 'Enter') return;
 
-        // Get the username from the input (trim removes whitespace)
         const username = searchInput.value.trim();
         console.log(username);
-        // Don't search if input is empty
         if (username.length === 0) return;
 
-        // Step 3: Clear any previous error state
-        // Remove the red border and hide error message
         hideSearchError(searchInput, searchError);
 
+        searchInput.disabled = true;
+
         try {
-            // Step 4: Call the API to search for the user
-            // According to api_doc.md: GET /api/user/search?username=xxx
-            // If user not found, it throws a 404 error
             await apiFetch(`/api/user/search?username=${encodeURIComponent(username)}`);
 
-            // Step 5: If we reach here, user was found!
-            // Show the user card popup
             showUserCard(modalContainer);
 
         } catch (error: any) {
-            // Step 6: Handle errors
-            // If status is 404, user doesn't exist - show red line
-            if (error.statusCode === 404) {
+            if ("statusCode" in error)
+            {
+              if (error.statusCode === 404) {
                 console.log(username);
                 showSearchError(searchInput, searchError);
-            } else {
-                // For other errors (network, server, etc.), log them
-                console.error('Search failed:', error);
+                if (input_error) input_error.innerText = "User not found";
+              }
+              else
+              {
+                showSearchError(searchInput, searchError);
+                if (input_error) input_error.innerText = "Something went wrong, Please try again.";
+              }
             }
+             else {
+                showSearchError(searchInput, searchError);
+                console.error('Search failed:', error);
+                if (input_error) input_error.innerText = "Connection error. Please check your netwrok.";
+            }
+        }
+        finally{
+          searchInput.disabled = false;
         }
     });
 
-    // Step 7: Clear error when user starts typing again
-    // This provides a better user experience
     searchInput.addEventListener('input', () => {
         hideSearchError(searchInput, searchError);
+        if (input_error) input_error.innerText = "";
     });
 }
 
-/**
- * Shows the error state on the search bar
- * - Adds red border to input
- * - Shows "User not found" message
- */
+
 function showSearchError(input: HTMLInputElement, errorElement: HTMLParagraphElement): void {
-    // Add red border to the input
     input.classList.remove('border-[#441563]');
     input.classList.add('border-red-500');
     
-    // Show the error message (remove 'hidden' class)
     errorElement.classList.remove('hidden');
 }
 
-/**
- * Hides the error state on the search bar
- * - Removes red border from input
- * - Hides "User not found" message
- */
+
 function hideSearchError(input: HTMLInputElement, errorElement: HTMLParagraphElement): void {
-    // Restore original border color
     input.classList.remove('border-red-500');
     input.classList.add('border-[#441563]');
     
-    // Hide the error message (add 'hidden' class)
     errorElement.classList.add('hidden');
 }
 
-/**
- * Shows the user card popup
- * - Injects the user card HTML into the modal container
- * - Makes the modal visible
- * - Sets up the close button listener
- */
 function showUserCard(modalContainer: HTMLDivElement): void {
-    // Step 1: Inject the user card HTML into the modal
     modalContainer.innerHTML = renderUser();
     
-    // Step 2: Show the modal (remove 'hidden' class)
     modalContainer.classList.remove('hidden');
     
-    // Step 3: Set up the close button functionality
     setupCloseButton(modalContainer);
 }
 
-/**
- * Sets up the close button on the user card
- * When clicked, it hides the modal and clears its content
- */
+
 function setupCloseButton(modalContainer: HTMLDivElement): void {
     const closeBtn = document.getElementById('closeCardBtn');
     
@@ -203,30 +170,19 @@ function setupCloseButton(modalContainer: HTMLDivElement): void {
         return;
     }
 
-    // When close button is clicked, hide the modal
     closeBtn.addEventListener('click', () => {
         closeModal(modalContainer);
     });
 
-    // BONUS: Also close modal when clicking outside the card (on the dark overlay)
     modalContainer.addEventListener('click', (event: MouseEvent) => {
-        // Only close if the click was directly on the overlay, not on the card
-        // event.target is what was clicked, event.currentTarget is the modalContainer
         if (event.target === modalContainer) {
             closeModal(modalContainer);
         }
     });
 }
 
-/**
- * Closes the modal popup
- * - Hides the modal container
- * - Clears the modal content
- */
 function closeModal(modalContainer: HTMLDivElement): void {
-    // Hide the modal
     modalContainer.classList.add('hidden');
     
-    // Clear the content (good practice to prevent memory leaks)
     modalContainer.innerHTML = '';
 }
