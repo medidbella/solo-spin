@@ -1,7 +1,7 @@
 import './style.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-import { renderHome } from './pages/Home';
+import { renderHome, setupSearchLogic } from './pages/Home';
 import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
@@ -56,6 +56,7 @@ export async function router(path: string)
     case '/home':
       app.innerHTML = renderHome();
       setupHeaderLogic();
+      setupSearchLogic();
       break;
       
     case '/settings':

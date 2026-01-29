@@ -219,3 +219,11 @@ export interface BlockedUser {
   username: string,
   name: string
 }
+
+// GET /api/user/search response
+
+export interface UserSearchResponse {
+  id: number;
+  username: string;
+  name: string;
+}
