@@ -19,7 +19,9 @@ export function navigateTo(url: string) {
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 
-	return ; ////////////////////////////////////  !!!!!! 
+	console.log("  ## Pong Routes ## ");
+
+	// return ; ////////////////////////////////////  !!!!!! 
 	
 	// this should be in the top on the main routes cases (main.ts), tmp for now !!!!
 	// if (window.location.pathname === '/games/pong/game-play' && path !== '/games/pong/game-play') {

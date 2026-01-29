@@ -5,6 +5,8 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { gameClient } from "./game-related/services/game_client.ts";
 gameClient as any;
 
+import { handlePongRoutes } from './game-related/services/handle_pong_routes';
+
 import { renderHome } from './pages/Home';
 import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
@@ -13,7 +15,7 @@ import { renderSignUpPage } from './pages/SignUpPage';
 import { renderSecurity} from './pages/Security';
 import { renderChat, setupchatlogic } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
-import { renderGamePage } from './pages/game';
+// import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
 import { renderProfilesPage, setupProfilesPageLogic } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
@@ -44,17 +46,19 @@ export async function router(path: string)
 	path = await redirectBasedOnAuth(path);
 
 	// THE GLOBAL CONNECTION LOGIC:
-  // Define which routes require a server connection
-  const publicRoutes = ['/', '/login', '/signup', '/404'];
-  
-  if (!publicRoutes.includes(path)) {
-      // If the user is on /home, /game, /chat, etc... they MUST be logged in.
-      // So we ensure the socket is connected.
-      console.log("🔒 Protected route detected, ensuring WS connection...");
-      gameClient.wsConnectionsHandler.connect().catch(err => {
-          console.error("Failed to auto-connect WS:", err);
-      });
-  }
+	// Define which routes require a server connection
+	const publicRoutes = ['/', '/login', '/signup', '/404'];
+	
+	if (!publicRoutes.includes(path)) {
+			// If the user is on /home, /game, /chat, etc... they MUST be logged in.
+			// So we ensure the socket is connected.
+			console.log("🔒 Protected route detected, ensuring WS connection...");
+			gameClient.wsConnectionsHandler.connect().catch(err => {
+					console.error("Failed to auto-connect WS:", err);
+			});
+	}
+
+	console.log(`  next path: ${path}`);
 
 	switch (true) {
 		case path == '/':
@@ -144,10 +148,10 @@ export async function router(path: string)
 				setupHeaderLogic();
 				break;
 				
-		case path == '/game':
-			app.innerHTML = renderGamePage();
-			setupHeaderLogic();
-			break;
+		// case path == '/game':
+		// 	app.innerHTML = renderGamePage();
+		// 	setupHeaderLogic();
+		// 	break;
 
 		case path == '/profile':
 			app.innerHTML = '<div class="flex h-screen items-center justify-center text-white"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div></div>';
@@ -165,6 +169,12 @@ export async function router(path: string)
 			app.innerHTML = renderProfilesPage();
 			setupProfilesPageLogic();
 			setupHeaderLogic();
+			break;
+
+		 // --- GAME FLOW START ---
+		case path.startsWith("/games/pong/"):
+			// pong routes
+			handlePongRoutes(path, app);
 			break;
 
 		default:

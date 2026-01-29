@@ -52,6 +52,8 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		
 		// showOnlinePlayers();
 
+		// return ;
+
 		// player id
 		const playerId: string = req.cookies.playerId as string;
 		// console.log(`  ==> Player Id: ${playerId} <==`);
