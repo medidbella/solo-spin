@@ -127,6 +127,7 @@ export interface MeResponse {
 export interface PublicUser {
   username: string;
   name: string;
+  id: number;
   score: number;
   level: number;
 }
@@ -172,6 +173,7 @@ export type FriendRequestsResponse = FriendRequest[];
 export interface Friend {
   id: number;
   username: string;
+  name: string;
   friendshipId: number;
   blockedBy: number | null
 }
@@ -190,7 +192,8 @@ export interface LeaderboardEntry {
 export interface BlockedFriend {
   id: number,
   username: string,
-  friendshipId: string
+  name: string,
+  friendshipId: number
 }
 
 // GET /api/leaderboard response
@@ -211,14 +214,6 @@ export interface GameHistoryEntry {
 
 //GET /api/user/games/history response
 export type GamesHistoryResponse = GameHistoryEntry[];
-
-// GET /api/fiends/blocked response
-
-export interface BlockedUser {
-  id: number,
-  username: string,
-  name: string
-}
 
 // GET /api/user/search response
 

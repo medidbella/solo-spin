@@ -8,9 +8,6 @@ export function renderHeader() : string{
             <img class="w-56 cursor-pointer object-contain" src="../../public/imgs/logo.png" alt="solo spin logo">
           </a>
           <div class="flex gap-5 text-2xl pr-8">
-            <button aria-label="notifications">
-              <i class="fa-regular fa-bell text-[#2A3FA1] cursor-pointer hover:text-white hover:scale-105 duration-200"></i>
-            </button>
             <button id="logoutButton" aria-label="logout">
               <i class="fa-solid fa-arrow-right-from-bracket text-[#2A3FA1] cursor-pointer hover:text-white hover:scale-105 duration-200"></i>
             </button>
@@ -38,7 +35,7 @@ export function setupHeaderLogic() : void
         history.pushState(null, '', '/games/pong/game-mode');
         router('/games/pong/game-mode');
     });
-}
+  }
 
   logoutBtn.addEventListener('click', async() => {
     try{
