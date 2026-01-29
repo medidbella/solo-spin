@@ -7,7 +7,7 @@ gameClient as any;
 
 import { handlePongRoutes } from './game-related/services/handle_pong_routes';
 
-import { renderHome } from './pages/Home';
+import { renderHome, setupSearchLogic } from './pages/Home';
 import { renderSettings, settingsFormSubmit} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
@@ -28,17 +28,17 @@ import { setupSecurityPageLogic } from './pages/Security';
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
-	'/'            : 'public',
-	'/login'       : 'public',
-	'/signup'      : 'public',
-	'/home'        : 'private',
-	'/settings'    : 'private',
-	'/security'    : 'private',
-	'/chat'        : 'private',
-	'/game'        : 'private',
-	'/leaderboard' : 'private',
-	'/profile'     : 'private',
-	'/profiles'    : 'private',
+  '/'            : 'public',
+  '/login'       : 'public',
+  '/signup'      : 'public',
+  '/home'        : 'private',
+  '/settings'    : 'private',
+  '/security'    : 'private',
+  '/chat'        : 'private',
+  '/game'        : 'private',
+  '/leaderboard' : 'private',
+  '/profile'     : 'private',
+  '/profiles'    : 'private',
 };
 
 export async function router(path: string)
@@ -78,6 +78,7 @@ export async function router(path: string)
 		case path == '/home':
 			app.innerHTML = renderHome();
 			setupHeaderLogic();
+			setupSearchLogic();
 			break;
 			
 		case path == '/settings':
@@ -187,29 +188,29 @@ window.addEventListener('popstate', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-	
-	document.body.addEventListener('click', (e) => {
-		const target = e.target as HTMLElement;
-		const link = target.closest('a');
+  
+  document.body.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
 
-		if (link && link.hasAttribute('data-link')) {
-				e.preventDefault();
-				
-				const href = link.getAttribute('href');
-				
-				if (href) {
-						history.pushState(null, '', href);
-						router(href);
-				}
-		}
-	});
+    if (link && link.hasAttribute('data-link')) {
+        e.preventDefault();
+        
+        const href = link.getAttribute('href');
+        
+        if (href) {
+            history.pushState(null, '', href);
+            router(href);
+        }
+    }
+  });
 
-	
-	router(window.location.pathname);
+  
+  router(window.location.pathname);
 });
 
 if (import.meta.hot) {
-	import.meta.hot.accept(() => {
-		window.location.reload();
-	});
+  import.meta.hot.accept(() => {
+    window.location.reload();
+  });
 }

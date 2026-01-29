@@ -4,7 +4,28 @@ import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 
 const fastify = fastify_lib({
-  logger: { transport: { target: 'pino-pretty', options: { colorize: true } } } 
+  logger: {
+    transport: {
+      targets: [
+        {
+          target: 'pino/file',
+          options: { 
+            destination: './logs/chat.log',
+            mkdir: true 
+          }
+        },
+        {
+          target: 'pino-pretty',
+          options: { 
+            colorize: true, 
+            translateTime: "SYS:standard",
+            ignore: 'pid,hostname',
+            singleLine: true
+          }
+        }
+      ]
+    }
+  } 
 });
 
 const port = Number(process.env.PORT) || 3000;

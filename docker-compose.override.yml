@@ -35,10 +35,16 @@ services:
     volumes:
       - ./chat:/app
       - /app/node_modules
+      - ./logs:/app/logs
     command: npm run dev
 
   games:
+    build:
+      context: ./games
+      dockerfile: Dockerfile
     volumes:
-      - ./games:/app/games                 # Syncs game code
-      - ./shared:/app/shared               # Syncs shared code
-      - /app/games/node_modules            # PREVENTS the host from deleting container dependencies
+      - ./shared:/app/shared
+      - ./logs:/app/logs
+      - ./games:/app/games
+      - /app/games/node_modules
+    command: npm run dev
