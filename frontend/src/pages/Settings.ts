@@ -4,7 +4,7 @@ import { apiFetch } from "../api_integration/api_fetch";
 import type {UserInfo, UpdateUserRequest} from "../api_integration/api_types"
 
 
-export async function settingsFormSubmit(ev:Event)
+async function settingsFormSubmit(ev:Event)
 {
   ev.preventDefault();
   const nameInput = document.getElementById('settings-name') as HTMLInputElement;
@@ -43,6 +43,44 @@ export async function settingsFormSubmit(ev:Event)
   }
 }
 
+export async function avatarUpload(ev:Event)
+{
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (file.type !== 'image/png') {
+        alert("Only PNG files are allowed.");
+        input.value = "";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    try
+    {
+        await apiFetch('/api/user/avatar', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+    catch (error: any) {
+      console.log(error.message)
+      alert(error.message)
+    }
+}
+
+export async function setupSettingPageLogic()
+{
+  const settingsFrom = document.getElementById('settings-form')
+  const avatarUploadButton = document.getElementById('avatar-upload')
+  if (settingsFrom)
+		settingsFrom.addEventListener('submit', settingsFormSubmit)
+  if (avatarUploadButton)
+    avatarUploadButton.addEventListener('change', avatarUpload)
+}
+
 export function renderSettings(user: UserInfo)
 {
   return /* html */`
@@ -71,7 +109,7 @@ export function renderSettings(user: UserInfo)
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
-                  <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                  <input type="file" id="avatar-upload" class="hidden" accept="image/png">
                 </label>
               </div>
               <h2 class="text-2xl font-bold">${user.username}</h2>

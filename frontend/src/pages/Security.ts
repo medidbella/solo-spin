@@ -3,6 +3,7 @@ import { renderSideBar } from "../components/SideBar";
 import type { UserInfo, GeneralSuccessRes, UpdatePasswordRequest } from '../api_integration/api_types';
 import { apiFetch } from "../api_integration/api_fetch";
 import { router } from "../main";
+import { avatarUpload } from "./Settings";
 // Import our new 2FA handler
 import { handleEnable2FA } from "../components/TwoFactorSetup/TwoFactorSetupLogic";
 
@@ -74,7 +75,7 @@ export function renderSecurity(user: UserInfo): string {
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
-                  <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                  <input type="file" id="avatar-upload" class="hidden" accept="image/png">
                 </label>
               </div>
               <h2 class="text-2xl font-bold">${user.username}</h2>
@@ -156,6 +157,8 @@ function renderSecurityDefaultContent(): string {
 export function setupSecurityPageLogic(): void {
 
   const newPasswordForm = document.getElementById('new-password-form');
+  const avatarUploadButton = document.getElementById('avatar-upload')
+
   if (newPasswordForm) {
     newPasswordForm.addEventListener('submit', changePasswordFormSubmit);
   }
@@ -164,4 +167,6 @@ export function setupSecurityPageLogic(): void {
   if (enable2FABtn) {
     enable2FABtn.addEventListener('click', handleEnable2FA);
   }
+  if (avatarUploadButton)
+    avatarUploadButton.addEventListener('change', avatarUpload)
 }
