@@ -22,8 +22,8 @@ services:
     depends_on:
       es01:
         condition: service_healthy
-      kibana:
-        condition: service_healthy
+      # kibana:
+      #   condition: service_healthy
     image: curlimages/curl:latest
     networks:
       - elastic
