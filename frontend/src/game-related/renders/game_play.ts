@@ -7,17 +7,17 @@ import { FRAME_TIME_MS } from '../services/pong_constants';
 // import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
 
-function withGameLayout(contentHTML: string): string {
-	return /* html */ `
-	<div class="flex flex-col h-screen w-full bg-[#0f0c18] text-white select-none overflow-hidden">
-		
-		${renderHeader()} 
+export function withGameLayout(contentHTML: string): string {
+    return /* html */ `
+    <div class="flex flex-col h-screen w-full bg-[#0F0317] text-[#F2F2F2] font-[solo] select-none overflow-hidden">
+        
+        ${renderHeader()}
 
-		<main class="flex-1 flex items-center justify-center relative w-full h-full">
-			${contentHTML}
-		</main>
-	</div>
-	`;
+        <main class="flex-1 flex flex-col items-center justify-center relative w-full h-full p-4">
+            ${contentHTML}
+        </main>
+    </div>
+    `;
 }
 
 
@@ -31,8 +31,10 @@ export function setGamePlayPageLogic() {
 
 	// 1. Find the Canvas Element (It is now in the DOM!)
 	const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
-	if (!canvas) {
-		console.error("❌ Canvas not found! Game cannot start.");
+	const pauseBtn = document.getElementById('pauseBtn') as HTMLCanvasElement;
+	const startMsg = document.getElementById('startMessage');
+	if (!canvas || !pauseBtn || !startMsg) {
+		console.error("❌ Critical elements not found! Game cannot start.");
 		return;
 	}
 
@@ -40,6 +42,7 @@ export function setGamePlayPageLogic() {
 	gameClient.initGamePage(canvas);
 
 	// 3. STATE TRACKING
+	// let isPaused = false;
     const keysPressed: { [key: string]: boolean } = {
         ArrowUp: false,
         ArrowDown: false,
@@ -47,10 +50,54 @@ export function setGamePlayPageLogic() {
         KeyS: false
     };
 
+	// ---------------------------------------------------------
+    // ⏸️ PAUSE BUTTON LOGIC
+    // ---------------------------------------------------------
+    const handlePauseToggle = () => {
+		// Only allow pause if the game has actually started
+        if (!gameClient.getHasStarted()) return;
+
+		// isPaused = !isPaused;
+		gameClient.setIsPaused(!gameClient.getIsPaused());
+        const icon = pauseBtn.querySelector('i');
+
+		if (gameClient.getIsPaused()) {
+			// SWITCH TO PLAY ICON
+            icon?.classList.remove('fa-pause');
+            icon?.classList.add('fa-play');
+
+			// Optional: Add a visual blur to canvas to show it's paused
+            canvas.style.opacity = '0.5';
+
+			// console.log("⏸️ PAUSE SENT");
+			// TODO: Uncomment when you add PAUSE to your WS Handler types
+			// gameClient.setIsPaused(true);
+            gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'PAUSE', gameClient.getGameId()!, null);
+		} else {
+			// SWITCH TO PAUSE ICON
+            icon?.classList.remove('fa-play');
+            icon?.classList.add('fa-pause');
+
+			// Remove blur
+            canvas.style.opacity = '1';
+
+			// console.log("▶️ RESUME SENT");
+			// gameClient.setIsPaused(true);
+            gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'RESUME', gameClient.getGameId()!, null);
+		}
+	};
+
+	
 	// 4. LISTENERS
-    // Here i create the specific wrapper functions here so i have the exact reference to remove later (on clear-up)
+	
+	pauseBtn.addEventListener('click', handlePauseToggle);
+
+	// ---------------------------------------------------------
+    // ⌨️ KEYBOARD INPUT LOGIC
+    // ---------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => updateKeyState(e, true, keysPressed);
     const handleKeyUp = (e: KeyboardEvent) => updateKeyState(e, false, keysPressed);
+
 
 	window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -60,6 +107,7 @@ export function setGamePlayPageLogic() {
     gameClient.setCleanupListeners(() => {
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
+		pauseBtn.removeEventListener('click', handlePauseToggle); // Remove button listener
     });
 }
 
@@ -67,7 +115,7 @@ export function setGamePlayPageLogic() {
 // this check what's the input and send message to the server
 function startInputLoop(keysPressed: any) {
 	const gameId = gameClient.getGameId();
-			if (!gameId) return;
+	if (!gameId) return;
 	
 	const inputLoopId = window.setInterval(() => {
 
@@ -94,7 +142,7 @@ function startInputLoop(keysPressed: any) {
 
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
-	console.log("🚀 Space: Sending Start Game...");
+	// console.log("🚀 Space: Sending Start Game...");
 
 		// 1. Send the Message
 		gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
@@ -114,6 +162,9 @@ function startGame(keysPressed: any) {
 }
 
 function updateKeyState(e: KeyboardEvent, isPressed: boolean, keysPressed: any) {
+
+	if (gameClient.getIsPaused())
+		return;
 	
 	// Prevent scrolling
 	if (["ArrowUp", "ArrowDown", "KeyW", "KeyS", "Space"].includes(e.code)) {

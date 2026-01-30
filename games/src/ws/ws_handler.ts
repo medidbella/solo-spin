@@ -5,12 +5,15 @@ import { WebSocket } from 'ws';
 
 import { getPlayer, registerNewPlayer } from '../game_manager/games_utiles';
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
-			WSPongInput, PongInput, inputPlayer
+			WSPongInput, PongInput, inputPlayer,
+			WSPongResumeMessage,
+			WSPongPauseMessage
  		} from '../../../shared/types'
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
+import { stat } from "fs";
 
 
 function sendWSMsg(results: PongSessionData, session: PongSession) {
@@ -28,14 +31,14 @@ function sendWSMsg(results: PongSessionData, session: PongSession) {
 }
 
 function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
-	console.log(` player id ==> ${playerId}`);
+	// console.log(` player id ==> ${playerId}`);
 	console.log(`👤 New User wants to be Regitered`);
 	registerNewPlayer(playerId, playerName, socket);
 }
 
 function startPongGame(playerId: string, parsedMessage: ClientMessage) {
 	parsedMessage = parsedMessage as WSPongStartGameMessage;
-	console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload.gameId} ###`);
+	// console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload.gameId} ###`);
 
 	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId);
 
@@ -68,6 +71,36 @@ function pongGameMovements(playerId: string, parsedMessage: WSPongInput) {
 	
 }
 
+function pongGamestate(playerId: string, parsedMessage: ClientMessage, state: 'PAUSE' | 'RESUME') {
+	if (state === 'PAUSE') {
+		parsedMessage = parsedMessage as WSPongPauseMessage;
+
+		const sessionId: string = parsedMessage.payload.sessionId;
+		if (!sessionId)
+			return ;
+
+		const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId);
+		if (!session)
+			return ;
+
+		session.state = 'PAUSE';
+
+	} else {
+
+		parsedMessage = parsedMessage as WSPongResumeMessage;
+
+		const sessionId: string = parsedMessage.payload.sessionId;
+		if (!sessionId)
+			return ;
+
+		const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId);
+		if (!session)
+			return ;
+
+		session.state = 'playing';
+	}
+}
+
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log('🔌 New WebSocket connection established');
 	// console.log('🔌 ');
@@ -77,7 +110,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 	// const playerId: string = req.cookies.playerId as string;
 	const token: string | undefined = req.cookies.accessToken;
-	console.log(" ==> token: ", token);
+	// console.log(" ==> token: ", token);
 
 
 	if (token) {
@@ -149,6 +182,14 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					
 				case 'GAME_INPUT':
 					pongGameMovements(playerId!, parsedMessage as WSPongInput);
+					break;
+
+				case 'PAUSE':
+					pongGamestate(playerId!, parsedMessage, 'PAUSE');
+					break;
+				
+				case 'RESUME':
+					pongGamestate(playerId!, parsedMessage, 'RESUME');
 					break;
 
 				default:

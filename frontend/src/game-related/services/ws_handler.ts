@@ -2,8 +2,8 @@
 // import { WebSocket } from 'ws';
 import type { ClientMessage, WSMsgType, ServerMessage,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
-				PongSessionData, WSPongInput, 
-				GameMode} from "@shared/types"; 
+				PongSessionData, WSPongInput, WSPongPauseMessage, WSPongResumeMessage,
+				GameMode} from '../../../../shared/types'; 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 import { handleGameOver } from '../renders/game_play';
@@ -75,6 +75,28 @@ export class WSConnectionsHandler {
 		return message;
 	}
 
+	private createWSPauseGameMessage(gameId: string) {
+		const message: WSPongPauseMessage = {
+			type: 'PAUSE',
+			game: 'pong',
+			payload: {
+				sessionId: gameId
+			}
+		};
+		return message
+	}
+
+	private createWSResumeGameMessage(gameId: string) {
+		const message: WSPongResumeMessage = {
+			type: 'RESUME',
+			game: 'pong',
+			payload: {
+				sessionId: gameId
+			}
+		};
+		return message
+	}
+
 	private sendWSMessage(msg: ClientMessage) {
 		this.socket!.send(JSON.stringify(msg));
 	}
@@ -88,6 +110,10 @@ export class WSConnectionsHandler {
 			message = this.createWSStartGameMessage(game, sessionId!);
 		else if (type === 'GAME_INPUT') {
 			message = this.createWSGameInputMessage(sessionId!, move!);
+		} else if (type === 'PAUSE') {
+			message = this.createWSPauseGameMessage(sessionId!);
+		} else if (type === 'RESUME') {
+			message = this.createWSResumeGameMessage(sessionId!);
 		}
 		this.sendWSMessage(message!);
 	}
@@ -125,7 +151,7 @@ export class WSConnectionsHandler {
 
 			// Handle Incoming Messages
 			this.socket.onmessage = (event: MessageEvent) => {
-				console.log("  ### Detect incoming Message ###");
+				// console.log("  ### Detect incoming Message ###");
 				this.handleIncomingMessage(event);
 			};
 

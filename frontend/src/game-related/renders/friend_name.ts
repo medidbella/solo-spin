@@ -1,18 +1,11 @@
 
 import friendNameContent from '../pages/friend_name.html?raw';
 import { gameClient } from '../services/game_client';
-// import type { HttpSetupResponse } from "@shared/types";
-
 import { withLayout } from './layout';
-
 import { navigateTo } from '../services/handle_pong_routes';
-// import { renderWaitingPage, setWaitingPageLogic } from './waiting';
-// import { router } from 'src/main';
 
 function renderFriendNamePage(): string | undefined {
-	// return friendNameContent;
-        return withLayout(friendNameContent);
-
+    return withLayout(friendNameContent);
 }
 
 function setFriendNameLogic() {

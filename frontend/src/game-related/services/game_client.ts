@@ -26,6 +26,7 @@ class GameClient {
 
 	// I store the specific function references here so i can remove them later (when the game finished or the client leaves the game page)
     private cleanupListeners: (() => void) | null = null;
+	private isPaused: boolean = false;
 	private hasReseted: boolean = true;
 
 
@@ -86,6 +87,9 @@ class GameClient {
 	public setHasReseted(hasReseted: boolean) { this.hasReseted = hasReseted; }
 	public getHasReseted(): boolean { return this.hasReseted; }
 
+	public setIsPaused(isPaused: boolean) { this.isPaused = isPaused; }
+	public getIsPaused(): boolean { return this.isPaused; }
+
 	public setCleanupListeners(cleanupFn: () => void) {
         this.cleanupListeners = cleanupFn;
     }
@@ -124,6 +128,7 @@ class GameClient {
         this.canvas = null;
 
 		// 4. Reset Status
+		this.isPaused = false;
 		this.hasStarted = false;
 	}
 

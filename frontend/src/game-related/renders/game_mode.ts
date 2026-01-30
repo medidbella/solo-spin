@@ -5,13 +5,9 @@ import { gameClient } from '../services/game_client';
 
 import { withLayout } from './layout';
 
-// import { router } from '../../main';
-
 import { navigateTo } from '../services/handle_pong_routes';
 
 function renderGameModePage() {
-	// return gameModeContent;
-
 	return withLayout(gameModeContent);
 }
 
@@ -31,7 +27,6 @@ function setGameModeLogic() {
         gameClient.setPlayerState('GAME_MODE_SELECTED');
 
 		// NAVIGATE HERE, only after clicking
-        // router('/games/pong/friend-name');
         navigateTo('/games/pong/friend-name');
 	});
 
@@ -41,7 +36,6 @@ function setGameModeLogic() {
 		gameClient.setGameMode('remote');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
 
-		// router('/games/pong/play-mode');
 		navigateTo('/games/pong/play-mode');
 	});
 	
