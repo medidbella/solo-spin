@@ -21,8 +21,6 @@ export function setupHeaderLogic() : void
   const logoutBtn = document.getElementById("logoutButton");
   const playBtn = document.getElementById('btn-play-home');
 
-  if (!logoutBtn || !playBtn) return;
-
   if (playBtn) {
     playBtn.addEventListener('click', () => {
         console.log("🚀 User clicked Play");
@@ -37,8 +35,11 @@ export function setupHeaderLogic() : void
     });
   }
 
+  if (!logoutBtn) return;
+
   logoutBtn.addEventListener('click', async() => {
-    try{
+    console.log('logout button is clicked')
+    try {
       const response = await fetch('api/logout', {
         method: 'POST',
       });
