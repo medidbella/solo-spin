@@ -89,7 +89,7 @@ function renderTabContent(): void {
 }
 
 function getTabClasses(tab: TabType): string {
-  const baseClasses = "flex-1 py-4 font-[solo] cursor-pointer text-[#f2f2f2] text-center font-semibold text-4xl shadow-[-5px_-5px_0px_#441563]";
+  const baseClasses = "flex-1 py-3 md:py-4 font-[solo] cursor-pointer text-[#f2f2f2] text-center font-semibold text-xl md:text-4xl shadow-[-3px_-3px_0px_#441563] md:shadow-[-5px_-5px_0px_#441563] transition-all";
 
   if (tab === activeTab) {
     return `${baseClasses} bg-[#2A3FA1]`;
@@ -99,7 +99,7 @@ function getTabClasses(tab: TabType): string {
 
 function renderTabBar(): string {
   return /* html */ `
-    <div class="flex overflow-hidden">
+    <div class="flex overflow-hidden w-full">
       <button class="${getTabClasses("friends")}" data-tab="friends">
         Friends
       </button>
@@ -129,7 +129,6 @@ function removeRowFromDOM(selector: string): void {
 }
 
 async function handleAction(action: string, button: HTMLElement): Promise<void> {
-  // Disable button to prevent double clicks
   button.setAttribute("disabled", "true");
   button.classList.add("opacity-50", "cursor-not-allowed");
 
@@ -244,12 +243,12 @@ export function renderProfilesPage(): string {
         
         ${renderSideBar()}
         
-        <section class="flex-1 overflow-y-auto p-8 items-center">
-          <div id="profiles-container" class="max-w-4xl mx-auto bg-[#2A3FA1] shadow-[-10px_-10px_0px_#441563]">
+        <section class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center pb-24 lg:pb-8">
+          <div id="profiles-container" class="w-full max-w-4xl bg-[#2A3FA1] shadow-[-6px_-6px_0px_#441563] md:shadow-[-10px_-10px_0px_#441563]">
             <div id="profiles-tab-bar">
               ${renderTabBar()}
             </div>
-            <div id="profiles-content" class="bg-[#2A3FA1] rounded-b-lg p-6 min-h-[400px]">
+            <div id="profiles-content" class="bg-[#2A3FA1] p-4 md:p-6 min-h-[300px] md:min-h-[400px]">
               <div class="flex justify-center items-center py-12">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
               </div>

@@ -36,6 +36,8 @@ services:
       - ./chat:/app
       - /app/node_modules
       - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
     command: npm run dev
 
   games:
