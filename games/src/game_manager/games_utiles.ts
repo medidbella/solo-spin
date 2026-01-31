@@ -98,6 +98,7 @@ function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
 		player1.pongPlayer = null;
 		player1.sudokuPlayer = null;
 
+		console.log("  ==>> Resetde player 1 <<==");
 		addToAvailablePlayersRoom(player1.playerId);
 	}
 
@@ -116,6 +117,7 @@ function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
 			player2.pongPlayer = null;
 			player2.sudokuPlayer = null;
 
+			console.log("  ==>> Resetde player 2 <<==");
 			addToAvailablePlayersRoom(player2.playerId);
 		}
 	}

@@ -312,40 +312,41 @@ class PongSessionsRoom {
 	}
 
 	public async endGame(sessionId: string, gameMode: GameMode): Promise<void> {
-        let session: PongSession | undefined;
-
+		const serverPrefx = process.env.NODE_ENV == "deployment" ? "internal" : "api" 
+		// if (gameMode === 'local')
+		//     session = this.localSessions.get(sessionId);
+		// else
+		// 	session = this.remoteSessions.get(sessionId);
+		
 		// 1. Find the session
-		if (gameMode === 'local')
-	        session = this.localSessions.get(sessionId);
-        else
-			session = this.remoteSessions.get(sessionId);
-
+		const session: PongSession | undefined = this.getSession(sessionId);
 		// 2. Safety Check
-        if (!session) {
-            console.error(`[PongRoom] Cannot end: Session ${sessionId} not found.`);
-            return;
-        }
-
-        // 3. Mark as Finished 
-        // (The Global Loop will see this and stop updating physics)
-        session.state = 'finished';
-
+		if (!session) {
+			console.error(`[PongRoom] Cannot end: Session ${sessionId} not found.`);
+			return;
+		}
+	
+		// 3. Mark as Finished 
+		// (The Global Loop will see this and stop updating physics)
+		session.state = 'finished';
+	
 		// store the finale score !!
 		if (gameMode === 'remote') {
 			try {
 				const jsonGameResult = this.getJsonGameResult(session);
 				// const PORT: number = 3000;
 				console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
-
-
-				const res = await fetch(`/internal/games/`, {
+	
+	
+				const res = await fetch(`https://backend:3000/${serverPrefx}/games/`, {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json'
+						'Content-Type': 'application/json',
+						   'x-internal-secret': process.env.INTERNAL_SECRET || 'non'
 					},
 					body: jsonGameResult
 				})
-
+	
 				// throw if res is not ok
 				if (!res.ok) {
 					const errorText = await res.text();
@@ -354,28 +355,28 @@ class PongSessionsRoom {
 		
 				const data = await res.json();
 				console.log("✅ [Storage] Game saved successfully:", data);
-
+	
 				// console.log(" ### response: ", res);
 			
-			} catch (err){
-				console.error(` Failed to save Match Result for Session: ${session.sessionId}`);
+			} catch (err: any){
+				console.error(` Failed to save Match Result for Session: ${err.message} `);
 			}
 		}
-
-        console.log(`[PongRoom] Game finished: ${sessionId}`);
-
+	
+		console.log(`[PongRoom] Game finished: ${sessionId}`);
+	
 		// 5. send the result to backend (database)
 		// later...
-
+	
 		// 6. reset the players objects
 		resetPlayer(session.players[0].playerId, session.players[1].playerId, session.gameMode);
-
+	
 		// 7. Schedule Cleanup
-        // Wait 10 seconds to let clients read the score, then delete.
-        setTimeout(() => {
-            this.removeSession(sessionId, gameMode);
-        }, 10000);
-    }
+		// Wait 10 seconds to let clients read the score, then delete.
+		setTimeout(() => {
+			this.removeSession(sessionId, gameMode);
+		}, 10000);
+	}
 
 
 	//  ======================== [REMOTE MODE] ======================

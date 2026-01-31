@@ -71,7 +71,13 @@ export async function router(path: string)
 			}
 	}
 
-	console.log(`  next path: ${path}`);
+	console.log(`  next path: ${path} || Has Started: ${gameClient.getHasStarted()}`);
+
+	// if (gameClient.getHasStarted() && path !== '/games/pong/game-play') {
+	// 	console.log("⚠️ Player leaving mid-game! Resetting state...");
+
+	// 	gameClient.reset();
+	// }
 
 	switch (true) {
 		case path == '/':

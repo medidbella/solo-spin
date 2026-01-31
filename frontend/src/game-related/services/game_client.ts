@@ -78,7 +78,9 @@ class GameClient {
 	public setSide(side: Side) { this.side = side; }
 	public getSide(): Side | null { return this.side; }
 
-	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; }
+	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; 
+		console.log(` **** Set Has Started: ${this.hasStarted} ****** `);
+	}
 	public getHasStarted(): boolean { return this.hasStarted; }
 
 	public setInputLoopId(id: number | null) { this.inputLoopId = id; }
