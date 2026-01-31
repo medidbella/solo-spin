@@ -24,4 +24,4 @@ echo "Setting file permissions";
 chown -R 1000:0 config/certs;
 find config/certs -type d -exec chmod 750 \{\} \;;
 find config/certs -type f -exec chmod 640 \{\} \;;
-echo "✅ Certs ready. Setup Finished.";
+echo "  Certs ready. Setup Finished.";

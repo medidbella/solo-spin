@@ -8,9 +8,9 @@ echo " Starting Backend Container..."
 if [ ! -f "$DB_FILE" ]; then
     echo "🗄️ Database file not found. Creating empty dev.db..."
     touch "$DB_FILE"
-    echo "✅ dev.db created."
+    echo "dev.db created."
 else
-    echo "✅ dev.db already exists."
+    echo  dev.db already exists."
 fi
 
 if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules)" ]; then

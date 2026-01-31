@@ -22,7 +22,7 @@ until curl -s -k -u "elastic:${ELASTIC_PASSWORD}" "https://es01:9200/_cluster/he
     echo "   ... ES is sleeping. Retrying in 5s"
     sleep 5
 done
-echo "✅ Elasticsearch is UP!"
+echo "  Elasticsearch is UP!"
 
 # ---------------------------------------------------------
 # 1. SET KIBANA PASSWORD
@@ -32,7 +32,7 @@ curl -s -k -X POST -u "elastic:${ELASTIC_PASSWORD}" \
     -H "Content-Type: application/json" \
     https://es01:9200/_security/user/kibana_system/_password \
     -d "{\"password\":\"${KIBANA_PASSWORD}\"}" > /dev/null
-echo "✅ Password set."
+echo "  Password set."
 
 # ---------------------------------------------------------
 # 2. SETUP ILM (Log Retention - 7 Days)
@@ -60,7 +60,7 @@ curl -s -k -X PUT "https://es01:9200/_index_template/solo-spin-template" \
       "index_patterns": ["solo-spin-app-*"],
       "template": { "settings": { "index.lifecycle.name": "solo-spin-retention" } }
     }'
-echo -e "\n✅ ILM Policy Enforced."
+echo -e "\n  ILM Policy Enforced."
 
 # ---------------------------------------------------------
 # 3. IMPORT DASHBOARDS
@@ -78,7 +78,7 @@ if [ -f "$DASHBOARD_FILE" ]; then
     curl -s -X POST "http://kibana:5601/api/saved_objects/_import?overwrite=true" \
         -u "elastic:${ELASTIC_PASSWORD}" \
         -H "kbn-xsrf:true" --form file=@$DASHBOARD_FILE > /dev/null
-    echo -e "\n✅ Dashboards Imported Successfully."
+    echo -e "\n  Dashboards Imported Successfully."
 else
     echo -e "\n⚠️ No dashboard file found at $DASHBOARD_FILE. Skipping import."
 fi
