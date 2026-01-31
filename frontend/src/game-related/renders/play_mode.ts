@@ -26,7 +26,7 @@ function setPlayModeLogic() {
 
 	// 1. play with Friend event listener
 	playFriendBtn.addEventListener('click', () => {
-		console.log('🎮 User selected: Play with Friend');
+		// console.log('🎮 User selected: Play with Friend');
 		gameClient.setPlayMode('friend');
         gameClient.setPlayerState('PLAY_MODE_SELECTED');
 		// MOVED INSIDE: Navigate immediately after setting state
@@ -37,7 +37,7 @@ function setPlayModeLogic() {
 
 	// 2. Play Random event listener
 	playRandomBtn.addEventListener('click', () => {
-		console.log('🎮 User selected: Play Random');
+		// console.log('🎮 User selected: Play Random');
 		gameClient.setPlayMode('random');
 
         // router('/games/pong/witing-room');

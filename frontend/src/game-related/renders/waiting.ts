@@ -39,7 +39,7 @@ export function setWaitingPageLogic() {
 
 			// A. Send the Request
 			const response = await gameClient.sendSetUpRequest();
-			console.log(" ## Received Respons ##\n", response);
+			// console.log(" ## Received Respons ##\n", response);
 
 			// Check if user cancelled while we were waiting
 			if (isCancelled) return;

@@ -5,7 +5,7 @@ import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name
 import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
 import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
 
-import { gameClient } from './game_client';
+// import { gameClient } from './game_client';
 
 import { router } from '../../main';
 
@@ -19,7 +19,7 @@ export function navigateTo(url: string) {
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 
-	console.log("  ## Pong Routes ## ");
+	// console.log("  ## Pong Routes ## ");
 	
 	switch (path) {
 
@@ -27,7 +27,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 		case '/games/pong/game-mode':
 			innerHTML = renderGameModePage();
 			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
+				// console.log(" ERROR: can't read the file, try again!!");
 				// router('/games/games/pong/game-mode');
 				return ;
 			}
@@ -42,7 +42,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			// console.log( "  ====>> play mode detected <<===");
 			innerHTML = renderPlayModePage();
 			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
+				// console.log(" ERROR: can't read the file, try again!!");
 				// router('/games/pong/play-mode');
 				return ;
 			}
@@ -55,7 +55,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			// Enter Friend's Name
 			innerHTML = renderFriendNamePage();
 			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
+				// console.log(" ERROR: can't read the file, try again!!");
 				// router('/games/pong/friend-match');
 				return ;
 			}
@@ -67,7 +67,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			// Waiting room
 			innerHTML = renderWaitingPage();
 			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
+				// console.log(" ERROR: can't read the file, try again!!");
 				// router('/games/pong/waiting-room');
 				return;
 			}
@@ -79,7 +79,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			// Render the HTML first
 			innerHTML = renderGamePlayPage();
 			if (!innerHTML) {
-				console.log(" ERROR: can't read the file, try again!!");
+				// console.log(" ERROR: can't read the file, try again!!");
 				// router('/games/pong/game-play');
 				return ;
 			}

@@ -6,7 +6,7 @@ import {
     BALL_START_X, BALL_START_Y, BALL_START_SPEED, ROUND_START_DELAY_MS
 } from '../../../shared/pong_constants';
 
-import { GameMode, PongInput, PongSessionData, PongSessionIsReady, ServerMessage, Winner } from '../../../shared/types';
+import { PongInput, PongSessionData, PongSessionIsReady, Winner } from '../../../shared/types';
 import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';

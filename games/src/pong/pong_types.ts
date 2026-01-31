@@ -128,13 +128,13 @@ class PongSessionsRoom {
 
 		const players: PongPlayer[] = [player1];
 		if (player2) {
-			console.log("   #### ==>> player 2 has been Added <<== #### ");
+			// console.log("   #### ==>> player 2 has been Added <<== #### ");
 			players.push(player2);
 		}
-		else
-			console.log("   #### ==>> player 2 Not Exist <<== #### ");
+		// else
+			// console.log("   #### ==>> player 2 Not Exist <<== #### ");
 
-		console.log(`   **** playes Size: ${players.length} *******`);
+		// console.log(`   **** playes Size: ${players.length} *******`);
 
         const newSession: PongSession = {
             sessionId: newId,
@@ -154,9 +154,9 @@ class PongSessionsRoom {
 		else
 			this.remoteSessions.set(newId, newSession);
 
-        console.log(`[PongRoom] Session created: ${newId} | Mode: ${gameMode}`);
+        // console.log(`[PongRoom] Session created: ${newId} | Mode: ${gameMode}`);
 
-		console.log("pong player 2:", player2);
+		// console.log("pong player 2:", player2);
         
         return newId;
     }
@@ -186,13 +186,13 @@ class PongSessionsRoom {
 		else
 			deleted = this.remoteSessions.delete(sessionId);
         if (deleted) {
-            console.log(`[PongRoom] Session removed: ${sessionId}`);
+            // console.log(`[PongRoom] Session removed: ${sessionId}`);
         }
         return deleted;
     }
 
 	private startGlobalLoop(): void {
-        console.log("[PongRoom] Global Game Loop Started!");
+        // console.log("[PongRoom] Global Game Loop Started!");
 
 		// 2. The Heartbeat
         setInterval(() => {
@@ -250,14 +250,14 @@ class PongSessionsRoom {
 		// if (!session)
 		// 	session = this.remoteSessions.get(sessionId);
 		if (!session) {
-            console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
+            // console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
             return;
         }
 
 		if (session.gameMode == 'remote') {
 			session.playerStarted++;
 
-			console.log(`   **************** Started Players: ${session.playerStarted} *********************** `)
+			// console.log(`   **************** Started Players: ${session.playerStarted} *********************** `)
 
 			if (session.playerStarted != 2)
 				return ;
@@ -266,15 +266,15 @@ class PongSessionsRoom {
 		// console.log(`   _____ Player 1 Side: ${session.players[0].side} __________`);
 		// console.log(`   _____ Player 2 Side: ${session.players[1].side} __________`);
 
-		console.log("__________________Player 1________________");
-		console.log("player 1:", session.players[0]);
-		console.log("__________________Player 2________________");
-		console.log("player 2:", session.players[1]);
-		console.log("__________________________________________");
+		// console.log("__________________Player 1________________");
+		// console.log("player 1:", session.players[0]);
+		// console.log("__________________Player 2________________");
+		// console.log("player 2:", session.players[1]);
+		// console.log("__________________________________________");
 
 		// 1. Mark as ready:
         session.state = 'playing';
-        console.log(`[PongRoom] Game started: ${sessionId}`);
+        // console.log(`[PongRoom] Game started: ${sessionId}`);
     }
 
     /**
@@ -305,7 +305,7 @@ class PongSessionsRoom {
 			}
 		}
 
-		console.log("  ### game result: ", gameResult);
+		// console.log("  ### game result: ", gameResult);
 
 		const jsonGameResutl = JSON.stringify(gameResult);
 		return jsonGameResutl;
@@ -356,7 +356,7 @@ class PongSessionsRoom {
 				}
 		
 				const data = await res.json();
-				console.log("✅ [Storage] Game saved successfully:", data);
+				// console.log("✅ [Storage] Game saved successfully:", data);
 	
 				// console.log(" ### response: ", res);
 			
@@ -365,7 +365,7 @@ class PongSessionsRoom {
 			}
 		}
 	
-		console.log(`[PongRoom] Game finished: ${sessionId}`);
+		// console.log(`[PongRoom] Game finished: ${sessionId}`);
 	
 		// 5. send the result to backend (database)
 		// later...
@@ -389,13 +389,13 @@ class PongSessionsRoom {
 		// 1. Avoid duplicates
         // 1. Avoid duplicates
         if (this.waitingPlayersQueue.find(p => p.playerId === player.playerId)) {
-            console.log("Player already in queue");
+            // console.log("Player already in queue");
             return null; 
         }
 
 		// 2. Add to Queue
         this.waitingPlayersQueue.push(player);
-        console.log(`[Queue] Player added. Size: ${this.waitingPlayersQueue.length}`);
+        // console.log(`[Queue] Player added. Size: ${this.waitingPlayersQueue.length}`);
 
 		player.playerState = 'WAITING_MATCH';
 	}
@@ -443,7 +443,7 @@ class PongSessionsRoom {
             //     opponent: player1 // The waiting player (Player 1)
             // };
 
-			console.log(`[Matchmaking] Session Created: ${newSessionId}`);
+			// console.log(`[Matchmaking] Session Created: ${newSessionId}`);
 
 			return newSessionId;
 		}
@@ -470,7 +470,7 @@ class PongSessionsRoom {
 
 		// create new game session
 		const newId: string = this.createSession(player1, null, 'remote');
-        console.log(`[PongRoom] Remote Session Waiting: ${newId}`);
+        // console.log(`[PongRoom] Remote Session Waiting: ${newId}`);
 
 		return newId;
 	}

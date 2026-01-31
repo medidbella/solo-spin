@@ -2,8 +2,8 @@
 import { PongPlayer } from "./pong_types";
 // import { createPongPlayer } from './pong_utils';
 import { GamesPlayer } from '../game_manager/games_types';
-import { getPlayer, addToPlayingPlayersRoom } from '../game_manager/games_utiles';
-import { AvailableGames, HttpPongSetupReq } from '../../../shared/types';
+import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
+// import { AvailableGames, HttpPongSetupReq } from '../../../shared/types';
 import { pongGameSessionsRoom } from './pong_memory';
 
 function createLocalPongSession(players: GamesPlayer[]): string {
@@ -20,7 +20,7 @@ function createLocalPongSession(players: GamesPlayer[]): string {
 	addToPlayingPlayersRoom(players[0].playerId);
 	players[0].playerState = 'READY';
 
-	console.log(`  prepare players || P1: ${players[0].playerName} || P2: ${players[1].playerName}`)
+	// console.log(`  prepare players || P1: ${players[0].playerName} || P2: ${players[1].playerName}`)
 
 	return sessionId;
 }

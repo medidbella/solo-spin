@@ -12,6 +12,7 @@ export type WSMsgType =
 	| 'PAUSE'
 	| 'RESUME'
 	| 'SESSION_READY'
+	| 'BREAK' 
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
@@ -82,6 +83,14 @@ export interface WSPongResumeMessage {
 	}
 }
 
+export interface WSPongBreakMessage {
+	type: 'BREAK';
+	game: 'pong';
+	payload : {
+		sessionId: string
+	}
+}
+
 // A. PONG
 export interface WSPongInput {
 	type: 'GAME_INPUT';
@@ -108,7 +117,7 @@ export interface WSSudokuInput {
 // This is what you use in your socket.onmessage function!
 export type ClientMessage = WSConnectMessage 
 							| WSPongStartGameMessage
-							| WSPongInput | WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage
+							| WSPongInput | WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage | WSPongBreakMessage
 export type ServerMessage = 
 							// WSConnectSuccess |
 							PongSessionData | PongSessionIsReady |

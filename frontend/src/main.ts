@@ -44,40 +44,10 @@ export const routeStatesMap: Record<string, 'private' | 'public'> = {
 export async function router(path: string)
 {  
 	path = await redirectBasedOnAuth(path);
-
-	// THE GLOBAL CONNECTION LOGIC:
-	// Define which routes require a server connection
-	const publicRoutes = ['/', '/login', '/signup', '/404'];
 	
-	if (!publicRoutes.includes(path)) {
-			// If the user is on /home, /game, /chat, etc... they MUST be logged in.
-			// So we ensure the socket is connected.
-			try {
-					console.log("🔒 Protected route detected, ensuring WS connection...");
-					gameClient.wsConnectionsHandler.connect().catch(err => {
-						console.error("Failed to auto-connect WS:", err);
-						throw new Error(err);
-					});
-
-					// set player info
-					console.log("  ==>> fetching '/api/basic-info' <<== ");
-					const user = await apiFetch<UserInfo>("/api/basic-info")
-					gameClient.setPlayerName(user.username)
-			}
-			catch (err: any)
-			{
-				history.pushState(null, '', `/login?error=${encodeURIComponent(err.message)}`);
-				router('/login')
-			}
-	}
-
 	console.log(`  next path: ${path} || Has Started: ${gameClient.getHasStarted()}`);
-
-	// if (gameClient.getHasStarted() && path !== '/games/pong/game-play') {
-	// 	console.log("⚠️ Player leaving mid-game! Resetting state...");
-
-	// 	gameClient.reset();
-	// }
+	gameClient.protectGameWSUpdates(path);
+	gameClient.handleMidGameNavigate(path);
 
 	switch (true) {
 		case path == '/':

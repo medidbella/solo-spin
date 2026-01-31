@@ -61,7 +61,7 @@ function setFriendNameLogic() {
 
             // Check: Cannot invite empty (already done) or invalid characters
             // Action: Send WebSocket Invite
-            console.log(`📡 [REMOTE] Sending invite to user: ${friendName}`);
+            // console.log(`📡 [REMOTE] Sending invite to user: ${friendName}`);
             
             // Example: gameClient.sendInvite(friendName);
             // navigateTo('/waiting-room');

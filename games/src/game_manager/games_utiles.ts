@@ -77,13 +77,13 @@ function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
 
 function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
-	console.log("   ==> reset already exist player <===");
+	// console.log("   ==> reset already exist player <===");
 	
 	const player: GamesPlayer = getPlayer(playerId);
 	const state: PongPlayerState = player.playerState;
 	
 	if (player.playerState === 'IDLE') {
-		console.log("  ==> player is not playing <==");
+		// console.log("  ==> player is not playing <==");
 		return;
 	} else {
 
@@ -94,15 +94,15 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 		if (!playerSession)
 			return ;
 
-		console.log("  ==> player Is Playing <==");
+		// console.log("  ==> player Is Playing <==");
 
 		const gameMode: GameMode | null = playerSession.gameMode;
 		if (gameMode === 'local') {
-			console.log("  **** Local Case ******");
+			// console.log("  **** Local Case ******");
 			pongGameSessionsRoom.endGame(playerSession.sessionId, gameMode);
 
 		} else if (gameMode === 'remote') {
-			console.log("  **** Remote Case ******");
+			// console.log("  **** Remote Case ******");
 		}
 	}
 
@@ -135,7 +135,7 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
 function registerNewPlayer(playerId: string, playerName: string, socket: WebSocket): void {
 	if (isPlayerExist(playerId)) {
-		console.log("  =>> the player is already exist <<=");
+		// console.log("  =>> the player is already exist <<=");
 		// resetPlayerStatesIfAlreadyExist(playerId);
 		return ; // already exist
 	}
@@ -160,7 +160,7 @@ function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) 
 		player1.pongPlayer = null;
 		player1.sudokuPlayer = null;
 
-		console.log("  ==>> Resetde player 1 <<==");
+		// console.log("  ==>> Resetde player 1 <<==");
 		addToAvailablePlayersRoom(player1.playerId);
 	}
 
@@ -179,7 +179,7 @@ function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) 
 			player2.pongPlayer = null;
 			player2.sudokuPlayer = null;
 
-			console.log("  ==>> Resetde player 2 <<==");
+			// console.log("  ==>> Resetde player 2 <<==");
 			addToAvailablePlayersRoom(player2.playerId);
 		}
 	}
@@ -191,7 +191,7 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
 	const player: GamesPlayer = getPlayer(playerId);
 
     // 1. Set the game type (Pong or Sudoku) and the name
-	console.log(` ====>>>>  Setting the name : ${playerName}  <<<<====`);
+	// console.log(` ====>>>>  Setting the name : ${playerName}  <<<<====`);
 	player.playerName = playerName;
     player.game = gameType;
 	console.log(`  game:  ${gameType}  `);
@@ -227,7 +227,7 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 	p2.playerId = player2Id;
 	p2.pongPlayer = createPongPlayer(player2Id, 'right');
 	p2.pongPlayer.playerId = player2Id;
-	console.log(` **** set Id for player2: ${p2.pongPlayer.playerId} ****`);
+	// console.log(` **** set Id for player2: ${p2.pongPlayer.playerId} ****`);
 
 	// add the local player to the playing room
 	playingPlayersRoom.set(player2Id, p2);

@@ -7,13 +7,13 @@ import { getPlayer, isPlayerExist, registerNewPlayer, resetPlayerStatesIfAlready
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
 			WSPongInput, PongInput, inputPlayer,
 			WSPongResumeMessage,
-			WSPongPauseMessage
+			WSPongPauseMessage, WSPongBreakMessage, GameMode
  		} from '../../../shared/types'
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
-import { stat } from "fs";
+// import { stat } from "fs";
 
 
 function sendWSMsg(results: ServerMessage, session: PongSession) {
@@ -43,13 +43,13 @@ function sendWSMsg(results: ServerMessage, session: PongSession) {
 
 function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
 	// console.log(` player id ==> ${playerId}`);
-	console.log(`👤 New User wants to be Regitered`);
+	// console.log(`👤 New User wants to be Regitered`);
 	registerNewPlayer(playerId, playerName, socket);
 }
 
 function startPongGame(playerId: string, parsedMessage: ClientMessage) {
 	parsedMessage = parsedMessage as WSPongStartGameMessage;
-	console.log(`   ###### Got start pong game message gameId: ${parsedMessage.payload.gameId} #####`);
+	// console.log(`   ###### Got start pong game message gameId: ${parsedMessage.payload.gameId} #####`);
 
 	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId);
 
@@ -112,6 +112,25 @@ function pongGamestate(playerId: string, parsedMessage: ClientMessage, state: 'P
 	}
 }
 
+function breakPongGame(playerId: string, parsedMessage: WSPongBreakMessage, state: 'BREAK') {
+	const sessionId: string = parsedMessage.payload.sessionId;
+	if (!sessionId)
+		return ;
+
+	const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId);
+	if (!session)
+		return ;
+
+	const gameMode: GameMode | null = session.gameMode;
+	if (gameMode === 'local') {
+		// console.log("  **** Local Case ******");
+		pongGameSessionsRoom.endGame(session.sessionId, gameMode);
+
+	} else if (gameMode === 'remote') {
+		// console.log("  **** Remote Case ******");
+	}
+}
+
 function handlerWsOnCloseAndError(playerId: string | undefined, connection: SocketStream) {
 	// 1. Check if this player is already Exist !!
 	if (playerId && isPlayerExist(playerId)) {
@@ -120,28 +139,28 @@ function handlerWsOnCloseAndError(playerId: string | undefined, connection: Sock
 		// clear ws-related
 		if (player.ws) {
 
-			console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `)
+			// console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `);
 
-			console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
+			// console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
 			
 			// Remove listeners
 			player.ws.removeAllListeners();
 
 			// B. Force close the OLD connection
 			player.ws.terminate(); // terminate() is harder/faster than .close()
-			console.log(`  Close the old Ws of the playerId: ${playerId}  `);
+			// console.log(`  Close the old Ws of the playerId: ${playerId}  `);
 		}
 
 		// 2. Create/Update the Player Object with the NEW Socket
 		// Just update the socket reference
 		player.ws = connection.socket;
-		console.log(`✅ Updated socket for player ${playerId}`);
+		// console.log(`✅ Updated socket for player ${playerId}`);
 		resetPlayerStatesIfAlreadyExist(playerId);
 	}
 }
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
-	console.log('🔌 New WebSocket connection established');
+	// console.log('🔌 New WebSocket connection established');
 	// console.log('🔌 ');
 
 	const socket: WebSocket = connection.socket;
@@ -167,7 +186,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
             // STEP 2: Now you can read the data
             playerId = decoded.sub;
-            console.log(" ==> sub (User ID): ", playerId);
+            // console.log(" ==> sub (User ID): ", playerId);
 
 			if (isPlayerExist(playerId)) {
 
@@ -175,7 +194,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 				// Check if they have an EXISTING, OPEN socket
 				if (player.ws && player.ws.readyState === WebSocket.OPEN) {
-					console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
+					// console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
 
 					// 1. Notify the old socket (Optional but polite)
 					player.ws.send(JSON.stringify({
@@ -193,7 +212,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					
 				// 4. Assign the NEW socket
 				player.ws = socket;
-				console.log(`✅ Socket updated for player ${playerId}`);
+				// console.log(`✅ Socket updated for player ${playerId}`);
 
 				// 5. Reset states (if they were in a game, reconnect or finish the game 'not made the behavior yet !!!' )
            		resetPlayerStatesIfAlreadyExist(playerId);
@@ -225,7 +244,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			// }
             
         } catch (err) {
-			console.log("Invalid Token");
+			// console.log("Invalid Token");
 			socket.close(1008, "Invalid Token");
 			return;
         }
@@ -249,7 +268,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			}
 
 			// 3. Handle based on type
-			const type: WSMsgType = parsedMessage.type;
+			const type: WSMsgType = parsedMessage.type as WSMsgType;
 			switch (type) {
 				case 'CONNECT':
 					connectPlayer(playerId!, playerName, socket);
@@ -270,6 +289,11 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 				case 'RESUME':
 					pongGamestate(playerId!, parsedMessage, 'RESUME');
 					break;
+
+				case 'BREAK':
+					breakPongGame(playerId!, parsedMessage, 'BREAK');
+					break;
+
 
 				default:
 					console.warn(`⚠️ Unknown message type received: ${type}`);
@@ -302,11 +326,11 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			
             // Only remove the player if the socket closing is the CURRENT one.
 			if (player.ws === socket) {
-                console.log(`👋 Player ${playerId} disconnected.`);
+                // console.log(`👋 Player ${playerId} disconnected.`);
                 // Clean up logic (remove from online list, lose the game if playing ...)
                 // onlinePlayersRooom.delete(playerId);
             } else {
-                console.log(` Old socket for ${playerId} closed (Ignored).`);
+                // console.log(` Old socket for ${playerId} closed (Ignored).`);
             }
 
 		}

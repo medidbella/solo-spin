@@ -35,7 +35,7 @@ server.register(cookie);
 
 server.register(webSocket);
 
-console.log(`  secrete ===> ${process.env.JWT_ACCESS_SECRET}`);
+// console.log(`  secrete ===> ${process.env.JWT_ACCESS_SECRET}`);
 
 server.register(fastifyJwt, {
 	secret: process.env.JWT_ACCESS_SECRET!

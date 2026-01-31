@@ -1,8 +1,8 @@
 
-import {	PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_START_X_ON_RIGHT,
-			PADDLE_START_X_ON_LEFT, PADDLE_START_Y
-			, BALL_START_SPEED, BALL_START_X, BALL_START_Y
-		} from '../../../shared/pong_constants';
+// import {	PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_START_X_ON_RIGHT,
+// 			PADDLE_START_X_ON_LEFT, PADDLE_START_Y
+// 			, BALL_START_SPEED, BALL_START_X, BALL_START_Y
+// 		} from '../../../shared/pong_constants';
 
 import { pongEngine } from './pong_memory';
 

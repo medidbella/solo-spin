@@ -1,9 +1,9 @@
 
 // import { WebSocket } from 'ws';
-import type { ClientMessage, WSMsgType, ServerMessage,
+import type { ClientMessage, WSMsgType,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
-				PongSessionData, WSPongInput, WSPongPauseMessage, WSPongResumeMessage,
-				GameMode, PongSessionIsReady} from '../../../../shared/types'; 
+				 WSPongInput, WSPongPauseMessage, WSPongResumeMessage, WSPongBreakMessage,
+				PongSessionIsReady} from '../../../../shared/types'; 
 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
@@ -18,7 +18,7 @@ const host = window.location.hostname;
 // Automatically sets port (443 for https, 80 for http, or specific port if needed)
 const port = window.location.port ? window.location.port : (protocol === 'wss' ? '443' : '80');
 const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
-console.log(` Game ES Url: ${gameWSUrl}`);
+// console.log(` Game ES Url: ${gameWSUrl}`);
 
 // ------- WS connections hanlder (send/receive) ------------
 // type GameUpdateCallback = (data: any) => void;
@@ -85,7 +85,7 @@ export class WSConnectionsHandler {
 				sessionId: gameId
 			}
 		};
-		return message
+		return message;
 	}
 
 	private createWSResumeGameMessage(gameId: string) {
@@ -99,9 +99,22 @@ export class WSConnectionsHandler {
 		return message
 	}
 
+	private createWSBreakGameMessage (gameId: string) {
+
+		const message: WSPongBreakMessage = {
+			type: 'BREAK',
+			game: 'pong',
+			payload: {
+				sessionId: gameId
+			}
+		}
+		return message;
+	}
+
 	private sendWSMessage(msg: ClientMessage) {
 		this.socket!.send(JSON.stringify(msg));
 	}
+
 
 	public createAndSendMessages(game: AvailableGames, type: WSMsgType, sessionId: string | null, move: PongInput | null) {
 		let message: ClientMessage;
@@ -116,6 +129,8 @@ export class WSConnectionsHandler {
 			message = this.createWSPauseGameMessage(sessionId!);
 		} else if (type === 'RESUME') {
 			message = this.createWSResumeGameMessage(sessionId!);
+		} else if (type === 'BREAK') {
+			message = this.createWSBreakGameMessage(sessionId!);
 		}
 		this.sendWSMessage(message!);
 	}
@@ -136,12 +151,12 @@ export class WSConnectionsHandler {
 			}	
 
 			// 1. Create Socket
-			console.log(`🔌 Connecting to ${gameWSUrl}...`);
+			// console.log(`🔌 Connecting to ${gameWSUrl}...`);
 			this.socket = new WebSocket(gameWSUrl);
 
 			// 2. Handle Connection Success
 			this.socket.onopen = () => {
-				console.log('✅ Connection established!');
+				// console.log('✅ Connection established!');
 
 				// Send the initial CONNECT message
 				this.createAndSendMessages('pong', 'CONNECT', null, null);
@@ -166,7 +181,7 @@ export class WSConnectionsHandler {
 			};
 	
 			this.socket.onclose = () => {
-				console.log('🔌 WebSocket Closed');
+				// console.log('🔌 WebSocket Closed');
 				this.socket = null;
 				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
 				router('/login');
@@ -189,7 +204,7 @@ export class WSConnectionsHandler {
 			switch (type) {
 
 				case 'SESSION_READY':
-					console.log("🔔 Match Found! Navigating to game arena...");
+					// console.log("🔔 Match Found! Navigating to game arena...");
 					
 					// 1. Save the received Game ID
 					gameClient.setGameId(data.payload.sessionId);
@@ -218,7 +233,7 @@ export class WSConnectionsHandler {
 
 				// Handle Game Over
 				case 'GAME_FINISHED':
-					console.log("Game Finished");
+					// console.log("Game Finished");
 					if (gameClient.canvas && data.payload) {
 
 						// 1. Draw the final frame so players see the final score

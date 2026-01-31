@@ -5,6 +5,9 @@ import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
 
 // import { wsConnectionsHandler } from "./ws_handler";
 import { WSConnectionsHandler } from "./ws_handler";
+import { apiFetch } from '../../api_integration/api_fetch';
+import type { UserInfo } from '../../api_integration/api_types';
+import { navigateTo } from './handle_pong_routes';
 
 // import { PongRenderer } from './pong_renderer';
 
@@ -79,7 +82,7 @@ class GameClient {
 	public getSide(): Side | null { return this.side; }
 
 	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; 
-		console.log(` **** Set Has Started: ${this.hasStarted} ****** `);
+		// console.log(` **** Set Has Started: ${this.hasStarted} ****** `);
 	}
 	public getHasStarted(): boolean { return this.hasStarted; }
 
@@ -87,7 +90,7 @@ class GameClient {
 	public getInputLoopId(): number | null { return this.inputLoopId; }
 
 	public setCanvas(canvas: HTMLCanvasElement | null) { this.canvas = canvas;
-		console.log(`   ### Set canvas: ${canvas}  #### `);
+		// console.log(`   ### Set canvas: ${canvas}  #### `);
 	}
 
 	public setHasReseted(hasReseted: boolean) { this.hasReseted = hasReseted; }
@@ -214,6 +217,42 @@ class GameClient {
     }
 
 	public inputHandlerCleanup() {};
+
+	public handleMidGameNavigate(path: string) {
+	if (this.getHasStarted() && path !== '/games/pong/game-play') {
+		// 	console.log("⚠️ Player leaving mid-game! Resetting state...");
+	
+		this.wsConnectionsHandler.createAndSendMessages('pong', 'BREAK', this.getGameId(), null);
+			// reset states: STOP THE GAME LOGIC
+			this.reset();
+		}
+	}
+
+	public async protectGameWSUpdates(path: string) {
+
+	// THE GLOBAL CONNECTION LOGIC:
+	// Define which routes require a server connection
+	const publicRoutes = ['/', '/login', '/signup', '/404'];
+
+	if (!publicRoutes.includes(path)) {
+		// If the user is on /home, /game, /chat, etc... they MUST be logged in.
+		// So we ensure the socket is connected.
+		try {
+				console.log("🔒 Protected route detected, ensuring WS connection...");
+				gameClient.wsConnectionsHandler.connect().catch(err => {
+					console.error("Failed to auto-connect WS:", err);
+					throw new Error(err);
+				});
+
+				// set player info
+				console.log("  ==>> fetching '/api/basic-info' <<== ");
+				const user = await apiFetch<UserInfo>("/api/basic-info")
+				gameClient.setPlayerName(user.username)
+			} catch (err: any) {
+				navigateTo(`/login?error=${encodeURIComponent(err.message)}`);
+			}
+		}
+	}
 }
 
 // Export the Single Instance directly for ease of use

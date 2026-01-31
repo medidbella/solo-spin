@@ -21,7 +21,7 @@ function setGameModeLogic() {
 
 	// 1. local Game event listener
 	localModeBtn.addEventListener('click', () => {
-		console.log('🎮 User selected: Local Game');
+		// console.log('🎮 User selected: Local Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('local');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
@@ -32,7 +32,7 @@ function setGameModeLogic() {
 
 	// 2. local Game event listener
 	remoteModeBtn.addEventListener('click', () => {
-		console.log('🎮 User selected: Remote Game');
+		// console.log('🎮 User selected: Remote Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('remote');
         gameClient.setPlayerState('GAME_MODE_SELECTED');

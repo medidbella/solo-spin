@@ -1,18 +1,18 @@
 
-import { FastifyInstance } from "fastify";
+// import { FastifyInstance } from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { HttpPongSetupReq, HttpSetupResponse, Side } from '../../../shared/types';
+import { HttpPongSetupReq, HttpSetupResponse } from '../../../shared/types';
 import { createHttpSuccessResponseBody, createHttpErrorResponseBody } from '../pong/pong_utils';
 
 import { createLocalPongSession } from '../pong/pong_session';
 import { initializePlayerGameContext, prepareLocalPlayers } from '../game_manager/games_utiles';
 
-import { AvailableGames, GamesPlayer } from "../game_manager/games_types";
-import { isPlayerExist, getPlayer, showOnlinePlayers } from '../game_manager/games_utiles';
+import { GamesPlayer } from "../game_manager/games_types";
+import { isPlayerExist, getPlayer } from '../game_manager/games_utiles';
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
-import { sendWSMsg } from '../ws/ws_handler';
+// import { sendWSMsg } from '../ws/ws_handler';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
 	
@@ -57,7 +57,7 @@ function RemoteMode(playerId: string, body: HttpPongSetupReq, reply: FastifyRepl
      		- If no, returns null (meaning "please wait").
      */
 
-	console.log(" ## Remote Mode ###");
+	// console.log(" ## Remote Mode ###");
 
     // 1. Get the current player context (already initialized in 'pongRoutesManager')
     const player: GamesPlayer = getPlayer(playerId);
@@ -74,7 +74,7 @@ function RemoteMode(playerId: string, body: HttpPongSetupReq, reply: FastifyRepl
 	// 4. match result
 	// --- CASE A: MATCH FOUND (I am Player 2) ---
     if (matchSessionId) {
-        console.log("✅ Match made immediately!");
+        // console.log("✅ Match made immediately!");
 
 		// send success message: the pair players found & the remote game session created
 
@@ -99,7 +99,7 @@ function RemoteMode(playerId: string, body: HttpPongSetupReq, reply: FastifyRepl
 
 	// --- CASE B: QUEUED (I am Player 1) ---
 	else {
-        console.log("⏳ Added to queue. Waiting for opponent...");
+        // console.log("⏳ Added to queue. Waiting for opponent...");
 
 		// We return a specialized "Queued" status, NOT success yet || send empty session id means no session made yet
 		const resBody: HttpSetupResponse = createHttpSuccessResponseBody('', 'left', 'remote');

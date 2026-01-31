@@ -185,7 +185,7 @@ function startInputLoop(keysPressed: any) {
 
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
-	console.log("🚀 Space: Sending Start Game...");
+	// console.log("🚀 Space: Sending Start Game...");
 
 		console.log(` _________ Player Side: ${gameClient.getSide()} _________`);
 
@@ -262,6 +262,6 @@ export function handleGameOver(payload: any) {
         }
 
 		// 5. reset states: STOP THE GAME LOGIC
-		gameClient.reset()
+		gameClient.reset();
 	}
 }
