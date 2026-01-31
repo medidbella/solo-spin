@@ -60,33 +60,42 @@ fi
 # ---------------------------------------------------------
 # 2. SETUP ILM
 # ---------------------------------------------------------
-echo "📜 Configuring ILM Policy..."
-curl -s -k -X PUT "https://es01:9200/_ilm/policy/solo-spin-retention" \
-    -u "elastic:${ELASTIC_PASSWORD}" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "policy": {
-        "phases": {
-          "hot": { "min_age": "0ms", "actions": { "rollover": { "max_age": "1d", "max_size": "50gb" } } },
-          "delete": { "min_age": "7d", "actions": { "delete": {} } }
+
+echo " Configuring ILM Policy (Delete after 7 days)..."
+curl -s -X PUT "$KIBANA_URL/api/index_lifecycle_management/policies/solo-spin-retention" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -u elastic:${ELASTIC_PASSWORD} \
+  -d '{
+    "policy": {
+      "phases": {
+        "hot": {
+          "min_age": "0ms",
+          "actions": {} 
+        },
+        "delete": {
+          "min_age": "7d",   
+          "actions": {
+            "delete": {}
+          }
         }
       }
-    }' > /dev/null
+    }
+  }'
 
-echo -e "\n🔗 Linking Policy to Index Template..."
-curl -s -k -X PUT "https://es01:9200/_index_template/solo-spin-template" \
-    -u "elastic:${ELASTIC_PASSWORD}" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "index_patterns": ["solo-spin-app-*"],
-      "template": { 
-        "settings": { 
-            "index.lifecycle.name": "solo-spin-retention",
-            "index.lifecycle.rollover_alias": "solo-spin-app"
-        } 
+echo "🔗 Linking Policy to Index Template..."
+curl -s -X PUT "$KIBANA_URL/api/index_lifecycle_management/templates/solo-spin-template" \
+  -H "kbn-xsrf: true" \
+  -H "Content-Type: application/json" \
+  -u elastic:${ELASTIC_PASSWORD} \
+  -d '{
+    "index_patterns": ["solo-spin-app-*"],
+    "template": {
+      "settings": {
+        "index.lifecycle.name": "solo-spin-retention"
       }
-    }' > /dev/null
-
+    }
+  }'
 # ---------------------------------------------------------
 # 3. IMPORT DASHBOARDS (Non-blocking)
 # ---------------------------------------------------------
