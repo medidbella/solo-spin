@@ -3,7 +3,7 @@
 import { GameMode, GameState, PongSessionData, Winner } from '../../../shared/types';
 import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
-import { resetPlayer } from '../game_manager/games_utiles';
+import { resetPlayers } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
 import { GAME_STATE_UPDATE_INTERVAL_MS } from '../../../shared/pong_constants';
 import { GamesPlayer } from '../game_manager/games_types';
@@ -53,6 +53,7 @@ export interface PongPlayer {
 	paddle: Paddle; 					// updated
 	score: number;
 	input: PlayerInput; // up/down
+	sessiondId: string | null;
 
 	// pongSessionId?: string;
 
@@ -335,10 +336,10 @@ class PongSessionsRoom {
 			try {
 				const jsonGameResult = this.getJsonGameResult(session);
 				// const PORT: number = 3000;
-				console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
+				// console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
 	
 	
-				console.log(`  ### prefex: ${serverPrefx} ### `);
+				// console.log(`  ### prefex: ${serverPrefx} ### `);
 				const res = await fetch(`http://backend:3000/${serverPrefx}/games`, {
 					method: 'POST',
 					headers: {
@@ -370,7 +371,7 @@ class PongSessionsRoom {
 		// later...
 	
 		// 6. reset the players objects
-		resetPlayer(session.players[0].playerId, session.players[1].playerId, session.gameMode);
+		resetPlayers(session.players[0].playerId, session.players[1].playerId, session.gameMode);
 	
 		// 7. Schedule Cleanup
 		// Wait 10 seconds to let clients read the score, then delete.
@@ -427,6 +428,8 @@ class PongSessionsRoom {
 
 			// D. Create the Session
             const newSessionId = this.createSession(player1.pongPlayer!, player2.pongPlayer!, 'remote');
+			player1.pongPlayer!.sessiondId = newSessionId;
+			player2.pongPlayer!.sessiondId = newSessionId;
 
 			// E. Add players to playing room
 			addToPlayingPlayersRoom(player1.playerId);
@@ -473,21 +476,21 @@ class PongSessionsRoom {
 	}
 
     // Add Player 2 to an existing session.    
-    public joinRemoteSession(sessionId: string, player2: PongPlayer): string {
-		const session = this.remoteSessions.get(sessionId);
+    // public joinRemoteSession(sessionId: string, player2: PongPlayer): string {
+	// 	const session = this.remoteSessions.get(sessionId);
 
-		if (!session || session.state !== 'waiting') {
-            throw new Error("Session not available or not found");
-        }
+	// 	if (!session || session.state !== 'waiting') {
+    //         throw new Error("Session not available or not found");
+    //     }
 
-		// Add Player 2
-        session.players.push(player2);
+	// 	// Add Player 2
+    //     session.players.push(player2);
 
-		session.state = 'ready';
+	// 	session.state = 'ready';
 
-		console.log(`[PongRoom] Player 2 joined Session: ${sessionId}`);
-        return sessionId;
-	}
+	// 	console.log(`[PongRoom] Player 2 joined Session: ${sessionId}`);
+    //     return sessionId;
+	// }
 
 	// ================================================================
 }

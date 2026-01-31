@@ -8,7 +8,13 @@ import { pongGameSessionsRoom } from './pong_memory';
 
 function createLocalPongSession(players: GamesPlayer[]): string {
 
-	const sessionId: string = pongGameSessionsRoom.createSession(players[0].pongPlayer!, players[1].pongPlayer!, 'local');
+	const player1: PongPlayer = players[0].pongPlayer!;
+	const player2: PongPlayer = players[1].pongPlayer!;
+
+	const sessionId: string = pongGameSessionsRoom.createSession(player1, player2, 'local');
+	player1.sessiondId = sessionId;
+	player2.sessiondId = sessionId;
+
 
 	// set state of player object belongs to the client
 	addToPlayingPlayersRoom(players[0].playerId);

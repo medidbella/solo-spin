@@ -159,6 +159,9 @@ export class WSConnectionsHandler {
 
 			this.socket.onerror = (error: any) => {
 				console.error('❌ WebSocket error:', error);
+				this.socket = null;
+				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
+				router('/login');
 				reject(error);
 			};
 	
@@ -180,7 +183,7 @@ export class WSConnectionsHandler {
 			const type: WSMsgType = data.type as WSMsgType;
 			// const payload = data.payload as PongSessionData;
 			
-			console.log(`  =========>>> Ws message received, type: ${type} <<< ========`);
+			// console.log(`  =========>>> Ws message received, type: ${type} <<< ========`);
 
 			// 2. Route the message based on its type
 			switch (type) {
@@ -206,7 +209,7 @@ export class WSConnectionsHandler {
 
 					// const convertedData: PongSessionData = data;
 					// Check if we have a valid canvas to draw on
-					console.log("  ******** Incoming Ws Message type 'GAME_STATE' ******** ");
+					// console.log("  ******** Incoming Ws Message type 'GAME_STATE' ******** ");
 					if (gameClient.canvas && data.payload) {
 						renderPongFrame(gameClient.canvas, data.payload);
 					}

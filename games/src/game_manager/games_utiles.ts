@@ -5,10 +5,11 @@ import { randomUUID } from 'crypto';
 import { onlinePlayersRooom, availablePlayersRoom, playingPlayersRoom } from './games_memory';
 import { GamesPlayer, AvailableGames } from './games_types';
 
-import { PongPlayer } from '../pong/pong_types';
+import { PongPlayer, PongPlayerState, PongSession } from '../pong/pong_types';
 import { createPongPlayer } from '../pong/pong_utils';
 import { SudokuPlayer } from '../sudoku/sudoku_types';
 import { GameMode } from '../../../shared/types';
+import { pongGameSessionsRoom } from '../pong/pong_memory';
 
 function getPlayer(playerId: string): GamesPlayer {
 	return onlinePlayersRooom.get(playerId) as GamesPlayer;
@@ -77,22 +78,65 @@ function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
 function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
 	console.log("   ==> reset already exist player <===");
+	
+	const player: GamesPlayer = getPlayer(playerId);
+	const state: PongPlayerState = player.playerState;
+	
+	if (player.playerState === 'IDLE') {
+		console.log("  ==> player is not playing <==");
+		return;
+	} else {
 
-	const player1: GamesPlayer = getPlayer(playerId);
+		if (!player.pongPlayer || !player.pongPlayer.sessiondId)
+			return ;
 
-	player1.playerState = 'IDLE';
-	player1.concurrentId = null;
-	player1.game = 'not_selected';
-	player1.pongPlayer = null;
-	player1.sudokuPlayer = null;
+		const playerSession: PongSession | undefined = pongGameSessionsRoom.getSession(player.pongPlayer.sessiondId)
+		if (!playerSession)
+			return ;
 
-	addToAvailablePlayersRoom(playerId);
+		console.log("  ==> player Is Playing <==");
+
+		const gameMode: GameMode | null = playerSession.gameMode;
+		if (gameMode === 'local') {
+			console.log("  **** Local Case ******");
+			pongGameSessionsRoom.endGame(playerSession.sessionId, gameMode);
+
+		} else if (gameMode === 'remote') {
+			console.log("  **** Remote Case ******");
+		}
+	}
+
+
+	// if (player && player.pongPlayer && player.pongPlayer.sessiondId) {
+	// 	const playerSession: PongSession | undefined = pongGameSessionsRoom.getSession(player.pongPlayer.sessiondId)
+	// 	if (playerSession) {
+	// 		const gameMode: GameMode | null = playerSession.gameMode;
+	// 		if (gameMode === 'local') {
+	// 			console.log("  **** Local Case ******");
+	// 			pongGameSessionsRoom.endGame(playerSession.sessionId, gameMode);
+
+	// 		} else if (gameMode === 'remote') {
+	// 			console.log("  **** Remote Case ******");
+	// 		}
+	// 	}
+	// }
+	// else {
+	// 	player.playerState = 'IDLE';
+	// 	player.concurrentId = null;
+	// 	player.game = 'not_selected';
+	// 	player.pongPlayer = null;
+	// 	player.sudokuPlayer = null;
+	// }
+
+
+
+	// addToAvailablePlayersRoom(playerId);
 }
 
 function registerNewPlayer(playerId: string, playerName: string, socket: WebSocket): void {
 	if (isPlayerExist(playerId)) {
 		console.log("  =>> the player is already exist <<=");
-		resetPlayerStatesIfAlreadyExist(playerId);
+		// resetPlayerStatesIfAlreadyExist(playerId);
 		return ; // already exist
 	}
 
@@ -101,7 +145,7 @@ function registerNewPlayer(playerId: string, playerName: string, socket: WebSock
 	addToAvailablePlayersRoom(playerId);
 }
 
-function resetPlayer(player1Id: string, player2Id: string, gameMode: GameMode) {
+function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) {
 	const player1: GamesPlayer = getPlayer(player1Id);
 	let player2: GamesPlayer; 
 	if (gameMode === 'remote')
@@ -194,4 +238,4 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 
 export { addToPlayingPlayersRoom, registerNewPlayer, isPlayerExist,
 		showOnlinePlayers, getPlayer, initializePlayerGameContext,
-		prepareLocalPlayers, resetPlayer };
+		prepareLocalPlayers, resetPlayers, resetPlayerStatesIfAlreadyExist };

@@ -3,7 +3,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { SocketStream } from '@fastify/websocket';
 import { WebSocket } from 'ws';
 
-import { getPlayer, registerNewPlayer } from '../game_manager/games_utiles';
+import { getPlayer, isPlayerExist, registerNewPlayer, resetPlayerStatesIfAlreadyExist } from '../game_manager/games_utiles';
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
 			WSPongInput, PongInput, inputPlayer,
 			WSPongResumeMessage,
@@ -112,6 +112,34 @@ function pongGamestate(playerId: string, parsedMessage: ClientMessage, state: 'P
 	}
 }
 
+function handlerWsOnCloseAndError(playerId: string | undefined, connection: SocketStream) {
+	// 1. Check if this player is already Exist !!
+	if (playerId && isPlayerExist(playerId)) {
+		const player: GamesPlayer = getPlayer(playerId);
+
+		// clear ws-related
+		if (player.ws) {
+
+			console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `)
+
+			console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
+			
+			// Remove listeners
+			player.ws.removeAllListeners();
+
+			// B. Force close the OLD connection
+			player.ws.terminate(); // terminate() is harder/faster than .close()
+			console.log(`  Close the old Ws of the playerId: ${playerId}  `);
+		}
+
+		// 2. Create/Update the Player Object with the NEW Socket
+		// Just update the socket reference
+		player.ws = connection.socket;
+		console.log(`✅ Updated socket for player ${playerId}`);
+		resetPlayerStatesIfAlreadyExist(playerId);
+	}
+}
+
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log('🔌 New WebSocket connection established');
 	// console.log('🔌 ');
@@ -119,12 +147,19 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	const socket: WebSocket = connection.socket;
 	let playerId: string | undefined;
 
-	// const playerId: string = req.cookies.playerId as string;
-	const token: string | undefined = req.cookies.accessToken;
-	// console.log(" ==> token: ", token);
+	// // const playerId: string = req.cookies.playerId as string;
+	// const token: string | undefined = req.cookies.accessToken;
+	// // console.log(" ==> token: ", token);
+
+	// 1. Authenticate
+    const token: string | undefined = req.cookies.accessToken;
+    if (!token) {
+        socket.close(1008, "Authentication required");
+        return;
+    }
 
 
-	if (token) {
+	// if (token) {
 		try {
             // STEP 1: Verify/Decode the token string into an object
             // Use the same tool you used to sign it (req.server.jwt)
@@ -133,37 +168,70 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
             // STEP 2: Now you can read the data
             playerId = decoded.sub;
             console.log(" ==> sub (User ID): ", playerId);
+
+			if (isPlayerExist(playerId)) {
+
+				const player: GamesPlayer = getPlayer(playerId);
+
+				// Check if they have an EXISTING, OPEN socket
+				if (player.ws && player.ws.readyState === WebSocket.OPEN) {
+					console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
+
+					// 1. Notify the old socket (Optional but polite)
+					player.ws.send(JSON.stringify({
+						type: 'ERROR',
+						payload: { error: 'Multiple Tabs Detected', message: 'New login from another tab.' }
+					}));
+
+					// 2. Remove listeners from old socket to prevent triggering 'onclose' cleanup logic
+                	// (This prevents the 'onclose' below from deleting the player entirely)
+                	player.ws.removeAllListeners();
+
+					// 3. Kill it
+					player.ws.terminate();
+				}
+					
+				// 4. Assign the NEW socket
+				player.ws = socket;
+				console.log(`✅ Socket updated for player ${playerId}`);
+
+				// 5. Reset states (if they were in a game, reconnect or finish the game 'not made the behavior yet !!!' )
+           		resetPlayerStatesIfAlreadyExist(playerId);
+			}
+
+
+		
+			// 1. Check if this player is already Exist !!
+			// if (isPlayerExist(playerId)) {
+			// 	const player: GamesPlayer = getPlayer(playerId);
+
+			// 	// clear ws-related
+			// 	if (player.ws) {
+
+			// 		console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
+					
+			// 		// Remove listeners
+			// 		player.ws.removeAllListeners();
+
+			// 		// B. Force close the OLD connection
+			// 	    player.ws.terminate(); // terminate() is harder/faster than .close()
+			// 		console.log(`  Close the old Ws of the playerId: ${playerId}  `);
+			// 	}
+
+			// 	// 2. Create/Update the Player Object with the NEW Socket
+			// 	// Just update the socket reference
+			// 	player.ws = connection.socket;
+			// 	console.log(`✅ Updated socket for player ${playerId}`);
+			// }
             
         } catch (err) {
-            console.log("Token is invalid or expired");
-
-			const errorMsg: ServerMessage = {
-				type: 'CONNECT_ERROR',
-				payload: { error: 'Authentication missing. Please log in.' }
-			};
-			socket.send(JSON.stringify(errorMsg));
-			socket.close(); // Close connection
+			console.log("Invalid Token");
+			socket.close(1008, "Invalid Token");
 			return;
         }
-	}
-
-	const playerName: string = req.cookies.playerName as string; // !!!!!!
-
-	// // 🛡️ SECURITY 1: Reject immediately if no ID found during handshake
-	// if (!playerId || !playerName) {
-	// 	if (!playerId)
-	// 		console.warn("❌ Connection rejected: Missing cookie ID");
-	// 	else
-	// 		console.warn("❌ Connection rejected: Missing cookie Name");
-	// 	const errorMsg: ServerMessage = {
-	// 		type: 'CONNECT_ERROR',
-	// 		payload: { error: 'Authentication missing. Please log in.' }
-	// 	};
-	// 	socket.send(JSON.stringify(errorMsg));
-	// 	socket.close(); // Close connection
-	// 	return;
 	// }
 
+	const playerName: string = req.cookies.playerName as string; // !!!!!!
 
 
 	socket.on('message', (rawData: any) => {
@@ -227,12 +295,27 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 		}
 	});
 
-	// const response = {
-	//     message: 'Hello from the server!!',
-	// };
-	
-	// console.log('📤 Sending AUTH_SUCCESS:', response);
-	// socket.send(JSON.stringify(response));
+
+	socket.on('close', () => {
+		if (playerId && isPlayerExist(playerId)) {
+            const player: GamesPlayer = getPlayer(playerId);
+			
+            // Only remove the player if the socket closing is the CURRENT one.
+			if (player.ws === socket) {
+                console.log(`👋 Player ${playerId} disconnected.`);
+                // Clean up logic (remove from online list, lose the game if playing ...)
+                // onlinePlayersRooom.delete(playerId);
+            } else {
+                console.log(` Old socket for ${playerId} closed (Ignored).`);
+            }
+
+		}
+
+	});
+
+	socket.on('error', (err) => {
+		console.error(`❌ WS Error for ${playerId}:`, err);
+	});
 	
 }
 
