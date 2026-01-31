@@ -103,14 +103,6 @@ const start = async () => {
           {
             console.error("Could not reach backend container:", err); 
           }
-  
-          if (recipientsocketid) 
-          {
-            io.to(recipientsocketid).emit('private_message', {
-              from: Number(id),
-              content: data.content
-            });
-          }
         });
 
       socket.on('disconnect', () => {

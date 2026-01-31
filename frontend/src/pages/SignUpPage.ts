@@ -5,7 +5,7 @@ import { apiFetch } from "../api_integration/api_fetch.ts";
 
 export function renderSignUpPage() : string {
   return /* html */`
-    <main class="min-h-screen flex items-center justify-center lg:justify-between bg-dark-background">
+    <main class="h-screen flex items-center justify-center lg:justify-between bg-[#0e071e] overflow-hidden">
         <!-- the left side (image) -->
         <div class="hidden lg:flex w-1/2 h-screen items-center justify-center bg-opacity-10 relative">
             <img src="/imgs/piro-removebg-preview.png" 
@@ -15,8 +15,13 @@ export function renderSignUpPage() : string {
         <!-- the right side (form and links and logo) -->
         
         <div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-4">
-            <div class="mb-4">
-                <img src="/imgs/logo.png" alt="solospin logo" class="w-24 h-auto">
+            <div class="flex justify-center mb-8">
+              <img 
+                  src="/imgs/logo.png" 
+                  alt="solospin logo" 
+                  /* Mobile: 32 (128px) | Desktop: 48 (192px) */
+                  class="w-32 md:w-48 h-auto object-contain transition-all duration-300"
+              >
             </div>
             
             <h2 class="text-white text-5xl lg:text-7xl font-[solo] mb-8 text-center">
