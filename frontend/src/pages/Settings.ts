@@ -4,7 +4,7 @@ import { apiFetch } from "../api_integration/api_fetch";
 import type {UserInfo, UpdateUserRequest} from "../api_integration/api_types"
 
 
-export async function settingsFormSubmit(ev:Event)
+async function settingsFormSubmit(ev:Event)
 {
   ev.preventDefault();
   const nameInput = document.getElementById('settings-name') as HTMLInputElement;
@@ -43,6 +43,44 @@ export async function settingsFormSubmit(ev:Event)
   }
 }
 
+export async function avatarUpload(ev:Event)
+{
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (file.type !== 'image/png') {
+        alert("Only PNG files are allowed.");
+        input.value = "";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    try
+    {
+        await apiFetch('/api/user/avatar', {
+            method: 'POST',
+            body: formData,
+        });
+    }
+    catch (error: any) {
+      console.log(error.message)
+      alert(error.message)
+    }
+}
+
+export async function setupSettingPageLogic()
+{
+  const settingsFrom = document.getElementById('settings-form')
+  const avatarUploadButton = document.getElementById('avatar-upload')
+  if (settingsFrom)
+		settingsFrom.addEventListener('submit', settingsFormSubmit)
+  if (avatarUploadButton)
+    avatarUploadButton.addEventListener('change', avatarUpload)
+}
+
 export function renderSettings(user: UserInfo)
 {
   return /* html */`
@@ -61,8 +99,18 @@ export function renderSettings(user: UserInfo)
           <div class="max-w-7xl w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 -mt-2">
             <!-- first section -->
             <div class="lg:col-span-4 bg-[#2A3FA1] p-6 flex flex-col items-center  relative h-full shadow-[-10px_-10px_0px_#441563]">
-              <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-[#441563]">
-                <img class="w-full h-full object-cover" src="/api/user/avatar" alt="">
+              <div class="relative group mb-4"> 
+                <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-[#441563]">
+                  <img class="w-full h-full object-cover" src="/api/user/avatar" alt="the user avatar">
+                </div>
+
+                <label for="avatar-upload" class="absolute bottom-1 right-1 bg-[#441563] p-2 rounded-full cursor-pointer hover:scale-110 transition-transform border-2 border-[#2A3FA1] flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <input type="file" id="avatar-upload" class="hidden" accept="image/png">
+                </label>
               </div>
               <h2 class="text-2xl font-bold">${user.username}</h2>
               <p class="text-gray-300 text-sm mb-8">${user.name}</p>

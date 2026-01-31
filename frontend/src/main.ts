@@ -8,7 +8,7 @@ gameClient as any;
 import { handlePongRoutes } from './game-related/services/handle_pong_routes';
 
 import { renderHome, setupSearchLogic } from './pages/Home';
-import { renderSettings, settingsFormSubmit} from './pages/Settings';
+import { renderSettings, setupSettingPageLogic} from './pages/Settings';
 import { renderLandingPage }  from './pages/LandingPage';
 import { renderLoginPage } from './pages/LoginPage';
 import { renderSignUpPage } from './pages/SignUpPage';
@@ -98,9 +98,7 @@ export async function router(path: string)
 			try {
 				const userInfo = await apiFetch<UserInfo>("/api/basic-info")
 				app.innerHTML = renderSettings(userInfo);
-				const settingsFrom = document.getElementById('settings-form')
-				if (settingsFrom)
-					settingsFrom.addEventListener('submit', settingsFormSubmit)
+				setupSettingPageLogic();
 			}
 			catch (error: any) {
 				console.log('Failed fetching settings:', error);
