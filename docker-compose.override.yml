@@ -47,4 +47,6 @@ services:
       - ./logs:/app/logs
       - ./games:/app/games
       - /app/games/node_modules
+    environment:
+      - NODE_ENV=development
     command: npm run dev

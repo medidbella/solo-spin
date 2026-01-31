@@ -87,6 +87,8 @@ services:
       - elastic
     environment:
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
+      - NODE_ENV=deployment
     volumes:
       - ./shared:/app/shared
       - ./logs:/app/logs

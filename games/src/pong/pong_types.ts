@@ -338,7 +338,8 @@ class PongSessionsRoom {
 				console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
 	
 	
-				const res = await fetch(`https://backend:3000/${serverPrefx}/games/`, {
+				console.log(`  ### prefex: ${serverPrefx} ### `);
+				const res = await fetch(`http://backend:3000/${serverPrefx}/games`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',

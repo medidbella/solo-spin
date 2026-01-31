@@ -74,9 +74,27 @@ function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
 	player.sudokuPlayer = sudokuPlayer;
 }
 
+function resetPlayerStatesIfAlreadyExist(playerId: string) {
+
+	console.log("   ==> reset already exist player <===");
+
+	const player1: GamesPlayer = getPlayer(playerId);
+
+	player1.playerState = 'IDLE';
+	player1.concurrentId = null;
+	player1.game = 'not_selected';
+	player1.pongPlayer = null;
+	player1.sudokuPlayer = null;
+
+	addToAvailablePlayersRoom(playerId);
+}
+
 function registerNewPlayer(playerId: string, playerName: string, socket: WebSocket): void {
-	if (isPlayerExist(playerId))
+	if (isPlayerExist(playerId)) {
+		console.log("  =>> the player is already exist <<=");
+		resetPlayerStatesIfAlreadyExist(playerId);
 		return ; // already exist
+	}
 
 	const newPlayer: GamesPlayer = createNewPlayer(playerId, playerName, socket);
 	addToOnlinePlayersRoom(newPlayer);
