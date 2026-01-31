@@ -14,7 +14,7 @@ export function renderSideBar(): string {
     { href: '/home', label: 'Home', icon: 'fa-solid fa-house' },
     { href: '/chat', label: 'chat', icon: 'fa-regular fa-message' },
     { href: '/profile', label: 'profile', icon: 'fa-solid fa-user' },
-    { href: '/game', label: 'game', icon: 'fa-solid fa-table-tennis-paddle-ball' },
+    { href: '/games/pong/', label: 'game', icon: 'fa-solid fa-table-tennis-paddle-ball' },
     { href: '/profiles', label: 'profiles', icon: 'fa-solid fa-user-group' },
     { href: '/leaderBoard', label: 'Leader-board', icon: 'fa-solid fa-trophy' },
     { href: '/settings', label: 'Settings', icon: 'fa-solid fa-gear' },

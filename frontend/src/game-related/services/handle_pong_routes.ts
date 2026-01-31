@@ -20,6 +20,8 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 
 	// console.log("  ## Pong Routes ## ");
+
+	if (path === '/games/pong/') path = '/games/pong/game-mode';
 	
 	switch (path) {
 
