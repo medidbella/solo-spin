@@ -2,22 +2,22 @@ import type { Friend, FriendRequest, BlockedFriend } from "../api_integration/ap
 
 export function renderFriendRow(friend: Friend): string {
   return /* html */ `
-    <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3 gap-4">
+      <div class="flex items-center gap-4 w-full sm:w-auto">
         <img 
           src="/api/avatar/${friend.id}" 
           alt="${friend.username}'s avatar"
-          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e]"
+          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e] shrink-0"
           onerror="this.src='/default-avatar.png'"
         />
-        <div>
-          <p class="text-white font-medium">${friend.name}</p>
-          <p class="text-gray-400 text-sm">@${friend.username}</p>
+        <div class="overflow-hidden">
+          <p class="text-white font-medium truncate">${friend.name}</p>
+          <p class="text-gray-400 text-sm truncate">@${friend.username}</p>
         </div>
       </div>
-      <div class="flex gap-2 ">
+      <div class="flex gap-2 w-full sm:w-auto">
         <button 
-          class="bg-[#6b4c9a] cursor-pointer hover:bg-[#7d5cb0] text-white px-6 py-2 rounded-md transition-colors"
+          class="flex-1 sm:flex-none bg-[#6b4c9a] cursor-pointer hover:bg-[#7d5cb0] text-white px-4 md:px-6 py-2 rounded-md transition-colors text-sm"
           data-action="remove-friend"
           data-friendship-id="${friend.friendshipId}"
           data-friend-id="${friend.id}"
@@ -25,7 +25,7 @@ export function renderFriendRow(friend: Friend): string {
           Remove
         </button>
         <button 
-          class="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+          class="flex-1 sm:flex-none bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors text-sm"
           data-action="block-user"
           data-friend-id="${friend.id}"
           data-friendship-id="${friend.friendshipId}"
@@ -40,7 +40,7 @@ export function renderFriendRow(friend: Friend): string {
 export function renderFriendsList(friends: Friend[]): string {
   if (friends.length === 0) {
     return /* html */ `
-      <div class="text-center text-gray-400 py-12">
+      <div class="text-center text-gray-400 py-12 px-4">
         <i class="fas fa-user-friends text-4xl mb-4"></i>
         <p>No friends yet. Start connecting!</p>
       </div>
@@ -51,29 +51,29 @@ export function renderFriendsList(friends: Friend[]): string {
 
 export function renderRequestRow(request: FriendRequest): string {
   return /* html */ `
-    <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3 gap-4">
+      <div class="flex items-center gap-4 w-full sm:w-auto">
         <img 
           src="/api/avatar/${request.sender.id}" 
           alt="${request.sender.username}'s avatar"
-          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e]"
+          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e] shrink-0"
           onerror="this.src='/default-avatar.png'"
         />
-        <div>
-          <p class="text-white font-medium">${request.sender.name}</p>
-          <p class="text-gray-400 text-sm">@${request.sender.username}</p>
+        <div class="overflow-hidden">
+          <p class="text-white font-medium truncate">${request.sender.name}</p>
+          <p class="text-gray-400 text-sm truncate">@${request.sender.username}</p>
         </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-2 w-full sm:w-auto">
         <button 
-          class="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors"
+          class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors text-sm"
           data-action="accept-request"
           data-request-id="${request.id}"
         >
           Accept
         </button>
         <button 
-          class="bg-red-600 hover:bg-red-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors"
+          class="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 cursor-pointer text-white px-4 py-2 rounded-md transition-colors text-sm"
           data-action="reject-request"
           data-request-id="${request.id}"
         >
@@ -87,7 +87,7 @@ export function renderRequestRow(request: FriendRequest): string {
 export function renderRequestsList(requests: FriendRequest[]): string {
   if (requests.length === 0) {
     return /* html */ `
-      <div class="text-center text-gray-400 py-12">
+      <div class="text-center text-gray-400 py-12 px-4">
         <i class="fas fa-inbox text-4xl mb-4"></i>
         <p>No pending friend requests</p>
       </div>
@@ -98,21 +98,21 @@ export function renderRequestsList(requests: FriendRequest[]): string {
 
 export function renderBlockedRow(user: BlockedFriend): string {
   return /* html */ `
-    <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3 gap-4">
+      <div class="flex items-center gap-4 w-full sm:w-auto">
         <img 
           src="/api/avatar/${user.id}" 
           alt="${user.username}'s avatar"
-          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e] grayscale"
+          class="w-12 h-12 rounded-full object-cover bg-[#1a1a2e] grayscale shrink-0"
           onerror="this.src='/default-avatar.png'"
         />
-        <div>
-          <p class="text-white font-medium">${user.name}</p>
-          <p class="text-gray-400 text-sm">@${user.username}</p>
+        <div class="overflow-hidden">
+          <p class="text-white font-medium truncate">${user.name}</p>
+          <p class="text-gray-400 text-sm truncate">@${user.username}</p>
         </div>
       </div>
       <button 
-        class="bg-[#6b4c9a] hover:bg-[#7d5cb0] cursor-pointer text-white px-6 py-2 rounded-md transition-colors"
+        class="w-full sm:w-auto bg-[#6b4c9a] hover:bg-[#7d5cb0] cursor-pointer text-white px-6 py-2 rounded-md transition-colors text-sm"
         data-action="unblock-user"
         data-user-id="${user.id}"
       >
@@ -125,7 +125,7 @@ export function renderBlockedRow(user: BlockedFriend): string {
 export function renderBlockedList(users: BlockedFriend[]): string {
   if (users.length === 0) {
     return /* html */ `
-      <div class="text-center text-gray-400 py-12">
+      <div class="text-center text-gray-400 py-12 px-4">
         <i class="fas fa-ban text-4xl mb-4"></i>
         <p>No blocked users</p>
       </div>

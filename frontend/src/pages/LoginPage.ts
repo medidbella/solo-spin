@@ -3,115 +3,90 @@ import { TwoFactorVerificationLogic } from "../components/TwoFactorSetup/TwoFact
 import type {LoginRequest } from "../api_integration/api_types"
 
 export function renderLoginPage(): string {
-  return /* html */ `
-    <main class="flex justify-between min-h-screen">
-        <div id="login-left-content" class="w-1/2 flex items-center flex-col">
-            <!-- Logo -->
-            <div class="mb-0.5">
-                <img src="../../public/imgs/logo.png" alt="Logo">
-            </div>
-            
-            <h2 class="text-[#f2f2f2] text-8xl font-[solo]">Welcome back!</h2>
-            
-            <!-- LOGIN FORM -->
-            <form id="login-form" class="flex flex-col gap-4 mt-7 w-1/2">
-                <!-- Username Input -->
-                <input 
-                  class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" 
-                  type="text" 
-                  name="username" 
-                  placeholder="Username"
-                  minlength="4"
-                  required>
-                
-                <!-- Password Input -->
-                <div class="relative">
-                    <input 
-                      id="login-password"
-                      class="bg-[#5F3779] text-white p-3 w-full rounded-3xl" 
-                      type="password" 
-                      name="password" 
-                      placeholder="Password"
-                      minlength="8"
-                      required>
-                    <button type="button" id="toggle-password" class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
-                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
-                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Remember Me & Forget Password -->
-                <div class="flex justify-between w-full mt-2">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" id="remember-me" class="peer hidden" />
-                      <span class="custom-checkbox"></span>
-                      <span class="text-white">Remember me</span>
-                    </label>
-                    <a href="#" class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">
-                      Forget password?
-                    </a>
-                </div>
-                
-                <!-- LOGIN BUTTON INSIDE FORM! -->
-                <button 
-                  id="loginButton"
-                  type="submit"
-                  class="bg-[#2A3FA1] text-white text-3xl mt-6 w-full rounded-4xl p-3 cursor-pointer 
-                         hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
-                         hover:shadow-[0_6px_20px_rgba(42,63,161,0.6)] hover:scale-[1.04]
-                         active:scale-[0.97] transition-all ease-out
-                         disabled:opacity-50 disabled:cursor-not-allowed">
-                  Login
-                </button>
-            </form>
-            
-            <!-- OR Divider -->
-            <div class="grid grid-cols-3 items-center mt-6 w-1/2">
-                <hr class="border-[#2A3FA1]">
-                <p class="text-[#2A3FA1] text-center text-2xl">OR</p>
-                <hr class="border-[#2A3FA1]">
-            </div>
-            
-            <!-- OAuth Login Buttons -->
-            <div class="flex flex-row gap-4 mt-3">
-                <img 
-                  src="../../public/imgs/Google.svg" 
-                  alt="Google logo" 
-                  class="cursor-pointer hover:scale-120 duration-500"
-                  id="google-login">
-                <img 
-                  src="../../public/imgs/GitHub.svg" 
-                  alt="GitHub logo" 
-                  class="cursor-pointer hover:scale-120 duration-500"
-                  id="github-login">
-            </div>
-            
-            <!-- Sign Up Link -->
-            <div class="mt-7 flex flex-row items-center gap-2">
-                <span class="text-white">First time in this world?</span>
-                <a href="/signup" data-link class="text-[#2A3FA1] text-xl underline decoration-[#2A3FA1] underline-offset-5">
-                  Enter the world!
-                </a>
-            </div>
-              <p class="mt-8 text-xs text-gray-500 max-w-sm text-center leading-relaxed">
-              By entering the website, you agree to our 
-              <a href="/terms-of-service#terms" class="underline hover:text-[#2A3FA1] transition-colors">Terms of Service</a> 
-              and 
-              <a href="/terms-of-service#privacy" class="underline hover:text-[#2A3FA1] transition-colors">Privacy Policy</a>.
-            </p>
+return /* html */ `
+  <main class="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-dark-background">
+      <div id="login-left-content" class="w-full lg:w-1/2 flex items-center flex-col justify-center px-6 py-4 overflow-y-auto h-full">
+          <div class="mb-2 shrink-0">
+              <img src="../../public/imgs/logo.png" alt="Logo" class="w-32 md:w-40 lg:w-48">
           </div>
-        <!-- Right Side Image -->
-        <div class="w-1/2 h-screen relative">
-            <img 
-              src="../../public/imgs/loginPageimg.svg" 
-              alt="Login illustration" 
-              class="w-full h-full object-cover animate-float">        
-            <div class="absolute inset-0 bg-black/50"></div>
-        </div>
-    </main>
-  `;
+          
+          <h2 class="text-[#f2f2f2] text-4xl md:text-6xl lg:text-7xl font-[solo] text-center leading-tight shrink-0">Welcome back!</h2>
+          
+          <form id="login-form" class="flex flex-col gap-3 lg:gap-4 mt-4 lg:mt-6 w-full max-w-md lg:max-w-sm">
+              <input 
+                class="bg-[#5F3779] text-white p-3 w-full rounded-3xl outline-none focus:ring-2 focus:ring-[#2A3FA1] text-sm md:text-base" 
+                type="text" 
+                name="username" 
+                placeholder="Username"
+                minlength="4"
+                required>
+              
+              <div class="relative">
+                  <input 
+                    id="login-password"
+                    class="bg-[#5F3779] text-white p-3 w-full rounded-3xl outline-none focus:ring-2 focus:ring-[#2A3FA1] text-sm md:text-base" 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password"
+                    minlength="8"
+                    required>
+                  <button type="button" id="toggle-password" class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white cursor-pointer">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                          <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                      </svg>
+                  </button>
+              </div>
+              
+              <div class="flex justify-between items-center w-full mt-1 px-1">
+                  <label class="flex items-center gap-2 cursor-pointer scale-90 md:scale-100 origin-left">
+                    <input type="checkbox" id="remember-me" class="peer hidden" />
+                    <span class="custom-checkbox"></span>
+                    <span class="text-white text-sm">Remember me</span>
+                  </label>
+                  <a href="#" class="text-[#2A3FA1] text-sm md:text-base underline decoration-[#2A3FA1] underline-offset-4">
+                    Forget password?
+                  </a>
+              </div>
+              
+              <button 
+                id="loginButton"
+                type="submit"
+                class="bg-[#2A3FA1] text-white text-xl lg:text-2xl mt-4 w-full rounded-4xl p-2.5 lg:p-3 cursor-pointer 
+                       hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
+                       active:scale-[0.97] transition-all ease-out">
+                Login
+              </button>
+          </form>
+          
+          <div class="grid grid-cols-3 items-center mt-5 w-full max-w-md lg:max-w-sm shrink-0">
+              <hr class="border-[#2A3FA1]">
+              <p class="text-[#2A3FA1] text-center text-lg lg:text-xl">OR</p>
+              <hr class="border-[#2A3FA1]">
+          </div>
+          
+          <div class="flex flex-row gap-4 mt-3 shrink-0">
+              <img src="../../public/imgs/Google.svg" alt="Google" class="w-8 md:w-10 cursor-pointer hover:scale-110 duration-300" id="google-login">
+              <img src="../../public/imgs/GitHub.svg" alt="GitHub" class="w-8 md:w-10 cursor-pointer hover:scale-110 duration-300" id="github-login">
+          </div>
+          
+          <div class="mt-6 flex flex-col sm:flex-row items-center gap-2 text-center shrink-0">
+              <span class="text-white text-sm md:text-base">First time in this world?</span>
+              <a href="/signup" data-link class="text-[#2A3FA1] text-base md:text-lg underline decoration-[#2A3FA1] underline-offset-4 font-bold">
+                Enter the world!
+              </a>
+          </div>
+      </div>
+      
+      <div class="hidden lg:block lg:w-1/2 h-full relative">
+          <img 
+            src="../../public/imgs/loginPageimg.svg" 
+            alt="Login illustration" 
+            class="w-full h-full object-cover animate-float">        
+          <div class="absolute inset-0 bg-black/50"></div>
+      </div>
+  </main>
+`;
 }
 
 
