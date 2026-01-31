@@ -1,7 +1,7 @@
 import { renderHeader } from "../components/Header";
 import { renderSideBar } from "../components/SideBar";
 import { renderBlockedList, renderRequestsList, renderFriendsList } from "../components/ProfilesComponents";
-import type { Friend, FriendRequest, BlockedUser } from "../api_integration/api_types";
+import type { Friend, FriendRequest, BlockedFriend } from "../api_integration/api_types";
 import {
   getFriendsList,
   getFriendRequests,
@@ -18,7 +18,7 @@ type TabType = "friends" | "requests" | "blocked";
 let activeTab: TabType = "friends";
 let friendsData: Friend[] = [];
 let requestsData: FriendRequest[] = [];
-let blockedData: BlockedUser[] = [];
+let blockedData: BlockedFriend[] = [];
 
 function showLoading(): void {
   const contentArea = document.getElementById("profiles-content");

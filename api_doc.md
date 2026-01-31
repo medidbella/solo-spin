@@ -105,6 +105,7 @@ Get a user's details by their ID.
     "user": {
         "username": "midbella",
         "name": "mohamed",
+        "id": 1,
         "score": 1175,//total xp collected
         "level": 3
     },
@@ -372,6 +373,7 @@ List all the friends of the logged in user.
       {
           "id": 1,
           "username": "midbella",
+          "name": "mohamed",
           "friendshipId": 13,
           "blockedBy": null
       }
@@ -394,6 +396,7 @@ List all users blocked by the logged in user.
       {
           "id": 1,
           "username": "midbella",
+          "name": "mohamed",
           "friendshipId": 13
       }
       // rest of blocked friends

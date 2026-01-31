@@ -33,10 +33,11 @@ function setGameModeLogic() {
 	// 2. local Game event listener
 	remoteModeBtn.addEventListener('click', () => {
 		console.log('🎮 User selected: Remote Game');
+		gameClient.setGame('pong');
 		gameClient.setGameMode('remote');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
 
-		navigateTo('/games/pong/play-mode');
+		navigateTo('/games/pong/waiting');
 	});
 	
 }

@@ -9,12 +9,27 @@ import { pongEngine } from './pong_memory';
 // ------------------------ HTTP ------------------------------------
 import { GameMode, HttpSetupResponse, PlayMode } from '../../../shared/types';
 
-function createHttpSuccessResponseBody(gameId: string, side: Side): HttpSetupResponse {
+function createHttpSuccessResponseBody(gameId: string, side: Side, gameMode: GameMode): HttpSetupResponse {
+
+	let message: string;
+	let status: 'success' | 'queued' = 'success';
+
+	if (gameMode == 'local')
+		message = 'Local game initialized successfully';
+	else {
+		if (side == 'right')
+			message = 'Remote game initialized successfully';
+		else {
+			message = 'Added to matchmaking queue';
+			status = 'queued';
+		}
+	}
+
 	const resBody: HttpSetupResponse = {
-		status: 'success',
+		status,
         gameSessionId: gameId,
 		side,
-        message: 'Local game initialized successfully'
+        message
 	}
 
 	return resBody;
@@ -34,16 +49,6 @@ export { createHttpSuccessResponseBody, createHttpErrorResponseBody };
 // ********************* Pong Player Utils ************************
 import { PongPlayer, Paddle, Side, Ball } from './pong_types';
 
-// // create Ball:
-// // Reset ball: After a point, the ball must return to center
-// function resetBall(ball: Ball, initialSpeed: number): void {
-// 	ball.x = BALL_START_X;
-// 	ball.y = BALL_START_Y;
-// 	// Start moving left or right (deterministic)
-// 	ball.velocityX = Math.random() < 0.5 ? initialSpeed : -initialSpeed;
-// 	ball.velocityY = 0; // straight horizontal start
-// }
-
 function createBall(): Ball {
 	// Create an empty ball object
 	const ball: Ball = {
@@ -59,18 +64,6 @@ function createBall(): Ball {
 	pongEngine.resetBall(ball);
 	return ball;
 }
-
-// // create Paddle"
-// function resetPaddle(paddle: Paddle, side: Side): void {
-// 	if (side == 'right')
-// 		paddle.x = PADDLE_START_X_ON_RIGHT;
-// 	else 
-// 		paddle.x = PADDLE_START_X_ON_LEFT;
-
-// 	paddle.y = PADDLE_START_Y;
-// 	// paddle.width = PADDLE_WIDTH;
-// 	// paddle.height = PADDLE_HEIGHT;
-// }
 
 function createPaddle(side: Side) {
 	// create empty paddle object

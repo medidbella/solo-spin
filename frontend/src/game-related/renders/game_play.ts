@@ -3,6 +3,7 @@ import gamePlayContent from '../pages/game_play.html?raw';
 import { renderHeader } from '../../components/Header';
 import { gameClient } from '../services/game_client';
 import { FRAME_TIME_MS } from '../services/pong_constants';
+import type { GameMode, Side } from '../../../../shared/types';
 
 // import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
@@ -33,6 +34,7 @@ export function setGamePlayPageLogic() {
 	const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
 	const pauseBtn = document.getElementById('pauseBtn') as HTMLCanvasElement;
 	const startMsg = document.getElementById('startMessage');
+
 	if (!canvas || !pauseBtn || !startMsg) {
 		console.error("❌ Critical elements not found! Game cannot start.");
 		return;
@@ -40,6 +42,15 @@ export function setGamePlayPageLogic() {
 
 	// 2. Initialize the Game Engine (Renderer + WS Listener)
 	gameClient.initGamePage(canvas);
+
+
+	const gameMode: GameMode = gameClient.getGameMode() || 'local';
+	// const playerSide: Side = gameClient.getSide();
+
+	if (gameMode === 'remote') {
+        // 1. Remove Pause Button
+        pauseBtn.style.display = 'none';
+    }
 
 	// 3. STATE TRACKING
 	// let isPaused = false;
@@ -51,11 +62,11 @@ export function setGamePlayPageLogic() {
     };
 
 	// ---------------------------------------------------------
-    // ⏸️ PAUSE BUTTON LOGIC
+    // ⏸️ PAUSE BUTTON LOGIC (Only active for Local)
     // ---------------------------------------------------------
     const handlePauseToggle = () => {
-		// Only allow pause if the game has actually started
-        if (!gameClient.getHasStarted()) return;
+		// Only allow pause if the game has actually started and for the local mode
+        if (!gameClient.getHasStarted() || gameMode == 'remote') return;
 
 		// isPaused = !isPaused;
 		gameClient.setIsPaused(!gameClient.getIsPaused());
@@ -88,17 +99,16 @@ export function setGamePlayPageLogic() {
 	};
 
 	
-	// 4. LISTENERS
 	
 	pauseBtn.addEventListener('click', handlePauseToggle);
-
+	
 	// ---------------------------------------------------------
     // ⌨️ KEYBOARD INPUT LOGIC
     // ---------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => updateKeyState(e, true, keysPressed);
     const handleKeyUp = (e: KeyboardEvent) => updateKeyState(e, false, keysPressed);
-
-
+	
+	// 4. LISTENERS
 	window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
@@ -107,7 +117,9 @@ export function setGamePlayPageLogic() {
     gameClient.setCleanupListeners(() => {
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
-		pauseBtn.removeEventListener('click', handlePauseToggle); // Remove button listener
+		if (gameMode === 'local') {
+			pauseBtn.removeEventListener('click', handlePauseToggle); // Remove button listener
+		}
     });
 }
 
@@ -116,23 +128,54 @@ export function setGamePlayPageLogic() {
 function startInputLoop(keysPressed: any) {
 	const gameId = gameClient.getGameId();
 	if (!gameId) return;
+
+	const gameMode: GameMode = gameClient.getGameMode() || 'local';
+	const playerSide: Side = gameClient.getSide();
 	
 	const inputLoopId = window.setInterval(() => {
 
-		// Check Player 1 (Left)
-		if (keysPressed['KeyW']) {
-			gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'W');
-		}
-		if (keysPressed['KeyS']) {
-			gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'S');
+		// --- CASE 1: LOCAL MODE (Handle Both Players) ---
+        if (gameMode === 'local') {
+			// Check Player 1 (Left)
+			if (keysPressed['KeyW']) {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'W');
+			}
+			if (keysPressed['KeyS']) {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'S');
+			}
+			
+			// Check Player 2 (Right) - INDEPENDENTLY
+			if (keysPressed['ArrowUp']) {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
+			}
+			if (keysPressed['ArrowDown']) {
+				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'DOWN');
+			}
 		}
 
-		// Check Player 2 (Right) - INDEPENDENTLY
-		if (keysPressed['ArrowUp']) {
-			gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
-		}
-		if (keysPressed['ArrowDown']) {
-			gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'DOWN');
+		// --- CASE 2: REMOTE MODE (Handle Only My Side) ---
+        else if (gameMode === 'remote') {
+			// LOGIC: Allow BOTH Arrow Keys and WASD to control MY paddle.
+
+			const upPressed = keysPressed['ArrowUp'] || keysPressed['KeyW'];
+            const downPressed = keysPressed['ArrowDown'] || keysPressed['KeyS'];
+
+			if (playerSide === 'left') {
+				// If I am Left: 'W'/'S'
+                if (upPressed)
+					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'W');
+                if (downPressed)
+					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'S');
+
+			}
+			else if (playerSide === 'right') {
+                // If I am Right: 'UP'/'DOWN'
+                if (upPressed)
+					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
+
+                if (downPressed)
+					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'DOWN');
+            }
 		}
 
 	}, FRAME_TIME_MS);
@@ -142,7 +185,9 @@ function startInputLoop(keysPressed: any) {
 
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
-	// console.log("🚀 Space: Sending Start Game...");
+	console.log("🚀 Space: Sending Start Game...");
+
+		console.log(` _________ Player Side: ${gameClient.getSide()} _________`);
 
 		// 1. Send the Message
 		gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);

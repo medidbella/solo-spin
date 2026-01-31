@@ -1,8 +1,18 @@
 #!/bin/sh
 
+DB_FILE="/app/dev.db"
+
 echo " Starting Backend Container..."
 
-# 1. SMART DEPENDENCY CHECK
+
+if [ ! -f "$DB_FILE" ]; then
+    echo "🗄️ Database file not found. Creating empty dev.db..."
+    touch "$DB_FILE"
+    echo "✅ dev.db created."
+else
+    echo "✅ dev.db already exists."
+fi
+
 if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules)" ]; then
     echo " node_modules missing or empty. Installing dependencies..."
     npm install
@@ -21,6 +31,5 @@ npx prisma generate
 echo "  Applying DB Schema..."
 npx prisma db push
 
-# 4. Start Server
 echo " Starting Server..."
 exec "$@"

@@ -6,7 +6,7 @@ import {
     BALL_START_X, BALL_START_Y, BALL_START_SPEED, ROUND_START_DELAY_MS
 } from '../../../shared/pong_constants';
 
-import { GameMode, PongInput, PongSessionData, ServerMessage, Winner } from '../../../shared/types';
+import { GameMode, PongInput, PongSessionData, PongSessionIsReady, ServerMessage, Winner } from '../../../shared/types';
 import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';
@@ -44,7 +44,7 @@ class PongEngine {
         this.checkPaddleCollisions(session);
 		this.checkScoring(session);       // Check Goal/Game Over
 		
-		
+		// console.log("  ==>> Updated States here <<== ");
 		
         // 3. Return the results (new coordinates, score, winner) that will send to clients
 		const resultsMsg: PongSessionData = this.createResutlsMsg(session);
@@ -61,7 +61,35 @@ class PongEngine {
 	private createResutlsMsg(session: PongSession): PongSessionData {
 
 		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
-		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer; 
+		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer;
+
+        // console.log(" -------------- PLAYER 1 ----------------- ");
+
+        // if (player1) {
+
+        //     if (player1.playerName)
+        //         console.log(`   ## player 1 name: ${player1.playerName} ##`);
+        //     else
+        //         console.log(" ## player 1 name is not set ##");
+        // } else {
+        //     console.log("  ## Player 1 is not exist ##");
+        // }
+
+        // console.log(" ------------------------------- ");
+
+        // console.log(" -------------- PLAYER 2 ----------------- ");
+
+        // if (player2) {
+
+        //     if (player2.playerName)
+        //         console.log(`   ## player 2 name: ${player2.playerName} ##`);
+        //     else
+        //         console.log(" ## player 2 name is not set ##");
+        // } else {
+        //     console.log("  ## Player 2 is not exist ##");
+        // }
+
+        // console.log(" ------------------------------- ");
 
 		let type: 'GAME_STATE' | 'GAME_FINISHED' = 'GAME_STATE';
 
@@ -103,6 +131,18 @@ class PongEngine {
 		}
 		return resultsMsg;
 	}
+
+    // create Match Ready Message
+    public createWSMatchIsReadyMessage(sessionId: string) {
+        const msg: PongSessionIsReady = {
+            type: 'SESSION_READY',
+            game: 'pong',
+            payload: {
+                sessionId
+            }
+        }
+        return msg
+    }
 
     // Keeps the paddle inside the top/bottom edges
     private clamp(y: number): number {

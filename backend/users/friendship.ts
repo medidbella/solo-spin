@@ -118,7 +118,7 @@ export async function sendFriendRequest(req:FastifyRequest, res:FastifyReply)
 	{
 		req.log.error(error);
 		if (error.code === 'P2002')
-			return res.code(409).send({ message: "Request already exists", statusCode: 409 });
+			return res.code(409).send({ message: "you have already sent a request to this user", statusCode: 409 });
 		else if (error.code === 'P2003')
 			return res.code(404).send({ message: "The target user does not exist", statusCode: 404 });
 		else 
@@ -171,10 +171,10 @@ export async function listFriends(req:FastifyRequest, res:FastifyReply)
 			},
 			include: {
 				sender: {
-					select: {id: true, username: true}
+					select: {id: true, username: true, name:true}
 				},
 				receiver: {
-					select: {id: true, username: true}
+					select: {id: true, username: true, name:true}
 				}
 			},
 			orderBy: {
@@ -188,6 +188,7 @@ export async function listFriends(req:FastifyRequest, res:FastifyReply)
     		return {
     		    id: friend.id,
     		    username: friend.username,
+				name: friend.name,
     		    friendshipId: friendship.id,
 				blockedBy: friendship.blockerId
     		};
@@ -215,10 +216,10 @@ export async function listBlockedFriends(req:FastifyRequest, res:FastifyReply)
 			},
 			include: {
 				sender: {
-					select: {id: true, username: true}
+					select: {id: true, username: true, name:true}
 				},
 				receiver: {
-					select: {id: true, username: true}
+					select: {id: true, username: true, name:true}
 				}
 			},
 			orderBy: {
@@ -231,6 +232,7 @@ export async function listBlockedFriends(req:FastifyRequest, res:FastifyReply)
 				: friendship.sender;
 			return {
 				id: friend.id,
+				name: friend.name,
 				username: friend.username,
 				friendshipId: friendship.id
 			};

@@ -126,7 +126,8 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
 
 	const player: GamesPlayer = getPlayer(playerId);
 
-    // 1. Set the game type (Pong or Sudoku)
+    // 1. Set the game type (Pong or Sudoku) and the name
+	console.log(` ====>>>>  Setting the name : ${playerName}  <<<<====`);
 	player.playerName = playerName;
     player.game = gameType;
 	console.log(`  game:  ${gameType}  `);
@@ -136,7 +137,7 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
         // Create the PongPlayer instance (assuming it needs name & side)
         player.pongPlayer = createPongPlayer(playerId, 'left');
         player.sudokuPlayer = null; // Ensure other games are null
-		console.log("   ## Create pong player1",  player);
+		// console.log("   ## Create pong player1",  player);
 
 		player.playerState = 'WAITING_MATCH';
     } 

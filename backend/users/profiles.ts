@@ -121,6 +121,7 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 			select:{
 				username: true,
 				name: true,
+				id: true,
 				total_xp_points: true,
 				level: true,
 				experience_points: true, 
@@ -134,6 +135,7 @@ export async function getUserProfile(req:FastifyRequest, res:FastifyReply)
 		const clean_user = {
 			username: user.username,
 			name: user.name,
+			id: user.id,
 			score: user.total_xp_points,
 			level: user.level,
 		}

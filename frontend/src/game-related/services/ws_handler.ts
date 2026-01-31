@@ -3,11 +3,13 @@
 import type { ClientMessage, WSMsgType, ServerMessage,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
 				PongSessionData, WSPongInput, WSPongPauseMessage, WSPongResumeMessage,
-				GameMode} from '../../../../shared/types'; 
+				GameMode, PongSessionIsReady} from '../../../../shared/types'; 
+
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';
 import { handleGameOver } from '../renders/game_play';
 import { router } from '../../main';
+import { navigateTo } from '../services/handle_pong_routes';
 
 // Automatically detects if you are using 'http' or 'https'
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -173,15 +175,28 @@ export class WSConnectionsHandler {
 	private handleIncomingMessage(event: MessageEvent) {
 		try {
 			// 1. Parse the string data into a JSON object
-			const data = JSON.parse(event.data as string);
+			const data: PongSessionIsReady = JSON.parse(event.data as string) as PongSessionIsReady;
 			// console.log("📩 Received:", data);
-			const type: WSMsgType = data.type;
+			const type: WSMsgType = data.type as WSMsgType;
 			// const payload = data.payload as PongSessionData;
 			
 			// console.log(`Ws message received, type: ${type} `);
 
 			// 2. Route the message based on its type
 			switch (type) {
+
+				case 'SESSION_READY':
+					console.log("🔔 Match Found! Navigating to game arena...");
+					
+					// 1. Save the received Game ID
+					gameClient.setGameId(data.payload.sessionId);
+
+					// 2. Confirm Side, player 1 is always left | this useless because i already set the side for the player 1 !!!
+					gameClient.setSide('left');
+
+					// 3. navigate to actual game page
+					navigateTo('/games/pong/game-play');
+					break ;
 
 				case 'GAME_STATE':
 					// if (this.onGameUpdate) {
@@ -191,6 +206,7 @@ export class WSConnectionsHandler {
 
 					// const convertedData: PongSessionData = data;
 					// Check if we have a valid canvas to draw on
+					console.log("  ******** Incoming Ws Message type 'GAME_STATE' ******** ");
 					if (gameClient.canvas && data.payload) {
 						renderPongFrame(gameClient.canvas, data.payload);
 					}

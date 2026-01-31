@@ -4,6 +4,7 @@ import { renderUser } from "../components/user";
 import { apiFetch } from "../api_integration/api_fetch";
 import { gameClient } from '../game-related/services/game_client';
 import { router } from "../main";
+import type {UserSearchResponse, UserProfileResponse} from "../api_integration/api_types"
 
 export function renderHome(): string {
 	return /* html */`
@@ -108,35 +109,35 @@ export function setupSearchLogic(): void {
 
 				searchInput.disabled = true;
 
-				try {
-						await apiFetch(`/api/user/search?username=${encodeURIComponent(username)}`);
-
-						showUserCard(modalContainer);
-
-				} catch (error: any) {
-						if ("statusCode" in error)
-						{
-							if (error.statusCode === 404) {
-								console.log(username);
-								showSearchError(searchInput, searchError);
-								if (input_error) input_error.innerText = "User not found";
-							}
-							else
-							{
-								showSearchError(searchInput, searchError);
-								if (input_error) input_error.innerText = "Something went wrong, Please try again.";
-							}
-						}
-						 else {
-								showSearchError(searchInput, searchError);
-								console.error('Search failed:', error);
-								if (input_error) input_error.innerText = "Connection error. Please check your netwrok.";
-						}
-				}
-				finally{
-					searchInput.disabled = false;
-				}
-		});
+        try {
+            const user = await apiFetch<UserSearchResponse>(`/api/user/search?username=${encodeURIComponent(username)}`);
+            const userProfileData = await apiFetch<UserProfileResponse>(`/api/user/${user.id}`)
+            showUserCard(modalContainer, userProfileData);
+        }
+        catch (error: any) {
+            if ("statusCode" in error)
+            {
+              if (error.statusCode === 404) {
+                console.log(username);
+                showSearchError(searchInput, searchError);
+                if (input_error) input_error.innerText = "User not found";
+              }
+              else
+              {
+                showSearchError(searchInput, searchError);
+                if (input_error) input_error.innerText = "Something went wrong, Please try again.";
+              }
+            }
+             else {
+                showSearchError(searchInput, searchError);
+                // console.error('Search failed:', error);
+                if (input_error) input_error.innerText = "Connection error. Please check your network.";
+            }
+        }
+        finally{
+          searchInput.disabled = false;
+        }
+    });
 
 		searchInput.addEventListener('input', () => {
 				hideSearchError(searchInput, searchError);
@@ -172,12 +173,13 @@ function hideSearchError(input: HTMLInputElement, errorElement: HTMLParagraphEle
 		errorElement.classList.add('hidden');
 }
 
-function showUserCard(modalContainer: HTMLDivElement): void {
-		modalContainer.innerHTML = renderUser();
-		
-		modalContainer.classList.remove('hidden');
-		
-		setupCloseButton(modalContainer);
+function showUserCard(modalContainer: HTMLDivElement, userProfileData:UserProfileResponse): void {
+    modalContainer.innerHTML = renderUser(userProfileData);
+    
+    modalContainer.classList.remove('hidden');
+    
+    setupCloseButton(modalContainer);
+    setupAddFriendButton(modalContainer, userProfileData.user.id)
 }
 
 
@@ -198,6 +200,32 @@ function setupCloseButton(modalContainer: HTMLDivElement): void {
 						closeModal(modalContainer);
 				}
 		});
+}
+
+function setupAddFriendButton(modalContainer: HTMLDivElement, userId: number): void {
+    const friendshipBtn = document.getElementById('addFriendBtn');
+    const errorElement = document.getElementById('addFriend-error');
+    
+    if (!friendshipBtn) {
+        console.error('Add friend button not found');
+        return;
+    }
+
+    friendshipBtn.addEventListener('click', async () => {
+        if (errorElement) errorElement.classList.add('hidden');
+        try {
+            await apiFetch('/api/friends/request', {
+                method: 'POST',
+                body: JSON.stringify({ receiver_id: userId })
+            });
+            closeModal(modalContainer);
+        } catch (error: any) {
+            if (errorElement) {
+                errorElement.textContent = error.message || 'Failed to send friend request';
+                errorElement.classList.remove('hidden');
+            }
+        }
+    });
 }
 
 function closeModal(modalContainer: HTMLDivElement): void {

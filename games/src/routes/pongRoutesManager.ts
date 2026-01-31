@@ -2,14 +2,17 @@
 import { FastifyInstance } from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { HttpPongSetupReq, HttpSetupResponse } from '../../../shared/types';
+import { HttpPongSetupReq, HttpSetupResponse, Side } from '../../../shared/types';
 import { createHttpSuccessResponseBody, createHttpErrorResponseBody } from '../pong/pong_utils';
 
 import { createLocalPongSession } from '../pong/pong_session';
 import { initializePlayerGameContext, prepareLocalPlayers } from '../game_manager/games_utiles';
 
 import { AvailableGames, GamesPlayer } from "../game_manager/games_types";
-import { isPlayerExist, showOnlinePlayers } from '../game_manager/games_utiles';
+import { isPlayerExist, getPlayer, showOnlinePlayers } from '../game_manager/games_utiles';
+
+import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
+import { sendWSMsg } from '../ws/ws_handler';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
 	
@@ -37,16 +40,120 @@ function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply
 
 	// 4. Return Success Response
 	// This matches the 'HttpSetupResponse' interface that frontend expects
-	const resBody: HttpSetupResponse = createHttpSuccessResponseBody(newGameId, 'left');
+	const resBody: HttpSetupResponse = createHttpSuccessResponseBody(newGameId, 'left', 'local');
 	// console.log(" ## Sending response ... ##");
 	return reply.status(200).send(resBody);
 }
 
-function RemoteMode(body: HttpPongSetupReq, reply: FastifyReply) {
-	return reply.status(200).send({ 
-		status: 'success', 
-		message: 'Remote Invite processed (Stub)' 
-	});
+function RemoteMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
+
+	/**
+    	* add player:
+	 		- Adds a player to the queue.
+
+		* match making:
+     		- Checks if we have 2 players.
+     		- If yes, creates a session and returns it.
+     		- If no, returns null (meaning "please wait").
+     */
+
+	console.log(" ## Remote Mode ###");
+
+    // 1. Get the current player context (already initialized in 'pongRoutesManager')
+    const player: GamesPlayer = getPlayer(playerId);
+    if (!player || !player.pongPlayer) {
+         return reply.status(500).send(createHttpErrorResponseBody('Player context not initialized correctly.'));
+    }
+
+	// 2. add player to remote waiting room 
+	pongGameSessionsRoom.addToWaitingRoom(player);
+
+	// 3. match making
+	const matchSessionId: string | null = pongGameSessionsRoom.matchMaking(player);
+
+	// 4. match result
+	// --- CASE A: MATCH FOUND (I am Player 2) ---
+    if (matchSessionId) {
+        console.log("✅ Match made immediately!");
+
+		// send success message: the pair players found & the remote game session created
+
+		//  ==> A. send WS Message to player 1 (left)
+		// Send WS Message to both players (it's important to send it to the player 1 who's already waiting. (not important) also to the player 2 who's the current player)
+		
+		const session = pongGameSessionsRoom.getSession(matchSessionId);
+		if (session) {
+            const wsMessage = pongEngine.createWSMatchIsReadyMessage(matchSessionId);
+            // sendWSMsg(wsMessage, session);
+
+			// send WS msg only to player 1
+			const player1: GamesPlayer = getPlayer(session.players[0].playerId);
+			const ws1: WebSocket | null = player1.ws as WebSocket | null;
+			ws1!.send(JSON.stringify(wsMessage));
+        }
+		
+		//  ==> B. send HTTP Message to player 2 (ritgh)
+		const resBody: HttpSetupResponse = createHttpSuccessResponseBody(matchSessionId, 'right', 'remote');
+        return reply.status(200).send(resBody);
+	}
+
+	// --- CASE B: QUEUED (I am Player 1) ---
+	else {
+        console.log("⏳ Added to queue. Waiting for opponent...");
+
+		// We return a specialized "Queued" status, NOT success yet || send empty session id means no session made yet
+		const resBody: HttpSetupResponse = createHttpSuccessResponseBody('', 'left', 'remote');
+		return reply.status(200).send(resBody);
+		// return reply.status(200).send({
+        //     status: 'queued', // custom status
+        //     message: 'Added to matchmaking queue'
+        // });
+
+	}
+
+	// // 2. MATCHMAKING LOGIC:
+    // // looking if there is any session waiting for a player!!!
+    // const availableSessionId = pongGameSessionsRoom.findWaitingSession();
+
+	// let gameSessionId: string;
+    // let finalSide: Side;
+
+	// if (availableSessionId) {
+	// 	// --- CASE A: JOIN EXISTING GAME (You are Player 2) ---
+    //     console.log(`   >>> Found waiting game: ${availableSessionId}. Joining...`);
+
+	// 	// 1. Update side to RIGHT (the player 2 is always in the right side)
+    //     player.pongPlayer.side = 'right';
+    //     finalSide = 'right';
+
+	// 	// 2. Join the session
+    //     gameSessionId = pongGameSessionsRoom.joinRemoteSession(availableSessionId, player.pongPlayer);
+
+	// 	// 3. Update Player State
+	// 	player.playerState = 'READY';
+	// } else {
+    //     // --- CASE B: CREATE NEW GAME (You are Player 1) ---
+	// 	console.log("   >>> No waiting game found. Creating new session...");
+
+	// 	// 1. Side remains LEFT
+    //     finalSide = 'left';
+
+	// 	// 2. Create new remote session (Wait for P2)
+    //     gameSessionId = pongGameSessionsRoom.createRemoteSession(player.pongPlayer);
+
+	// 	// 3. Update Player State
+    //     player.playerState = 'WAITING_MATCH';
+	// }
+
+	// 3. Return Success Response
+    // const resBody: HttpSetupResponse = createHttpSuccessResponseBody(gameSessionId, finalSide, 'remote');
+    // return reply.status(200).send(resBody);
+
+
+	// return reply.status(200).send({ 
+	// 	status: 'success', 
+	// 	message: 'Remote Invite processed (Stub)' 
+	// });
 }
 
 function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
@@ -107,7 +214,7 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 
 		// --- HANDLE REMOTE MODE (Future Implementation) ---
 		else if (body.gameMode === 'remote') {
-			RemoteMode(body, reply);
+			RemoteMode(playerId, body, reply);
 		}
 
 		// Invalid Mode

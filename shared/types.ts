@@ -11,6 +11,7 @@ export type WSMsgType =
 	| 'GAME_FINISHED'
 	| 'PAUSE'
 	| 'RESUME'
+	| 'SESSION_READY'
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
@@ -110,7 +111,7 @@ export type ClientMessage = WSConnectMessage
 							| WSPongInput | WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage
 export type ServerMessage = 
 							// WSConnectSuccess |
-							PongSessionData |
+							PongSessionData | PongSessionIsReady |
 							WSConnectError; // + GameState updates later
 
 
@@ -135,7 +136,7 @@ export interface HttpPongSetupReq {
 
 // --- HTTP RESPONSES ---
 export interface HttpSetupSuccess {
-	status: 'success';
+	status: 'success' | 'queued';
 	gameSessionId: string;
 	side: Side;
 	message: string;
@@ -174,6 +175,14 @@ export interface PongSessionData {
 	type: 'GAME_STATE' | 'GAME_FINISHED';
 	game: 'pong';
 	payload: PongPayload
+}
+
+export interface PongSessionIsReady {
+	type: 'SESSION_READY';
+	game: 'pong';
+	payload: {
+		sessionId: string
+	};
 }
 
 // Define the shape of the data we expect

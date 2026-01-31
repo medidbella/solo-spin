@@ -49,7 +49,6 @@ services:
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ./backend/avatars:/app/avatars
-      - ./backend/dev.db:/app/dev.db
       - ./logs:/app/logs
 
   frontend:

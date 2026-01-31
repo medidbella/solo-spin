@@ -44,7 +44,7 @@ export function setWaitingPageLogic() {
 			// Check if user cancelled while we were waiting
 			if (isCancelled) return;
 
-			// B. Handle Success
+			// B. Handle Success: the session created completely and ready to start!!
 			if (response.status === 'success') {
 				console.log("✅ Game Created successfully! navigating to play...");
 
@@ -61,8 +61,25 @@ export function setWaitingPageLogic() {
 				// // Navigate to the Game Canvas page
 				navigateTo('/games/pong/game-play');
 			}
+
+			// C. Handle Queued: the player is in the waiting queue needs the opponent
+			else if (response.status === 'queued') {
+				console.log("⏳ Added to Queue. Waiting for WebSocket notification...");
+
+				// 1. set side
+				gameClient.setSide(response.side);
+
+				// 2. Update UI to let the user know they must wait
+				if (messageEl) {
+					messageEl.textContent = "Waiting for an opponent...";
+					// Optional: Add a CSS class to make it pulse or look different
+					messageEl.classList.add('animate-pulse');
+				}
+
+				// will stay here until he got a ws messade then it routes to game page !!
+			}
 			
-			// C. Handle Server Error (e.g., "System Busy")
+			// D. Handle Server Error (e.g., "System Busy")
 			else {
 				console.error(`❌ Server Error: ${response.error}`);
 				alert(`Setup Failed: ${response.error}`); // Simple feedback

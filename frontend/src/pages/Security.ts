@@ -65,7 +65,7 @@ export function renderSecurity(user: UserInfo): string {
             <!-- LEFT SIDEBAR (unchanged) -->
             <div class="lg:col-span-4 bg-[#2A3FA1] p-6 flex flex-col items-center relative h-full shadow-[-10px_-10px_0px_#441563]">
               <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-[#441563]">
-                <img class="w-full h-full object-cover" src="../../public/imgs/person.svg" alt="profile picture">
+                <img class="w-full h-full object-cover" src="/api/user/avatar" alt="profile picture">
               </div>
               <h2 class="text-2xl font-bold">${user.username}</h2>
               <p class="text-gray-300 text-sm mb-8">${user.name}</p>

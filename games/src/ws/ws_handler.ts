@@ -16,18 +16,29 @@ import { GamesPlayer } from '../game_manager/games_types';
 import { stat } from "fs";
 
 
-function sendWSMsg(results: PongSessionData, session: PongSession) {
-	const player1: GamesPlayer = getPlayer(session.players[0].playerId);
-	const player2: GamesPlayer = getPlayer(session.players[0].playerId);
+function sendWSMsg(results: ServerMessage, session: PongSession) {
+	// 1. here are 2 players
+    if (session.players.length !== 2) return;
 
-	const ws1: WebSocket = player1.ws as WebSocket;
-	let ws2: WebSocket | null = null;
-	if (player2)
-		ws2 = player2.ws as WebSocket;
+    // 2. Get IDs
+    const p1ID = session.players[0].playerId;
+    const p2ID = session.players[1].playerId;
 
-	ws1.send(JSON.stringify(results));
-	if (ws2)
-		ws2.send(JSON.stringify(results));
+	// 3. get Pong players
+    const player1: GamesPlayer = getPlayer(p1ID);
+    const player2: GamesPlayer = getPlayer(p2ID);
+
+    // 4. Send to Player 1
+    if (player1 && player1.ws) {
+        player1.ws.send(JSON.stringify(results));
+        // console.log(`  -> Sent to P1 (${player1.playerName})`);
+    }
+
+    // 5. Send to Player 2
+    if (player2 && player2.ws) {
+        player2.ws.send(JSON.stringify(results));
+        // console.log(`  -> Sent to P2 (${player2.playerName})`);
+    }
 }
 
 function connectPlayer(playerId: string, playerName: string, socket: WebSocket) {
@@ -38,7 +49,7 @@ function connectPlayer(playerId: string, playerName: string, socket: WebSocket) 
 
 function startPongGame(playerId: string, parsedMessage: ClientMessage) {
 	parsedMessage = parsedMessage as WSPongStartGameMessage;
-	// console.log(`   ### Got start pong game message gameId: ${parsedMessage.payload.gameId} ###`);
+	console.log(`   ###### Got start pong game message gameId: ${parsedMessage.payload.gameId} #####`);
 
 	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId);
 

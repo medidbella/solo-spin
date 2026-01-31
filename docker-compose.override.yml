@@ -3,7 +3,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - ./backend/dev.db:/app/dev.db
+      # - ./backend/dev.db:/app/dev.db
       - ./backend/avatars:/app/avatars
     command: npm run dev
 

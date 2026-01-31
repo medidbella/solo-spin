@@ -1,4 +1,4 @@
-import type { Friend, FriendRequest, BlockedUser } from "../api_integration/api_types";
+import type { Friend, FriendRequest, BlockedFriend } from "../api_integration/api_types";
 
 export function renderFriendRow(friend: Friend): string {
   return /* html */ `
@@ -11,7 +11,7 @@ export function renderFriendRow(friend: Friend): string {
           onerror="this.src='/default-avatar.png'"
         />
         <div>
-          <p class="text-white font-medium">${friend.username}</p>
+          <p class="text-white font-medium">${friend.name}</p>
           <p class="text-gray-400 text-sm">@${friend.username}</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export function renderRequestsList(requests: FriendRequest[]): string {
   return requests.map(renderRequestRow).join("");
 }
 
-export function renderBlockedRow(user: BlockedUser): string {
+export function renderBlockedRow(user: BlockedFriend): string {
   return /* html */ `
     <div class="flex items-center justify-between bg-[#2a1f4e] rounded-lg p-4 mb-3">
       <div class="flex items-center gap-4">
@@ -122,7 +122,7 @@ export function renderBlockedRow(user: BlockedUser): string {
   `;
 }
 
-export function renderBlockedList(users: BlockedUser[]): string {
+export function renderBlockedList(users: BlockedFriend[]): string {
   if (users.length === 0) {
     return /* html */ `
       <div class="text-center text-gray-400 py-12">
