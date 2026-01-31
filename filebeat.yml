@@ -6,10 +6,10 @@ filebeat.inputs:
   id: json-logs
   enabled: true
   paths:
-    - /usr/share/filebeat/logs/access.log
-    - /usr/share/filebeat/logs/backend.log
-    - /usr/share/filebeat/logs/chat.log
-    - /usr/share/filebeat/logs/games.log
+    - /app/logs/access.log
+    - /app/logs/backend.log
+    - /app/logs/chat.log
+    - /app/logs/games.log
   parsers:
     - ndjson:
         keys_under_root: true
@@ -24,8 +24,8 @@ filebeat.inputs:
   id: plain-text-logs
   enabled: true
   paths:
-    - /usr/share/filebeat/logs/error.log
-    - /usr/share/filebeat/logs/frontend.log
+    - /app/logs/error.log
+    - /app/logs/frontend.log
   
   prospector.scanner.fingerprint.length: 64
 
