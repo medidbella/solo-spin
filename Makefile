@@ -26,7 +26,7 @@ COMPOSE_ALL  := $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV)
 # --- ANALYTICS CONFIGURATION ---
 DASH_DIR     := dashboards
 DASH_FILE    := $(DASH_DIR)/dashboard.ndjson
-KIBANA_URL   := http://localhost:$(or $(KIBANA_PORT),5601)
+KIBANA_URL   := https://localhost:8443/kibana
 KIBANA_AUTH  := -u elastic:$(ELASTIC_PASSWORD)
 KIBANA_HEAD  := -H "kbn-xsrf:true" -H "Content-Type:application/json"
 KIBANA_BODY  := '{"type":["dashboard","visualization","lens","index-pattern","search","map","tag","config"],"includeReferencesDeep":true}'
@@ -139,13 +139,13 @@ db-studio: ## Open Prisma Studio (DB GUI)
 db-export: ## Export Kibana Dashboards to local file
 	@mkdir -p $(DASH_DIR)
 	@echo "$(YELLOW)[INFO] Exporting analytics metadata...$(RESET)"
-	@curl -s -f -X POST "$(KIBANA_URL)/api/saved_objects/_export" $(KIBANA_AUTH) $(KIBANA_HEAD) -d $(KIBANA_BODY) > $(DASH_FILE)
+	@curl -s -k -f -X POST "$(KIBANA_URL)/api/saved_objects/_export" $(KIBANA_AUTH) $(KIBANA_HEAD) -d $(KIBANA_BODY) > $(DASH_FILE)
 	@echo "$(GREEN)[SUCCESS] Assets written to $(DASH_FILE)$(RESET)"
 
 db-import: ## Import Kibana Dashboards from local file
 	@mkdir -p $(DASH_DIR)
 	@echo "$(YELLOW)[INFO] Restoring analytics metadata...$(RESET)"
-	@curl -s -X POST "$(KIBANA_URL)/api/saved_objects/_import?overwrite=true" $(KIBANA_AUTH) -H "kbn-xsrf:true" --form file=@$(DASH_FILE) > /dev/null
+	@curl -s -k -X POST "$(KIBANA_URL)/api/saved_objects/_import?overwrite=true" $(KIBANA_AUTH) -H "kbn-xsrf:true" --form file=@$(DASH_FILE) > /dev/null
 	@echo "$(GREEN)[SUCCESS] Assets restored.$(RESET)"
 
 .PHONY: help dev prod down clean logs ps db-gen db-push db-studio db-export db-import

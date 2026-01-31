@@ -1,5 +1,4 @@
 services:
-# 1. Certificate Generator
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     networks:
@@ -17,7 +16,6 @@ services:
       timeout: 5s
       retries: 120
 
-  # 2. Stack Configurator (Passwords, ILM, Dashboards)
   setup-stack:
     depends_on:
       es01:
@@ -49,8 +47,6 @@ services:
     volumes:
       - ./elk/certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
@@ -96,8 +92,6 @@ services:
     volumes:
       - ./elk/certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
-    ports:
-      - ${KIBANA_PORT}:5601
     environment:
       - SERVERNAME=kibana
       - ELASTICSEARCH_HOSTS=https://es01:9200
@@ -107,6 +101,9 @@ services:
       - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+      - SERVER_BASEPATH=/kibana
+      - SERVER_REWRITEBASEPATH=true
+      - SERVER_PUBLICBASEURL=https://localhost:8443/kibana
     mem_limit: ${KB_MEM_LIMIT}
     healthcheck:
       test:
@@ -140,8 +137,6 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
     command: logstash -f /usr/share/logstash/pipeline/logstash.conf
-    ports:
-      - "5044:5044"
     mem_limit: ${LS_MEM_LIMIT}
   
   filebeat:
@@ -159,3 +154,7 @@ services:
       - logstash
     # Use the custom entrypoint to fix permissions
     entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint-filebeat.sh"]
+
+  nginx:
+    depends_on:
+      - kibana
