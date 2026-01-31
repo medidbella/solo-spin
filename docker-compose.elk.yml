@@ -109,7 +109,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+          "curl -s -I http://localhost:5601/kibana/login | grep -q 'HTTP/1.1 200 OK'",
         ]
       interval: 10s
       timeout: 10s

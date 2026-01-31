@@ -1,43 +1,27 @@
 #!/bin/bash
 
-retry_curl() {
-    local max_attempts=30
-    local attempt=1
-    local url=$1
-    shift
-    local curl_args="-s -k $@"
-
-    echo "   Trying: $url"
-    
-    until curl $curl_args $url | grep -q "^{" || [ $attempt -eq $max_attempts ]; do
-        echo "   ... waiting for service ($attempt/$max_attempts)"
-        sleep 5
-        ((attempt++))
-    done
-}
-
-echo "⏳ Waiting for Elasticsearch to be available..."
+echo " Waiting for Elasticsearch to be available..."
 
 until curl -s -k -u "elastic:${ELASTIC_PASSWORD}" "https://es01:9200/_cluster/health?wait_for_status=yellow&timeout=50s" > /dev/null; do
     echo "   ... ES is sleeping. Retrying in 5s"
     sleep 5
 done
-echo "  Elasticsearch is UP!"
+echo " Elasticsearch is UP!"
 
 # ---------------------------------------------------------
-# 1. SET KIBANA PASSWORD
+# 1. SET KIBANA PASSWORD (The Root Fix)
 # ---------------------------------------------------------
-echo "🔐 Setting Kibana System Password..."
+echo " Setting Kibana System Password..."
 curl -s -k -X POST -u "elastic:${ELASTIC_PASSWORD}" \
     -H "Content-Type: application/json" \
-    https://es01:9200/_security/user/kibana_system/_password \
+    "https://es01:9200/_security/user/kibana_system/_password" \
     -d "{\"password\":\"${KIBANA_PASSWORD}\"}" > /dev/null
-echo "  Password set."
+echo " Password set successfully."
 
 # ---------------------------------------------------------
 # 2. SETUP ILM (Log Retention - 7 Days)
 # ---------------------------------------------------------
-echo "📜 Configuring ILM Policy (7 Days Retention)..."
+echo " Configuring ILM Policy (7 Days Retention)..."
 
 curl -s -k -X PUT "https://es01:9200/_ilm/policy/solo-spin-retention" \
     -u "elastic:${ELASTIC_PASSWORD}" \
@@ -58,27 +42,34 @@ curl -s -k -X PUT "https://es01:9200/_index_template/solo-spin-template" \
     -H "Content-Type: application/json" \
     -d '{
       "index_patterns": ["solo-spin-app-*"],
-      "template": { "settings": { "index.lifecycle.name": "solo-spin-retention" } }
+      "template": { 
+        "settings": { 
+            "index.lifecycle.name": "solo-spin-retention",
+            "index.lifecycle.rollover_alias": "solo-spin-app"
+        } 
+      }
     }'
-echo -e "\n  ILM Policy Enforced."
+echo -e "\n ILM Policy Enforced."
 
 # ---------------------------------------------------------
 # 3. IMPORT DASHBOARDS
 # ---------------------------------------------------------
 DASHBOARD_FILE="/dashboards/dashboard.ndjson"
 
+KIBANA_API="http://kibana:5601/kibana"
+
 if [ -f "$DASHBOARD_FILE" ]; then
-    echo "⏳ Waiting for Kibana to be ready..."
-    until curl -s -I http://kibana:5601 | grep -q 'HTTP/1.1 302 Found'; do
+    echo " Waiting for Kibana to be ready..."
+    until curl -s -I "${KIBANA_API}/login" | grep -q 'HTTP/1.1'; do
         echo "   ... Kibana is loading."
         sleep 5
     done
 
-    echo "📊 Importing Kibana Dashboards..."
-    curl -s -X POST "http://kibana:5601/api/saved_objects/_import?overwrite=true" \
+    echo " Importing Kibana Dashboards..."
+    curl -s -X POST "${KIBANA_API}/api/saved_objects/_import?overwrite=true" \
         -u "elastic:${ELASTIC_PASSWORD}" \
         -H "kbn-xsrf:true" --form file=@$DASHBOARD_FILE > /dev/null
-    echo -e "\n  Dashboards Imported Successfully."
+    echo -e "\n Dashboards Imported Successfully."
 else
     echo -e "\n⚠️ No dashboard file found at $DASHBOARD_FILE. Skipping import."
 fi

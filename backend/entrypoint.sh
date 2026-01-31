@@ -10,7 +10,7 @@ if [ ! -f "$DB_FILE" ]; then
     touch "$DB_FILE"
     echo "dev.db created."
 else
-    echo  dev.db already exists."
+    echo  "dev.db already exists."
 fi
 
 if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules)" ]; then
@@ -31,5 +31,5 @@ npx prisma generate
 echo "  Applying DB Schema..."
 npx prisma db push
 
-echo " Starting Server..."
+echo "Starting Server..."
 exec "$@"
