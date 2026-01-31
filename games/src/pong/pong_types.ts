@@ -80,6 +80,13 @@ interface PongSession {
 	nextRoundStartTimestamp: number; // time to start the next round
 }
 
+interface GameResult {
+	winner_id: string,
+	loser_id: string,
+	winner_score: number,
+	loser_score: number
+}
+
 // ----------- Pong Game Session ------------------------
 
 // import { v4 as uuidv4 } from 'uuid'; // Assuming you use uuid for unique IDs
@@ -273,6 +280,37 @@ class PongSessionsRoom {
      * 4. End the game: Set state = 'finished'
      * Optional: You might want to auto-remove it after a delay here.
      */
+
+	private getJsonGameResult(session: PongSession): any {
+
+		let gameResult: GameResult;
+		const p1: PongPlayer = session.players[0];
+		const p2: PongPlayer = session.players[1];
+
+		if (p1.score > p2.score) {
+
+			gameResult = {
+				winner_id: p1.playerId,
+				loser_id: p2.playerId,
+				winner_score: p1.score,
+				loser_score: p2.score
+			}
+		} else {
+			gameResult = {
+				winner_id: p2.playerId,
+				loser_id: p1.playerId,
+				winner_score: p2.score,
+				loser_score: p1.score
+			}
+		}
+
+		console.log("  ### game result: ", gameResult);
+
+		const jsonGameResutl = JSON.stringify(gameResult);
+		return jsonGameResutl;
+
+	}
+
 	public async endGame(sessionId: string, gameMode: GameMode): Promise<void> {
         let session: PongSession | undefined;
 
@@ -292,25 +330,37 @@ class PongSessionsRoom {
         // (The Global Loop will see this and stop updating physics)
         session.state = 'finished';
 
-		// sore the finale score !!
-		// if (gameMode === 'remote') {
-		// 	const gameRes = {
-		// 		winner_id: 0,
-		// 		loser_id: 1,
-		// 		winner_score: 5,
-		// 		loser_score: 0 
-		// 	}
-		// 	const jsonGameRes = JSON.stringify(gameMode)
-		// 	try {
-		// 		const res = await fetch("/internal/games/", {
-		// 			method: 'POST',
-		// 			body: jsonGameRes
-		// 		})
-		// 	}
-		// 	catch (err){
+		// store the finale score !!
+		if (gameMode === 'remote') {
+			try {
+				const jsonGameResult = this.getJsonGameResult(session);
+				// const PORT: number = 3000;
+				console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
 
-		// 	}
-		// }
+
+				const res = await fetch(`/internal/games/`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: jsonGameResult
+				})
+
+				// throw if res is not ok
+				if (!res.ok) {
+					const errorText = await res.text();
+					throw new Error(`HTTP Error ${res.status}: ${errorText}`);
+				}
+		
+				const data = await res.json();
+				console.log("✅ [Storage] Game saved successfully:", data);
+
+				// console.log(" ### response: ", res);
+			
+			} catch (err){
+				console.error(` Failed to save Match Result for Session: ${session.sessionId}`);
+			}
+		}
 
         console.log(`[PongRoom] Game finished: ${sessionId}`);
 

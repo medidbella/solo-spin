@@ -84,6 +84,10 @@ class GameClient {
 	public setInputLoopId(id: number | null) { this.inputLoopId = id; }
 	public getInputLoopId(): number | null { return this.inputLoopId; }
 
+	public setCanvas(canvas: HTMLCanvasElement | null) { this.canvas = canvas;
+		console.log(`   ### Set canvas: ${canvas}  #### `);
+	}
+
 	public setHasReseted(hasReseted: boolean) { this.hasReseted = hasReseted; }
 	public getHasReseted(): boolean { return this.hasReseted; }
 
@@ -125,7 +129,8 @@ class GameClient {
         }
 
 		// 3. Release DOM References
-        this.canvas = null;
+        // this.canvas = null;
+		this.setCanvas(null)
 
 		// 4. Reset Status
 		this.isPaused = false;
@@ -193,8 +198,14 @@ class GameClient {
 	// ---------- Helpers ----------------------------
 	public initGamePage(canvas: HTMLCanvasElement) {
         console.log("🎮 Init game page...");
+
+
+		// // reset
+		// this.reset();
+
         // 1. Just store the canvas reference
-        this.canvas = canvas;
+        // this.canvas = canvas;
+		this.setCanvas(canvas);
 
 		// 2. set state
 		this.hasReseted = false // means the game is getting started or already started!
