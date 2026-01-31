@@ -37,18 +37,6 @@ return /* html */ `
                       </svg>
                   </button>
               </div>
-              
-              <div class="flex justify-between items-center w-full mt-1 px-1">
-                  <label class="flex items-center gap-2 cursor-pointer scale-90 md:scale-100 origin-left">
-                    <input type="checkbox" id="remember-me" class="peer hidden" />
-                    <span class="custom-checkbox"></span>
-                    <span class="text-white text-sm">Remember me</span>
-                  </label>
-                  <a href="#" class="text-[#2A3FA1] text-sm md:text-base underline decoration-[#2A3FA1] underline-offset-4">
-                    Forget password?
-                  </a>
-              </div>
-              
               <button 
                 id="loginButton"
                 type="submit"
