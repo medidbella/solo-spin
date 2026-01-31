@@ -68,10 +68,12 @@ const start = async () => {
         {
           const targetid = String(data.to);
           const recipientsocketid = onlineusers.get(targetid);
-          
+          let backendEndpoint = "internal"
+          if (process.env.NODE_ENV === "development")
+              backendEndpoint = "api"
           try 
           {
-            const response = await fetch(`http://backend:3000/api/messages`, {
+            const response = await fetch(`http://backend:3000/${backendEndpoint}/messages`, {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',

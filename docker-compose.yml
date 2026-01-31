@@ -73,6 +73,7 @@ services:
       - PORT=3000
       - BACKEND_URL=http://backend:3000
       - INTERNAL_API_SECRET=${INTERNAL_API_SECRET}
+      - NODE_ENV=deployment
       - JWT_SECRET=${JWT_ACCESS_SECRET}
     volumes:
       - ./logs:/app/logs

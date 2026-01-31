@@ -543,7 +543,7 @@ Get the last few games.
 ```text
 The internal routes are only accessible by the chat and game containers (inside the docker network).
 A secret must be added in all internal requests as a header named: `x-internal-secret`. This secret is shared between containers. If no correct secret header is found a "404 Not found" response is sent.
-this rule is bypassed in dev mode, and the server uses '/api' instead of '/internal' as the prefix
+this rule is bypassed in dev mode meaning no secret is required + the endpoints are exposed, and the server uses '/api' instead of '/internal' as the prefix
 so all the endpoints that starts with '/internal' in this doc are instead starting with '/api' in development mode !!
 ```
 ---
