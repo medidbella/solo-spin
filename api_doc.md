@@ -563,7 +563,7 @@ Make a user send a message to another (they must be friends).
 
 ---
 
-## GET `/internal/messages`
+## GET `/api/messages`
 Fetch all messages between two users.
 
 **Request query string schema:**
@@ -591,7 +591,7 @@ Fetch all messages between two users.
 
 ---
 
-## PATCH `/internal/messages/seen`
+## PATCH `/api/messages/seen`
 Mark all the messages between users as seen.
 
 **Request body schema:**

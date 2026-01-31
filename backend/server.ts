@@ -210,9 +210,9 @@ const protectedRoutesPrefix = process.env.NODE_ENV == "development" ? 'api' : 'i
 
 app.post(`/${protectedRoutesPrefix}/messages`, {schema: storeMessageSchema}, storeMessage)
 
-app.get(`/${protectedRoutesPrefix}/messages`, {schema: listMessagesSchema}, listMessages)
+app.get(`/api/messages`, {schema: listMessagesSchema}, listMessages)
 
-app.patch(`/${protectedRoutesPrefix}/messages/seen`, {schema: markConversationSeenSchema}, markConversationSeen) 
+app.patch(`/api/messages/seen`, {schema: markConversationSeenSchema}, markConversationSeen) 
 
 app.post(`/${protectedRoutesPrefix}/games`, {schema: storeMatchSchema}, storeMatchResult)
 
