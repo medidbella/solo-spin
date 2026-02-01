@@ -25,6 +25,7 @@ import { apiFetch } from './api_integration/api_fetch';
 import type { UserInfo } from './api_integration/api_types';
 import { redirectBasedOnAuth } from './utils/auth.ts';
 import { setupSecurityPageLogic } from './pages/Security';
+import { showAlert } from './utils/alert.ts';
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
@@ -79,7 +80,7 @@ export async function router(path: string)
 			catch (error: any) {
 				console.log('Failed fetching settings:', error);
 				if (error.message == "Failed to fetch"){
-					alert('server error please try again later')
+					showAlert('server error please try again later', "error");
 				}
 				else {
 					console.log(error.message)
@@ -100,7 +101,7 @@ export async function router(path: string)
 			}
 			catch (error: any) {
 				if (error.message == "Failed to fetch"){
-					alert('server error please try again later')
+					showAlert('server error please try again later', "error");
 				}
 				else {
 					console.log(error.message)

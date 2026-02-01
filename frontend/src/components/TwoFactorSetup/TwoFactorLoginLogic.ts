@@ -3,6 +3,7 @@ import { showError } from "./TwoFactorSetupLogic"
 import type {TwoFAVerifyRequest} from "../../api_integration/api_types"
 import { apiFetch } from "../../api_integration/api_fetch"
 import { router } from "../../main"
+import { showAlert } from "../../utils/alert"
 
 const CONTENT_CONTAINER_ID = "login-left-content"
 
@@ -28,7 +29,7 @@ async function handleVerifyTwoFaButton(event: Event)
 	try {
 		await apiFetch("/api/2fa/verify", {method:'POST', body:JSON.stringify(payload)})
 		history.pushState(null, '', `/home`);
-		alert('2FA verification succeeded')
+		showAlert('2FA verification succeeded', "error");
 		router('/home')
 	}
 	catch (err:any)
@@ -44,7 +45,7 @@ async function handleVerifyTwoFaButton(event: Event)
 		else {
 			history.pushState(null, '', `/login`);
 			router('/login')
-			alert(err.message)
+			showAlert(err.message, "error");
 		}
 	}
 }
@@ -54,7 +55,7 @@ export async function TwoFactorVerificationLogic()
 	const left_container = document.getElementById(CONTENT_CONTAINER_ID)
 	if (!left_container){
     	console.error(`Container #${CONTENT_CONTAINER_ID} not found`);
-    	alert('Something went wrong. Please refresh the page.');
+    	showAlert('Something went wrong. Please refresh the page.', "error");
     	return;
 	}
 	left_container.innerHTML = render_2fa()
@@ -62,7 +63,7 @@ export async function TwoFactorVerificationLogic()
 	const form = document.getElementById('2fa-verify-form')
 	if (!form){
 		console.error('verify form not found')
-    	alert('Something went wrong. Please refresh the page.');
+    	showAlert('Something went wrong. Please refresh the page.', "error");
 		return
 	}
 	form.addEventListener('submit', handleVerifyTwoFaButton)

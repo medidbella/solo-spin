@@ -1,6 +1,7 @@
 import { router } from "../main.ts"
 import type { GeneralSuccessRes, RegisterRequest } from "../api_integration/api_types.ts";
 import { apiFetch } from "../api_integration/api_fetch.ts";
+import { showAlert } from "../utils/alert.ts";
 
 
 export function renderSignUpPage() : string {
@@ -183,13 +184,13 @@ export function setupSignupLogic() {
 
     // Check 1: Passwords match
     if (password !== confirmPassword) {
-      alert("Passwords do not match!"); 
+      showAlert("Passwords do not match!", "error"); 
       return;
     }
 
     // Check 2: Password length
     if (password.length < 8) {
-      alert("Password must be at least 8 characters");
+      showAlert("Password must be at least 8 characters", "error");
       return;
     }
 
@@ -202,7 +203,7 @@ export function setupSignupLogic() {
         body: JSON.stringify(payload)
       });
       //the only case here is 200 Ok the errors from api or something else will catched and proccessed in the catch section
-      alert("account created successfully");
+      showAlert("account created successfully", "success");
       history.pushState(null, '', '/home');
       router('/home');
     } catch (error: any) {
@@ -210,17 +211,17 @@ export function setupSignupLogic() {
       if ('statusCode' in error)
       {
         if (error.statusCode === 409) {
-          alert(`Error: ${error.message || "Username or Email already taken"}`);
+          showAlert(`Error: ${error.message || "Username or Email already taken"}`, "error");
         } else if (error.statusCode === 400) {
-          alert(`Validation Error: ${error.message}`);
+          showAlert(`Validation Error: ${error.message}`, "error");
         } else {
-          alert(error.message || "Something went wrong");
+          showAlert(error.message || "Something went wrong", "error");
         }
       }
       else
       {
         console.error("Network error:", error);
-        alert("Network issue, Try again");
+        showAlert("Network issue, Try again", "error");
       }
     }
     finally {

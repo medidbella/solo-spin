@@ -13,6 +13,7 @@ import {
   renderSuccess,
   extractSecretFromOtpUrl 
 } from './TwoFactorSetupUI';
+import { showAlert } from '../../utils/alert';
 const CONTENT_CONTAINER_ID = 'security-right-content';
 
 export function showError(element: HTMLElement | null, message: string): void {
@@ -47,7 +48,7 @@ export async function handleEnable2FA(): Promise<void>
   
   if (!container) {
     console.error(`Container #${CONTENT_CONTAINER_ID} not found`);
-    alert('Something went wrong. Please refresh the page.');
+    showAlert('Something went wrong. Please refresh the page.', "error");
     return;
   }
 

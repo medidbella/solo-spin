@@ -6,6 +6,7 @@ import { router } from "../main";
 import { avatarUpload } from "./Settings";
 // Import our new 2FA handler
 import { handleEnable2FA } from "../components/TwoFactorSetup/TwoFactorSetupLogic";
+import { showAlert } from "../utils/alert";
 
 // Keep your existing password change function
 export async function changePasswordFormSubmit(ev: Event) {
@@ -15,7 +16,7 @@ export async function changePasswordFormSubmit(ev: Event) {
   const new_password_confirm = (document.getElementById('new-password-confirm') as HTMLInputElement).value.trim();
 
   if (new_password != new_password_confirm) {
-    alert('new passwords not matched');
+    showAlert('new passwords not matched', "error");
     return;
   }
   
@@ -30,7 +31,7 @@ export async function changePasswordFormSubmit(ev: Event) {
       method: 'PATCH',
       body: JSON.stringify(updatePasswordPayload)
     });
-    alert(res.message);
+    showAlert(res.message, "success");
     history.pushState(null, '', '/settings');
     router('/settings');
   } catch (error: any) {
@@ -38,11 +39,11 @@ export async function changePasswordFormSubmit(ev: Event) {
       throw error;
     else if (error.statusCode == 401) {
       if (error.message == "Old password is incorrect.")
-        alert("wrong password");
+        showAlert("wrong password", "error");
       else
         history.pushState(null, '', `/login?error=${encodeURIComponent("session expired please login again")}`);
     } else {
-      alert(error.message);
+      showAlert(error.message, "error");
     }
   }
 }

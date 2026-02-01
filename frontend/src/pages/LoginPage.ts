@@ -1,6 +1,7 @@
 import { apiFetch } from "../api_integration/api_fetch";
 import { TwoFactorVerificationLogic } from "../components/TwoFactorSetup/TwoFactorLoginLogic";
 import type {LoginRequest } from "../api_integration/api_types"
+import { showAlert } from "../utils/alert";
 
 export function renderLoginPage(): string {
 return /* html */ `
@@ -98,7 +99,7 @@ function checkAndDisplayErrorQuery()
   const errorParam = urlParams.get('error')
 
   if (errorParam){
-    alert(errorParam)
+    showAlert(errorParam, "error");
     const newUrl = window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
   }
@@ -187,17 +188,17 @@ export function setUpLoginLogic() {
             {
               if (Error.statusCode == 401)
               {
-                alert("Invalid username or password");
+                showAlert("Invalid username or password", "error");
                     LoginButton.disabled = false;
                     return ;
               }
               else
               {
-                 alert("Something went wrong. Please try again later.");
+                 showAlert("Something went wrong. Please try again later.", "error");
                  LoginButton.disabled = false;
               }
             }
-            alert("Connection error, try again");
+            showAlert("Connection error, try again", "error");
             console.error("Login Error: ", Error);
         }
         finally{

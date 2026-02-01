@@ -2,6 +2,7 @@ import { renderHeader } from "../components/Header";
 import { renderSideBar } from "../components/SideBar";
 import { apiFetch } from "../api_integration/api_fetch";
 import type {UserInfo, UpdateUserRequest} from "../api_integration/api_types"
+import { showAlert } from "../utils/alert";
 
 
 async function settingsFormSubmit(ev:Event)
@@ -22,7 +23,7 @@ async function settingsFormSubmit(ev:Event)
       method: 'PATCH',
       body: JSON.stringify(updateDataPayload)
     })
-    window.alert('user info successfully updated')
+    showAlert('user info successfully updated', "success");
     const app = document.getElementById('app') as HTMLDivElement
     console.log(res)
     app.innerHTML = renderSettings(res)
@@ -36,9 +37,9 @@ async function settingsFormSubmit(ev:Event)
     else if (error.statusCode == 401)
       history.pushState(null, '', `/login?error=${encodeURIComponent("session expired please login again")}`);
     else if (error.statusCode == 400 || error.statusCode == 409)
-      alert(error.message)
+      showAlert(error.message, "error");
     else if (error.statusCode == 500){
-      alert("server unexpected error please try again later")
+      showAlert("server unexpected error please try again later", "error");
     }
   }
 }
@@ -51,7 +52,7 @@ export async function avatarUpload(ev:Event)
     if (!file) return;
 
     if (file.type !== 'image/png') {
-        alert("Only PNG files are allowed.");
+        showAlert("Only PNG files are allowed.", "error");
         input.value = "";
         return;
     }
@@ -67,7 +68,7 @@ export async function avatarUpload(ev:Event)
     }
     catch (error: any) {
       console.log(error.message)
-      alert(error.message)
+      showAlert(error.message, "error");
     }
 }
 

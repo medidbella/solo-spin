@@ -4,6 +4,7 @@ import {apiFetch} from "../api_integration/api_fetch"
 import type {
   MeResponse, GamesHistoryResponse
 } from "../api_integration/api_types"
+import { showAlert } from "../utils/alert";
 
 export async function renderProfile()
 {
@@ -143,12 +144,12 @@ export async function renderProfile()
 			}
 			else {
 				history.pushState(null, '', `/home`);
-				alert('unexpected server error please try again later')
+				showAlert('unexpected server error please try again later', "error");
 			}
 		}
 		else {
 			history.pushState(null, '', `/home`);
-			alert('connection error please try again later')
+			showAlert('connection error please try again later', "error")
 		}
 		return ""
 	}
