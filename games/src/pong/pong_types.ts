@@ -1,11 +1,11 @@
 
 // import { GameState } from '../game_manager/gamesTypes';
-import { GameMode, GameState, PongSessionData, Winner } from '../../../shared/types';
+import { GameMode, GameState, PongSessionData, Winner, Breaker } from '../../../shared/types';
 import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
 import { resetPlayers } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
-import { GAME_STATE_UPDATE_INTERVAL_MS } from '../../../shared/pong_constants';
+import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE } from '../../../shared/pong_constants';
 import { GamesPlayer } from '../game_manager/games_types';
 import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
 
@@ -77,6 +77,7 @@ interface PongSession {
 	ball: Ball;				// shared ball objetc instance
 
 	winner: Winner; // the id of the winnere player
+	breaker: Breaker;
 
 	nextRoundStartTimestamp: number; // time to start the next round
 }
@@ -146,6 +147,7 @@ class PongSessionsRoom {
             players,
             ball: createBall(),
 			winner: 'none',
+			breaker: 'none',
 			nextRoundStartTimestamp: 0
         };
 
@@ -284,24 +286,47 @@ class PongSessionsRoom {
 
 	private getJsonGameResult(session: PongSession): any {
 
+		console.log(`   >>>>>>>>>> Session ends with State: ${session.state} <<<<<<<<<<`);
+
 		let gameResult: GameResult;
 		const p1: PongPlayer = session.players[0];
 		const p2: PongPlayer = session.players[1];
 
-		if (p1.score > p2.score) {
+		if (session.breaker === 'none') {
 
-			gameResult = {
-				winner_id: p1.playerId,
-				loser_id: p2.playerId,
-				winner_score: p1.score,
-				loser_score: p2.score
+			if (p1.score > p2.score) {
+				
+				gameResult = {
+					winner_id: p1.playerId,
+					loser_id: p2.playerId,
+					winner_score: p1.score,
+					loser_score: p2.score
+				}
+			} else {
+				gameResult = {
+					winner_id: p2.playerId,
+					loser_id: p1.playerId,
+					winner_score: p2.score,
+					loser_score: p1.score
+				}
 			}
-		} else {
-			gameResult = {
-				winner_id: p2.playerId,
-				loser_id: p1.playerId,
-				winner_score: p2.score,
-				loser_score: p1.score
+		}
+		else {
+			if (session.breaker === 'p2') {
+				
+				gameResult = {
+					winner_id: p1.playerId,
+					loser_id: p2.playerId,
+					winner_score: WINNING_SCORE,
+					loser_score: 0
+				}
+			} else {
+				gameResult = {
+					winner_id: p2.playerId,
+					loser_id: p1.playerId,
+					winner_score: WINNING_SCORE,
+					loser_score: 0
+				}
 			}
 		}
 
@@ -329,7 +354,10 @@ class PongSessionsRoom {
 	
 		// 3. Mark as Finished 
 		// (The Global Loop will see this and stop updating physics)
-		session.state = 'finished';
+		if (session.breaker === 'none')
+			session.state = 'finished';
+		else
+			session.state = 'break';
 	
 		// store the finale score !!
 		if (gameMode === 'remote') {
@@ -366,7 +394,10 @@ class PongSessionsRoom {
 		}
 	
 		// console.log(`[PongRoom] Game finished: ${sessionId}`);
-	
+		// if (session.breaker !== 'none') {
+		// 	const breakMsg: PongSessionData = this.createBreakMsg(session);
+		// 	sendWSMsg(breakMsg, session);
+		// }
 		// 5. send the result to backend (database)
 		// later...
 	

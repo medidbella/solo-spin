@@ -58,44 +58,34 @@ class PongEngine {
 	// ----------- Helper functions -----------------------
 	
 	// create the results msg
-	private createResutlsMsg(session: PongSession): PongSessionData {
+	public createResutlsMsg(session: PongSession): PongSessionData {
 
 		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
 		const player2: GamesPlayer = playingPlayersRoom.get(session.players[1].playerId) as GamesPlayer;
+        let leftScore: number;
+        let rightScore: number;
 
-        // console.log(" -------------- PLAYER 1 ----------------- ");
-
-        // if (player1) {
-
-        //     if (player1.playerName)
-        //         console.log(`   ## player 1 name: ${player1.playerName} ##`);
-        //     else
-        //         console.log(" ## player 1 name is not set ##");
-        // } else {
-        //     console.log("  ## Player 1 is not exist ##");
-        // }
-
-        // console.log(" ------------------------------- ");
-
-        // console.log(" -------------- PLAYER 2 ----------------- ");
-
-        // if (player2) {
-
-        //     if (player2.playerName)
-        //         console.log(`   ## player 2 name: ${player2.playerName} ##`);
-        //     else
-        //         console.log(" ## player 2 name is not set ##");
-        // } else {
-        //     console.log("  ## Player 2 is not exist ##");
-        // }
-
-        // console.log(" ------------------------------- ");
-
-		let type: 'GAME_STATE' | 'GAME_FINISHED' = 'GAME_STATE';
+		let type: 'GAME_STATE' | 'GAME_FINISHED' | 'BREAK' = 'GAME_STATE';
 
 		// update state: game is finished
 		if (session.winner != 'none')
 			type = 'GAME_FINISHED';
+
+        if (session.breaker != 'none') {
+            type = 'BREAK';
+            if (session.breaker === 'p1') {
+               leftScore = 0;
+               rightScore = 5;
+               session.winner = 'rightPlayer';
+            } else {
+                leftScore = 5;
+                rightScore = 0;
+                session.winner = 'leftPlayer';
+            }
+        } else {
+            leftScore = player1.pongPlayer!.score as number;
+			rightScore = player2.pongPlayer!.score as number;
+        }
 
 		const resultsMsg: PongSessionData = {
 			type,
@@ -122,8 +112,8 @@ class PongEngine {
 					y: session.ball.y
 				},
 
-				leftScore: player1.pongPlayer?.score as number,
-				rightScore: player2.pongPlayer?.score as number,
+				leftScore,
+				rightScore,
 
 				winner: session.winner
 			}

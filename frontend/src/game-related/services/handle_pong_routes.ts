@@ -8,6 +8,9 @@ import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play';
 // import { gameClient } from './game_client';
 
 import { router } from '../../main';
+import { gameClient } from './game_client';
+import type { PlayerState, GameMode } from '../../../shared/types';
+// import { createAndSendMessages } from './ws_handler';
 
 export function navigateTo(url: string) {
     // 1. Update the URL in the browser history without reloading
@@ -16,12 +19,82 @@ export function navigateTo(url: string) {
     router(url);
 }
 
+function validateGameEntry(path: string): string {
+
+	console.log(" =============== Validating ====================");
+
+	const playerState: PlayerState = gameClient.getPlayerState();
+	const gameMode: GameMode | null = gameClient.getGameMode();
+	const hasStarted: boolean = gameClient.getHasStarted();
+
+	switch (path) {
+		case '/games/pong/game-mode':
+			if (playerState !== 'IDLE') {
+				gameClient.reset();
+			}
+			break;
+		
+		case '/games/pong/friend-name':
+			if (playerState === 'GAME_MODE_SELECTED' && gameMode === 'local')
+				path = path;
+			else {
+				if (hasStarted || gameClient.getGameId())
+					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+
+				gameClient.reset();
+				path = '/games/pong/game-mode';
+				history.pushState(null, "", path);
+			}
+			break;
+
+		case '/games/pong/waiting':
+			if ((playerState === 'FRIEND_NAME_SELECTED' && gameMode === 'local') || (playerState === 'GAME_MODE_SELECTED' && gameMode === 'remote'))
+				path = path;
+			else {
+				if (hasStarted || gameClient.getGameId())
+					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+
+				gameClient.reset();
+				path = '/games/pong/game-mode';
+				history.pushState(null, "", path);
+			}
+			break;
+
+		case '/games/pong/game-play':
+			if ((playerState === 'WAITING_MATCH') || (playerState === 'READY'))
+				path = path;
+			else {
+
+				console.log("  Game Id: ", gameClient.getGameId());
+
+				if (hasStarted || gameClient.getGameId()) {
+					console.log("   ==> Sending Break Message <==");
+					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+				}
+
+				gameClient.reset();
+				path = '/games/pong/game-mode';
+				history.pushState(null, "", path);
+			}
+			break;
+		
+		default:
+			break;
+	}
+
+	console.log(`  ## Up dated path: ${path}  ##`);
+	console.log(" =============== End Of Validating ====================");
+	return path;
+}
+
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
 
 	// console.log("  ## Pong Routes ## ");
 
 	if (path === '/games/pong/') path = '/games/pong/game-mode';
+
+	path = validateGameEntry(path);
 	
 	switch (path) {
 
@@ -40,18 +113,18 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
             break;
 
 		// CASE 2: Play Mode Selection	
-		case '/games/pong/play-mode':
-			// console.log( "  ====>> play mode detected <<===");
-			innerHTML = renderPlayModePage();
-			if (!innerHTML) {
-				// console.log(" ERROR: can't read the file, try again!!");
-				// router('/games/pong/play-mode');
-				return ;
-			}
-			// return innerHTML;
-			app.innerHTML = innerHTML; // 1. Render HTML
-            setPlayModeLogic();        // 2. Attach Listeners immediately
-            break;
+		// case '/games/pong/play-mode':
+		// 	// console.log( "  ====>> play mode detected <<===");
+		// 	innerHTML = renderPlayModePage();
+		// 	if (!innerHTML) {
+		// 		// console.log(" ERROR: can't read the file, try again!!");
+		// 		// router('/games/pong/play-mode');
+		// 		return ;
+		// 	}
+		// 	// return innerHTML;
+		// 	app.innerHTML = innerHTML; // 1. Render HTML
+        //     setPlayModeLogic();        // 2. Attach Listeners immediately
+        //     break;
 		
 		case '/games/pong/friend-name':
 			// Enter Friend's Name

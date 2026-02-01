@@ -7,7 +7,8 @@ import { getPlayer, isPlayerExist, registerNewPlayer, resetPlayerStatesIfAlready
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
 			WSPongInput, PongInput, inputPlayer,
 			WSPongResumeMessage,
-			WSPongPauseMessage, WSPongBreakMessage, GameMode
+			WSPongPauseMessage, WSPongBreakMessage, GameMode,
+			Breaker
  		} from '../../../shared/types'
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
@@ -18,7 +19,10 @@ import { GamesPlayer } from '../game_manager/games_types';
 
 function sendWSMsg(results: ServerMessage, session: PongSession) {
 	// 1. here are 2 players
-    if (session.players.length !== 2) return;
+    if (session.players.length !== 2) {
+		console.log("  ==> size problem");
+		return;
+	}
 
     // 2. Get IDs
     const p1ID = session.players[0].playerId;
@@ -28,16 +32,18 @@ function sendWSMsg(results: ServerMessage, session: PongSession) {
     const player1: GamesPlayer = getPlayer(p1ID);
     const player2: GamesPlayer = getPlayer(p2ID);
 
+	console.log(`  p1 id: ${p1ID} || p2 id: ${p2ID} || breaker: ${session.breaker} || Msg type: ${results.type }`);
+
     // 4. Send to Player 1
-    if (player1 && player1.ws) {
+    if (session.breaker !== 'p1' && player1 && player1.ws) {
         player1.ws.send(JSON.stringify(results));
-        // console.log(`  -> Sent to P1 (${player1.playerName})`);
+        console.log(`  -> Sent to P1 (${player1.playerName})`);
     }
 
     // 5. Send to Player 2
-    if (player2 && player2.ws) {
+    if (session.breaker !== 'p2' && player2 && player2.ws) {
         player2.ws.send(JSON.stringify(results));
-        // console.log(`  -> Sent to P2 (${player2.playerName})`);
+        console.log(`  -> Sent to P2 (${player2.playerName})`);
     }
 }
 
@@ -112,7 +118,9 @@ function pongGamestate(playerId: string, parsedMessage: ClientMessage, state: 'P
 	}
 }
 
-function breakPongGame(playerId: string, parsedMessage: WSPongBreakMessage, state: 'BREAK') {
+function breakPongGame(playerId: string, parsedMessage: ClientMessage, state: 'BREAK') {
+
+	parsedMessage = parsedMessage as WSPongBreakMessage;
 	const sessionId: string = parsedMessage.payload.sessionId;
 	if (!sessionId)
 		return ;
@@ -127,7 +135,13 @@ function breakPongGame(playerId: string, parsedMessage: WSPongBreakMessage, stat
 		pongGameSessionsRoom.endGame(session.sessionId, gameMode);
 
 	} else if (gameMode === 'remote') {
-		// console.log("  **** Remote Case ******");
+		console.log("  **** Breaking the game: Remote Case ******");
+		session.breaker = (session.players[0].playerId === playerId) ? 'p1' : 'p2'; 
+		console.log(`  ## Breaker: ${session.breaker}  ### `);
+		const breakMsg : PongSessionData = pongEngine.createResutlsMsg(session);
+		console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
+		sendWSMsg(breakMsg, session);
+		pongGameSessionsRoom.endGame(session.sessionId, gameMode);
 	}
 }
 

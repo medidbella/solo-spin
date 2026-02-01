@@ -74,13 +74,13 @@ class GameClient {
 	public setPlayMode(playMode: PlayMode) { this.playMode = playMode; }
 	public getPlayMode(): PlayMode | null { return this.playMode; }
 
-	public setFriendName(friendName: string) { this.friendName = friendName; }
+	public setFriendName(friendName: string | null) { this.friendName = friendName; }
 	public getFriendName(): string | null { return this.friendName; }
 
 	public setGameId(gameId: string) { this.gameId = gameId; }
 	public getGameId(): string | null { return this.gameId; }
 
-	public setSide(side: Side) { this.side = side; }
+	public setSide(side: Side | null) { this.side = side; }
 	public getSide(): Side | null { return this.side; }
 
 	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; 
@@ -107,6 +107,9 @@ class GameClient {
 
 	public reset() {
 		// Reset Game Config
+		// if (this.hasReseted || this.gameId)
+		// 	gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);	
+
 		this.playerState = 'IDLE';
 		this.game = null;
 		this.gameMode = null;
@@ -216,6 +219,8 @@ class GameClient {
 
 		// 2. set state
 		this.hasReseted = false // means the game is getting started or already started!
+
+		// sessionStorage.setItem('isInGame', 'true');
     }
 
 	public inputHandlerCleanup() {};

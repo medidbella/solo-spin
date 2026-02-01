@@ -54,6 +54,8 @@ export function setWaitingPageLogic() {
 				// set side
 				gameClient.setSide(response.side);
 
+				gameClient.setPlayerState('READY');
+
 				// // send start game message
 				// console.log("Sending Start Game ws message");
 				// gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
@@ -68,6 +70,8 @@ export function setWaitingPageLogic() {
 
 				// 1. set side
 				gameClient.setSide(response.side);
+
+				gameClient.setPlayerState('WAITING_MATCH');
 
 				// 2. Update UI to let the user know they must wait
 				if (messageEl) {

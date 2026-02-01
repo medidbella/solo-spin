@@ -129,8 +129,9 @@ export type ServerMessage =
 export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
-export type GameState = 'waiting' | 'ready' | 'playing' | 'PAUSE' | 'finished';
+export type GameState = 'waiting' | 'ready' | 'playing' | 'PAUSE' | 'finished' | 'break';
 export type Side = 'left' | 'right';
+export type Breaker = 'p1' | 'p2' | 'none';
 
 
 // ----- HTTP request ---------
@@ -181,10 +182,16 @@ export interface PongSessionData {
 	// sessionId: string;
 	// state: State;
 
-	type: 'GAME_STATE' | 'GAME_FINISHED';
+	type: 'GAME_STATE' | 'GAME_FINISHED' | 'BREAK';
 	game: 'pong';
 	payload: PongPayload
 }
+
+// export interface PongBreakSessionData {
+// 	type: 'GAME_FINISHED';
+// 	game: 'pong';
+// 	payload: PongPayload
+// }
 
 export interface PongSessionIsReady {
 	type: 'SESSION_READY';

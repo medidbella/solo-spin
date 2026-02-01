@@ -26,6 +26,6 @@ export const BALL_START_Y = CANVAS_HEIGHT / 2;
 // game rules
 export const WINNING_SCORE = 5;
 export const ROUND_START_DELAY_MS = 1000;
-export const GAME_STATE_UPDATE_INTERVAL_MS = 15 //1000/100
-// export const GAME_STATE_UPDATE_INTERVAL_MS = 1000 //1000/100
+// export const GAME_STATE_UPDATE_INTERVAL_MS = 15 //1000/100
+export const GAME_STATE_UPDATE_INTERVAL_MS = 1000 //1000/100
 
