@@ -67,6 +67,7 @@ export async function me(req:FastifyRequest, res:FastifyReply)
 			})
 		}
 		const achievements = decodeUserAchievementString(user.achievement_string!)
+		// console.log(`achievements = `, achievements )
 		let levelProgress = getLevelProgressPercentage(user.level, user.experience_points)
 		return res.code(200).send({user:cleanUserObject(user), levelProgress, achievements});
 	}

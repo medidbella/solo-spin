@@ -203,7 +203,7 @@
 
 **Production Mode:**
 ```bash
-make up
+make prod
 ```
 
 **Development Mode:**
@@ -214,6 +214,11 @@ make dev
 **Stop Services:**
 ```bash
 make down
+```
+
+**See Command Reference**
+```bash
+make
 ```
 
 ### Access

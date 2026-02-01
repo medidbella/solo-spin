@@ -2,7 +2,7 @@ import { apiFetch } from "./api_fetch";
 import type {
     FriendsListResponse,
     FriendRequestsResponse,
-    BlockedUser,
+    BlockedFriend,
     GeneralSuccessRes,
     AcceptFriendRequest,
     RejectFriendRequest,
@@ -22,8 +22,8 @@ export async function getFriendRequests(): Promise<FriendRequestsResponse>
     return apiFetch<FriendRequestsResponse>("api/friends/requests");
 }
 // GET here all blocked users
-export async function getBlockedUsers(): Promise<BlockedUser[]>{
-    return apiFetch<BlockedUser[]>("/api/friends/blocked");
+export async function getBlockedFriends(): Promise<BlockedFriend[]>{
+    return apiFetch<BlockedFriend[]>("/api/friends/blocked");
 }
 
 //REMOVE a friend here using his friendId

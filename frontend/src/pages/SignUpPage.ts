@@ -1,35 +1,38 @@
 import { router } from "../main.ts"
 import type { GeneralSuccessRes, RegisterRequest } from "../api_integration/api_types.ts";
 import { apiFetch } from "../api_integration/api_fetch.ts";
+import { showAlert } from "../utils/alert.ts";
 
 
 export function renderSignUpPage() : string {
   return /* html */`
     <main class="h-screen flex items-center justify-center lg:justify-between bg-[#0e071e] overflow-hidden">
         <!-- the left side (image) -->
-        <div class="hidden lg:flex w-1/2 h-screen items-center justify-center bg-opacity-10 relative">
-            <img src="/imgs/piro-removebg-preview.png" 
-                 alt="Character holding a racket" 
-                 class="max-w-[100%] max-h-[100%] object-contain  ">
-        </div>
+        <div class="hidden lg:block lg:w-1/2 h-full relative">
+          <img 
+            src="../../public/imgs/loginPageimg.svg" 
+            alt="Signup image" 
+            class="w-full h-full object-cover animate-float">        
+          <div class="absolute inset-0 bg-black/50"></div>
+      </div>
         <!-- the right side (form and links and logo) -->
         
-        <div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-4">
-            <div class="flex justify-center mb-8">
+        <div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 py-6 md:py-4 overflow-y-auto h-full">
+            <div class="flex justify-center mb-4 md:mb-6 shrink-0">
               <img 
                   src="/imgs/logo.png" 
                   alt="solospin logo" 
-                  /* Mobile: 32 (128px) | Desktop: 48 (192px) */
-                  class="w-32 md:w-48 h-auto object-contain transition-all duration-300"
+                  /* Mobile: 24 (96px) | Tablet: 32 (128px) | Desktop: 48 (192px) */
+                  class="w-24 md:w-32 lg:w-48 h-auto object-contain transition-all duration-300"
               >
             </div>
             
-            <h2 class="text-white text-5xl lg:text-7xl font-[solo] mb-8 text-center">
+            <h2 class="text-white text-4xl md:text-5xl lg:text-7xl font-[solo] mb-4 md:mb-6 text-center shrink-0">
                 Register Now!
             </h2>
         <!-- the register form -->
 
-            <form id="signupForm" class="w-full max-w-md flex flex-col gap-6">
+            <form id="signupForm" class="w-full max-w-md flex flex-col gap-3 md:gap-4 lg:gap-6">
                 
                 <div class="flex flex-col gap-1">
                     <label for="name" class="sr-only">Name</label>
@@ -38,7 +41,7 @@ export function renderSignUpPage() : string {
                            name="name" 
                            placeholder="Name" 
                            required
-                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
+                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -48,7 +51,7 @@ export function renderSignUpPage() : string {
                            name="username" 
                            placeholder="Username" 
                            required
-                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
+                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
 
                 <div class="flex flex-col gap-1">
@@ -58,17 +61,17 @@ export function renderSignUpPage() : string {
                            name="email" 
                            placeholder="Email" 
                            required
-                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
+                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
 
                 <div class="relative group">
-                    <label for="password" class="sr-only">Password</label>
+                    <label for="passwordInput" class="sr-only">Password</label>
                     <input id="passwordInput" 
                            type="password" 
                            name="password" 
                            placeholder="Password" 
                            required
-                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
+                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
                     
                     <button type="button" id="togglePassword" class="absolute top-1/2 right-4 -translate-y-1/2 text-gray-300 hover:text-white cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
@@ -85,7 +88,7 @@ export function renderSignUpPage() : string {
                            name="confirm_password" 
                            placeholder="Confirm Password" 
                            required
-                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
+                           class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
                     
                     <button type="button" id="toggleConfirmPassword" class="absolute top-1/2 right-4 -translate-y-1/2 text-gray-300 hover:text-white cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
@@ -97,7 +100,7 @@ export function renderSignUpPage() : string {
 
                 <button type="submit"
                         id=""
-                        class="bg-[#2A3FA1] text-white text-2xl font-bold mt-4 w-full rounded-full p-4 cursor-pointer
+                        class="bg-[#2A3FA1] text-white text-xl md:text-2xl font-bold mt-2 md:mt-4 w-full rounded-full p-3 md:p-4 cursor-pointer
                                hover:scale-105 duration-300 shadow-[0_4px_12px_rgba(42,63,161,0.4)]
                                hover:shadow-[0_6px_20px_rgba(42,63,161,0.6)] active:scale-[0.97]
                                transition-all ease-out">
@@ -105,7 +108,7 @@ export function renderSignUpPage() : string {
                 </button>
             </form>
 
-            <div class="mt-8 flex flex-row gap-3 text-xl">
+            <div class="mt-4 md:mt-6 flex flex-row gap-3 text-lg md:text-xl shrink-0">
               <span class="text-white">Already a member?</span>
               <a href="/login" id="login-link" data-link
                  class="text-[#2A3FA1] font-bold underline underline-offset-4 hover:text-[#4b63d8]">Login</a>
@@ -183,13 +186,13 @@ export function setupSignupLogic() {
 
     // Check 1: Passwords match
     if (password !== confirmPassword) {
-      alert("Passwords do not match!"); 
+      showAlert("Passwords do not match!", "error"); 
       return;
     }
 
     // Check 2: Password length
     if (password.length < 8) {
-      alert("Password must be at least 8 characters");
+      showAlert("Password must be at least 8 characters", "error");
       return;
     }
 
@@ -202,7 +205,7 @@ export function setupSignupLogic() {
         body: JSON.stringify(payload)
       });
       //the only case here is 200 Ok the errors from api or something else will catched and proccessed in the catch section
-      alert("account created successfully");
+      showAlert("account created successfully", "success");
       history.pushState(null, '', '/home');
       router('/home');
     } catch (error: any) {
@@ -210,17 +213,17 @@ export function setupSignupLogic() {
       if ('statusCode' in error)
       {
         if (error.statusCode === 409) {
-          alert(`Error: ${error.message || "Username or Email already taken"}`);
+          showAlert(`Error: ${error.message || "Username or Email already taken"}`, "error");
         } else if (error.statusCode === 400) {
-          alert(`Validation Error: ${error.message}`);
+          showAlert(`Validation Error: ${error.message}`, "error");
         } else {
-          alert(error.message || "Something went wrong");
+          showAlert(error.message || "Something went wrong", "error");
         }
       }
       else
       {
         console.error("Network error:", error);
-        alert("Network issue, Try again");
+        showAlert("Network issue, Try again", "error");
       }
     }
     finally {

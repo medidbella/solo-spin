@@ -7,9 +7,7 @@ export function renderHeader() : string{
       <img class="w-40 lg:w-56 cursor-pointer object-contain" src="../../public/imgs/logo.png" alt="solo spin logo">
     </a>
     <div class="flex gap-4 lg:gap-5 text-xl lg:text-2xl pr-2 lg:pr-8">
-      <button aria-label="notifications">
-        <i class="fa-regular fa-bell text-[#2A3FA1] cursor-pointer hover:text-white hover:scale-105 duration-200"></i>
-      </button>
+    
       <button id="logoutButton" aria-label="logout">
         <i class="fa-solid fa-arrow-right-from-bracket text-[#2A3FA1] cursor-pointer hover:text-white hover:scale-105 duration-200"></i>
       </button>

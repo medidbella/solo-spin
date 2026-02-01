@@ -5,7 +5,7 @@ import type { Friend, FriendRequest, BlockedFriend } from "../api_integration/ap
 import {
   getFriendsList,
   getFriendRequests,
-  getBlockedUsers,
+  getBlockedFriends,
   removeFriend,
   blockUser,
   unblockUser,
@@ -61,7 +61,7 @@ async function fetchTabData(): Promise<void> {
         requestsData = await getFriendRequests();
         break;
       case "blocked":
-        blockedData = await getBlockedUsers();
+        blockedData = await getBlockedFriends();
         break;
     }
     renderTabContent();

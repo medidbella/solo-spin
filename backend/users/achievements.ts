@@ -104,9 +104,9 @@ export function updateUserAchievements(winner:any, leveledUp:boolean, loser:any,
 export function decodeUserAchievementString(achievement_string:string)
 {
 	let result:{code:string, title:string}[] = []
-	if (!achievement_string || achievement_string == "")
-		return result
-	// console.log(`string : ${achievement_string}`) //debug
+	if (!achievement_string || achievement_string === "null" || achievement_string == "")
+		return []
+	console.log(`string : ${achievement_string}`) //debug
 	const codes:string[] = achievement_string.split(',')
 	for (let i = 0;i < codes.length; i++)
 	{
