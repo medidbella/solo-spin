@@ -286,7 +286,7 @@ class PongSessionsRoom {
 
 	private getJsonGameResult(session: PongSession): any {
 
-		console.log(`   >>>>>>>>>> Session ends with State: ${session.state} <<<<<<<<<<`);
+		// console.log(`   >>>>>>>>>> Session ends with State: ${session.state} <<<<<<<<<<`);
 
 		let gameResult: GameResult;
 		const p1: PongPlayer = session.players[0];
@@ -408,6 +408,7 @@ class PongSessionsRoom {
 		// Wait 10 seconds to let clients read the score, then delete.
 		setTimeout(() => {
 			this.removeSession(sessionId, gameMode);
+			// console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
 		}, 10000);
 	}
 

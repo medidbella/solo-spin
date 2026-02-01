@@ -8,8 +8,9 @@ import { GamesPlayer, AvailableGames } from './games_types';
 import { PongPlayer, PongPlayerState, PongSession } from '../pong/pong_types';
 import { createPongPlayer } from '../pong/pong_utils';
 import { SudokuPlayer } from '../sudoku/sudoku_types';
-import { GameMode } from '../../../shared/types';
+import { Breaker, GameMode } from '../../../shared/types';
 import { pongGameSessionsRoom } from '../pong/pong_memory';
+import { breakPongGame } from '../ws/ws_handler';
 
 function getPlayer(playerId: string): GamesPlayer {
 	return onlinePlayersRooom.get(playerId) as GamesPlayer;
@@ -75,6 +76,10 @@ function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
 	player.sudokuPlayer = sudokuPlayer;
 }
 
+function getBreaker(session: PongSession, playerId: string): Breaker {
+	return (session.players[0].playerId) ? 'p1' : 'p2';
+}
+
 function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
 	// console.log("   ==> reset already exist player <===");
@@ -103,6 +108,8 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
 		} else if (gameMode === 'remote') {
 			// console.log("  **** Remote Case ******");
+			playerSession.breaker = getBreaker(playerSession, playerId);
+			breakPongGame(playerId, null, playerSession, 'BREAK');
 		}
 	}
 
@@ -117,7 +124,7 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 
 	// 		} else if (gameMode === 'remote') {
 	// 			console.log("  **** Remote Case ******");
-	// 		}
+	// 		}	
 	// 	}
 	// }
 	// else {
@@ -194,7 +201,7 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
 	// console.log(` ====>>>>  Setting the name : ${playerName}  <<<<====`);
 	player.playerName = playerName;
     player.game = gameType;
-	console.log(`  game:  ${gameType}  `);
+	// console.log(`  game:  ${gameType}  `);
 
     // 2. Instantiate the specific game object based on type
     if (gameType === 'pong') {

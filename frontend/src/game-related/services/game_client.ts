@@ -252,7 +252,7 @@ class GameClient {
 				});
 
 				// set player info
-				console.log("  ==>> fetching '/api/basic-info' <<== ");
+				// console.log("  ==>> fetching '/api/basic-info' <<== ");
 				const user = await apiFetch<UserInfo>("/api/basic-info")
 				gameClient.setPlayerName(user.username)
 			} catch (err: any) {

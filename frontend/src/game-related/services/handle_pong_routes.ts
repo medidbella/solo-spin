@@ -21,7 +21,7 @@ export function navigateTo(url: string) {
 
 function validateGameEntry(path: string): string {
 
-	console.log(" =============== Validating ====================");
+	// console.log(" =============== Validating ====================");
 
 	const playerState: PlayerState = gameClient.getPlayerState();
 	const gameMode: GameMode | null = gameClient.getGameMode();
@@ -65,10 +65,10 @@ function validateGameEntry(path: string): string {
 				path = path;
 			else {
 
-				console.log("  Game Id: ", gameClient.getGameId());
+				// console.log("  Game Id: ", gameClient.getGameId());
 
 				if (hasStarted || gameClient.getGameId()) {
-					console.log("   ==> Sending Break Message <==");
+					// console.log("   ==> Sending Break Message <==");
 					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
 				}
 
@@ -82,8 +82,8 @@ function validateGameEntry(path: string): string {
 			break;
 	}
 
-	console.log(`  ## Up dated path: ${path}  ##`);
-	console.log(" =============== End Of Validating ====================");
+	// console.log(`  ## Up dated path: ${path}  ##`);
+	// console.log(" =============== End Of Validating ====================");
 	return path;
 }
 

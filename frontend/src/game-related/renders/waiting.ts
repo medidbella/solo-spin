@@ -35,7 +35,7 @@ export function setWaitingPageLogic() {
 	// 4. The Async Fetch Function
 	const performGameSetup = async () => {
 		try {
-			console.log("⏳ Sending request to server...");
+			// console.log("⏳ Sending request to server...");
 
 			// A. Send the Request
 			const response = await gameClient.sendSetUpRequest();
@@ -46,7 +46,7 @@ export function setWaitingPageLogic() {
 
 			// B. Handle Success: the session created completely and ready to start!!
 			if (response.status === 'success') {
-				console.log("✅ Game Created successfully! navigating to play...");
+				// console.log("✅ Game Created successfully! navigating to play...");
 
 				// set sessionID
 				gameClient.setGameId(response.gameSessionId);
@@ -66,7 +66,7 @@ export function setWaitingPageLogic() {
 
 			// C. Handle Queued: the player is in the waiting queue needs the opponent
 			else if (response.status === 'queued') {
-				console.log("⏳ Added to Queue. Waiting for WebSocket notification...");
+				// console.log("⏳ Added to Queue. Waiting for WebSocket notification...");
 
 				// 1. set side
 				gameClient.setSide(response.side);

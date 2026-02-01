@@ -20,7 +20,7 @@ import { GamesPlayer } from '../game_manager/games_types';
 function sendWSMsg(results: ServerMessage, session: PongSession) {
 	// 1. here are 2 players
     if (session.players.length !== 2) {
-		console.log("  ==> size problem");
+		// console.log("  ==> size problem");
 		return;
 	}
 
@@ -32,7 +32,7 @@ function sendWSMsg(results: ServerMessage, session: PongSession) {
     const player1: GamesPlayer = getPlayer(p1ID);
     const player2: GamesPlayer = getPlayer(p2ID);
 
-	console.log(`  p1 id: ${p1ID} || p2 id: ${p2ID} || breaker: ${session.breaker} || Msg type: ${results.type }`);
+	// console.log(`  p1 id: ${p1ID} || p2 id: ${p2ID} || breaker: ${session.breaker} || Msg type: ${results.type }`);
 
     // 4. Send to Player 1
     if (session.breaker !== 'p1' && player1 && player1.ws) {
@@ -118,16 +118,22 @@ function pongGamestate(playerId: string, parsedMessage: ClientMessage, state: 'P
 	}
 }
 
-function breakPongGame(playerId: string, parsedMessage: ClientMessage, state: 'BREAK') {
+function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, playerSession: PongSession | null, state: 'BREAK') {
 
-	parsedMessage = parsedMessage as WSPongBreakMessage;
-	const sessionId: string = parsedMessage.payload.sessionId;
-	if (!sessionId)
-		return ;
+	let session: PongSession | undefined;
 
-	const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId);
-	if (!session)
-		return ;
+	if (parsedMessage) {	
+		parsedMessage = parsedMessage as WSPongBreakMessage;
+		const sessionId: string = parsedMessage.payload.sessionId;
+		if (!sessionId)
+			return ;
+		
+		session = pongGameSessionsRoom.getSession(sessionId);
+		if (!session)
+			return ;
+	} 
+	else
+		session = playerSession as PongSession; 
 
 	const gameMode: GameMode | null = session.gameMode;
 	if (gameMode === 'local') {
@@ -135,43 +141,43 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage, state: 'B
 		pongGameSessionsRoom.endGame(session.sessionId, gameMode);
 
 	} else if (gameMode === 'remote') {
-		console.log("  **** Breaking the game: Remote Case ******");
+		// console.log("  **** Breaking the game: Remote Case ******");
 		session.breaker = (session.players[0].playerId === playerId) ? 'p1' : 'p2'; 
-		console.log(`  ## Breaker: ${session.breaker}  ### `);
+		// console.log(`  ## Breaker: ${session.breaker}  ### `);
 		const breakMsg : PongSessionData = pongEngine.createResutlsMsg(session);
-		console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
+		// console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
 		sendWSMsg(breakMsg, session);
 		pongGameSessionsRoom.endGame(session.sessionId, gameMode);
 	}
 }
 
-function handlerWsOnCloseAndError(playerId: string | undefined, connection: SocketStream) {
-	// 1. Check if this player is already Exist !!
-	if (playerId && isPlayerExist(playerId)) {
-		const player: GamesPlayer = getPlayer(playerId);
+// function handlerWsOnCloseAndError(playerId: string | undefined, connection: SocketStream) {
+// 	// 1. Check if this player is already Exist !!
+// 	if (playerId && isPlayerExist(playerId)) {
+// 		const player: GamesPlayer = getPlayer(playerId);
 
-		// clear ws-related
-		if (player.ws) {
+// 		// clear ws-related
+// 		if (player.ws) {
 
-			// console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `);
+// 			// console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `);
 
-			// console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
+// 			// console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
 			
-			// Remove listeners
-			player.ws.removeAllListeners();
+// 			// Remove listeners
+// 			player.ws.removeAllListeners();
 
-			// B. Force close the OLD connection
-			player.ws.terminate(); // terminate() is harder/faster than .close()
-			// console.log(`  Close the old Ws of the playerId: ${playerId}  `);
-		}
+// 			// B. Force close the OLD connection
+// 			player.ws.terminate(); // terminate() is harder/faster than .close()
+// 			// console.log(`  Close the old Ws of the playerId: ${playerId}  `);
+// 		}
 
-		// 2. Create/Update the Player Object with the NEW Socket
-		// Just update the socket reference
-		player.ws = connection.socket;
-		// console.log(`✅ Updated socket for player ${playerId}`);
-		resetPlayerStatesIfAlreadyExist(playerId);
-	}
-}
+// 		// 2. Create/Update the Player Object with the NEW Socket
+// 		// Just update the socket reference
+// 		player.ws = connection.socket;
+// 		// console.log(`✅ Updated socket for player ${playerId}`);
+// 		resetPlayerStatesIfAlreadyExist(playerId);
+// 	}
+// }
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	// console.log('🔌 New WebSocket connection established');
@@ -305,7 +311,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					break;
 
 				case 'BREAK':
-					breakPongGame(playerId!, parsedMessage, 'BREAK');
+					breakPongGame(playerId!, parsedMessage, null, 'BREAK');
 					break;
 
 
@@ -357,4 +363,4 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	
 }
 
-export { wsHandler, sendWSMsg };
+export { wsHandler, sendWSMsg, breakPongGame };

@@ -204,7 +204,7 @@ export class WSConnectionsHandler {
 			const type: WSMsgType = data.type as WSMsgType;
 			// const payload = data.payload as PongSessionData;
 			
-			console.log(`  =========>>> Ws message received, type: ${type} <<< ========`);
+			// console.log(`  =========>>> Ws message received, type: ${type} <<< ========`);
 
 			// 2. Route the message based on its type
 			switch (type) {
@@ -253,7 +253,7 @@ export class WSConnectionsHandler {
 				case 'BREAK':
 					if (gameClient.canvas && data.payload) {
 
-						console.log(`  ==>> Catch Break Message <<==`);
+						// console.log(`  ==>> Catch Break Message <<==`);
 
 						// 1. Draw the final frame so players see the final score
 						renderPongFrame(gameClient.canvas, data.payload);
