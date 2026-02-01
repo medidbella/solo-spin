@@ -71,6 +71,7 @@ export function renderSecurity(user: UserInfo): string {
                 </div>
 
                 <label for="avatar-upload" class="absolute bottom-1 right-1 bg-[#441563] p-2 rounded-full cursor-pointer hover:scale-110 transition-transform border-2 border-[#2A3FA1] flex items-center justify-center">
+                  <span class="sr-only">Upload avatar</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -112,15 +113,15 @@ function renderSecurityDefaultContent(): string {
       
       <form id="new-password-form" class="flex flex-col gap-5">
         <div class="space-y-2">
-          <label class="block text-xs md:text-sm font-semibold ml-1">Current password:</label>
+          <label for="user-password" class="block text-xs md:text-sm font-semibold ml-1">Current password:</label>
           <input id="user-password" minLength="8" type="password" placeholder="your current password" required class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
         </div>
         <div class="space-y-2">
-          <label class="block text-xs md:text-sm font-semibold ml-1">New password:</label>
+          <label for="new-password" class="block text-xs md:text-sm font-semibold ml-1">New password:</label>
           <input id="new-password" minLength="8" type="password" placeholder="your new password" required class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
         </div>
         <div class="space-y-2">
-          <label class="block text-xs md:text-sm font-semibold ml-1">Confirm password:</label>
+          <label for="new-password-confirm" class="block text-xs md:text-sm font-semibold ml-1">Confirm password:</label>
           <input id="new-password-confirm" minLength="8" type="password" placeholder="confirm your new password" required class="w-full bg-[#441563] border border-transparent focus:border-purple-400 rounded-full px-4 py-3 text-sm placeholder-gray-400 outline-none transition-all">
         </div>
         <div class="flex justify-center md:justify-end mt-4 md:mt-8">
@@ -132,7 +133,7 @@ function renderSecurityDefaultContent(): string {
 
       <div class="flex flex-col gap-4 border-t border-white/10 pt-8 md:border-t-0 md:pt-0">
         <div class="space-y-2 text-center md:text-left">
-          <label class="block text-sm font-semibold ml-1">Two factor authentication:</label>
+          <span class="block text-sm font-semibold ml-1">Two factor authentication:</span>
           <p class="text-xs text-gray-400 mb-4 px-1">Add an extra layer of security to your account.</p>
           <div class="mt-2 flex justify-center md:justify-start">
             <button 

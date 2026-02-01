@@ -14,7 +14,9 @@ return /* html */ `
           <h2 class="text-[#f2f2f2] text-4xl md:text-6xl lg:text-7xl font-[solo] text-center leading-tight shrink-0">Welcome back!</h2>
           
           <form id="login-form" class="flex flex-col gap-3 lg:gap-4 mt-4 lg:mt-6 w-full max-w-md lg:max-w-sm">
+              <label for="login-username" class="sr-only">Username</label>
               <input 
+                id="login-username"
                 class="bg-[#5F3779] text-white p-3 w-full rounded-3xl outline-none focus:ring-2 focus:ring-[#2A3FA1] text-sm md:text-base" 
                 type="text" 
                 name="username" 
@@ -23,6 +25,7 @@ return /* html */ `
                 required>
               
               <div class="relative">
+                  <label for="login-password" class="sr-only">Password</label>
                   <input 
                     id="login-password"
                     class="bg-[#5F3779] text-white p-3 w-full rounded-3xl outline-none focus:ring-2 focus:ring-[#2A3FA1] text-sm md:text-base" 

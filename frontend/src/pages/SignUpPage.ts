@@ -65,7 +65,7 @@ export function renderSignUpPage() : string {
                 </div>
 
                 <div class="relative group">
-                    <label for="password" class="sr-only">Password</label>
+                    <label for="passwordInput" class="sr-only">Password</label>
                     <input id="passwordInput" 
                            type="password" 
                            name="password" 
