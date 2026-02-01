@@ -1,13 +1,9 @@
 *.db
 *.env
-backend/dist
-nginx/certs/
-elk/certs
-backend/node_modules
-chat/node_modules
-games/node_modules
-frontend/node_modules
-games/node_modules
+**/certs
+**/node_modules
+**/dist
+**/.git
 *.txt
 .vscode.env
 .DS_Store

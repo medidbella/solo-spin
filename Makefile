@@ -91,9 +91,9 @@ dev: ## Start full development stack (App + ELK)
 	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-prod: ## Build and deploy production stack (Immutable images, No hot-reload)
+prod: ## Build and deploy production stack (Immutable images, No hot-reload) $(COMPOSE_ELK)
 	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build --remove-orphans
+	@docker compose $(COMPOSE_BASE)  up -d --build --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 down: ## Stop and remove all containers (App & ELK)
@@ -118,19 +118,6 @@ logs: ## Stream logs from all active services
 
 ps: ## Show status of all services
 	@docker compose $(COMPOSE_ALL) ps
-
-# ==============================================================================
-# DATA PERSISTENCE & SCHEMA MANAGEMENT
-# ==============================================================================
-
-db-gen: ## Regenerate Prisma Client
-	@docker compose $(COMPOSE_BASE) exec backend npx prisma generate
-
-db-push: ## Push Schema to DB
-	@docker compose $(COMPOSE_BASE) exec backend npx prisma db push
-
-db-studio: ## Open Prisma Studio (DB GUI)
-	@docker compose $(COMPOSE_BASE) exec backend npx prisma studio
 
 # ==============================================================================
 # ANALYTICS ASSETS (KIBANA)

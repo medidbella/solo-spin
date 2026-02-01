@@ -1,22 +1,46 @@
-# 1. Base Image (Node 24 non-existent yet, using 22-alpine or lts-alpine is safer)
-FROM node:24-alpine
+# --- Stage 1: Base & Dependencies ---
+FROM node:24-alpine AS base
 
-# 2. Set working directory
+WORKDIR /app
+
+COPY games/package*.json ./games/
+
+# Install dependencies inside the games folder
 WORKDIR /app/games
-
-# 3. Optimize Caching: Copy package files FIRST
-# This allows Docker to cache dependencies if package.json didn't change.
-COPY package*.json ./
-
-# 4. Install dependencies (Including dotenv, pino-pretty, etc.)
 RUN npm install
 
-# 5. Copy the rest of the code
-# This layer changes often, but it won't force npm install to run again.
-COPY . .
+# --- Stage 2: Development ---
+FROM base AS development
+# Copy shared and games source code
+WORKDIR /app
+COPY shared ./shared
+COPY games ./games
 
-# 6. Expose the port
+WORKDIR /app/games
 EXPOSE 3002
-
-# 7. Start command
 CMD ["npm", "run", "dev"]
+
+# --- Stage 3: Builder (Production Build) ---
+FROM base AS builder
+WORKDIR /app
+COPY shared ./shared
+COPY games ./games
+
+WORKDIR /app/games
+RUN npm run build
+
+# --- Stage 4: Production Run ---
+FROM node:24-alpine AS production
+WORKDIR /app/games
+
+# Only copy the production dependencies and the built files
+COPY games/package*.json ./
+RUN npm install --omit=dev
+
+# Copy the compiled code from the builder stage
+COPY --from=builder /app/games/dist ./dist
+# If your app needs the shared types/files at runtime, copy them here
+COPY --from=builder /app/shared ../shared
+
+EXPOSE 3002
+CMD ["node", "dist/index.js"]

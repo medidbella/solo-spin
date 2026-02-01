@@ -53,8 +53,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
     networks:
       - elastic
     volumes:
@@ -82,8 +82,8 @@ services:
 
   games:
     build:
-      context: ./games
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: games/Dockerfile
     networks:
       - elastic
     environment:

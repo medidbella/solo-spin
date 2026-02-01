@@ -2,36 +2,33 @@ FROM node:24-alpine AS base
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 RUN npm install
 
-# --- Stage 2: Development (Make Dev) ---
+
+# --- Stage 2: Development ---
 FROM base AS development
-
-COPY . .
-
+COPY shared ./shared
+COPY frontend ./
 EXPOSE 5173
-
 CMD ["npm", "run", "dev", "--", "--host"]
 
 
 
+# --- Stage 3: Builder ---
 FROM base AS builder
-
-COPY . .
-
+COPY shared ./shared 
+COPY frontend ./
 RUN npm run build
 
-# --- Stage 4: Production (Make Prod) ---
+
+
+# --- Stage 4: Production ---
 FROM nginx:alpine AS production
-
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-COPY public /usr/share/nginx/html/public
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/public /usr/share/nginx/html/public
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 5173
-
 CMD ["nginx", "-g", "daemon off;"]
