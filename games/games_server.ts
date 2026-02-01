@@ -5,6 +5,7 @@ import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 
 import { registerGamesRoutes } from "./src/routes/routes";
+import { pongGameSessionsRoom } from './src/pong/pong_memory';
 
 const server: FastifyInstance = Fastify( { 
 	logger: {
@@ -52,6 +53,13 @@ server.register(cors, {
 
 server.register(async (childServer: FastifyInstance) => {
     registerGamesRoutes(childServer);
+});
+
+// addIntervalStopHook(server);
+
+server.addHook('onClose', (instance, done) => {
+	pongGameSessionsRoom.stopGlobalLoop();
+	done();
 });
 
 const start = async () => {

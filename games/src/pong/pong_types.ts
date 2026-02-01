@@ -5,9 +5,10 @@ import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
 import { resetPlayers } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
-import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE } from '../../../shared/pong_constants';
+import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT } from '../../../shared/pong_constants';
 import { GamesPlayer } from '../game_manager/games_types';
 import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
+import { onlinePlayersRooom } from '../game_manager/games_memory';
 
 export type Side = 'right' | 'left'
 export type PongPlayerState =
@@ -102,6 +103,11 @@ class PongSessionsRoom {
     private localSessions = new Map<string, PongSession>();
     private remoteSessions = new Map<string, PongSession>();
 	private waitingPlayersQueue: GamesPlayer[] = [];
+
+	// Properties to store the interval IDs
+    private localSessionsTickInterval: NodeJS.Timeout | null = null;
+    private remoteSessionsTickInterval: NodeJS.Timeout | null = null;
+    private WsPingInterval: NodeJS.Timeout | null = null;
 	// ------------------------------------------------------
 
 	// Singleton Instance:
@@ -109,6 +115,7 @@ class PongSessionsRoom {
 	private constructor() {
 		// 2. Turn on the Engine (if it's not already on)
         this.startGlobalLoop();
+
 	}
 
 	public static getInstance(): PongSessionsRoom {
@@ -197,7 +204,7 @@ class PongSessionsRoom {
         // console.log("[PongRoom] Global Game Loop Started!");
 
 		// 2. The Heartbeat
-        setInterval(() => {
+        this.localSessionsTickInterval = setInterval(() => {
 			// Loop through ALL Local Sessions
             this.localSessions.forEach((session: PongSession, sessionId: string) => {
 				// Only process games that are actually PLAYING
@@ -218,7 +225,7 @@ class PongSessionsRoom {
 
 		},  GAME_STATE_UPDATE_INTERVAL_MS);
 
-		setInterval(() => {
+		this.remoteSessionsTickInterval = setInterval(() => {
 			// Loop through ALL Remote Sessions
 			this.remoteSessions.forEach((session: PongSession, sessionId: string) => {
 				if (session.state === 'playing') {
@@ -230,7 +237,50 @@ class PongSessionsRoom {
 
 		}, GAME_STATE_UPDATE_INTERVAL_MS);
 
+		this.WsPingInterval = setInterval(() => {
+		
+			onlinePlayersRooom.forEach((player: GamesPlayer, playerId: string) => {
+				if (player.ws && player.isWsAlive === false) {
+					
+					// Kill it
+					player.ws.removeAllListeners();
+					player.ws.terminate();
+					return
+				}
+	
+				// Mark as false and wait for the 'pong' to set it back to true
+				player.isWsAlive = false;
+				if (player.ws)
+					player.ws.ping();
+			});
+		
+		}, PINGTIMEOUT);
+
 	}
+
+	public stopGlobalLoop(): void {
+        console.log("[PongRoom] Stopping Global Game Loops...");
+
+        // 1. Clear Local Game Loop
+        if (this.localSessionsTickInterval) {
+            clearInterval(this.localSessionsTickInterval);
+            this.localSessionsTickInterval = null;
+        }
+
+        // 2. Clear Remote Game Loop
+        if (this.remoteSessionsTickInterval) {
+            clearInterval(this.remoteSessionsTickInterval);
+            this.remoteSessionsTickInterval = null;
+        }
+
+        // 3. Clear Heartbeat (Ping) Interval
+        if (this.WsPingInterval) {
+            clearInterval(this.WsPingInterval);
+            this.WsPingInterval = null;
+        }
+
+        console.log("[PongRoom] All loops stopped.");
+    }
 
     /**
      * 3. Start the game: Set state = 'playing'

@@ -11,9 +11,12 @@ import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSe
 			Breaker
  		} from '../../../shared/types'
 
+import { PINGTIMEOUT } from '../../../shared/pong_constants';
+
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
+import { onlinePlayersRooom } from "../game_manager/games_memory";
 // import { stat } from "fs";
 
 
@@ -232,6 +235,8 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					
 				// 4. Assign the NEW socket
 				player.ws = socket;
+				player.isWsAlive = true;
+				// A. Mark connection as alive initially
 				// console.log(`✅ Socket updated for player ${playerId}`);
 
 				// 5. Reset states (if they were in a game, reconnect or finish the game 'not made the behavior yet !!!' )
@@ -274,6 +279,9 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 
 	socket.on('message', (rawData: any) => {
+
+		setWsIsAlive(playerId);
+
 		try {
 			// 1. Convert Buffer to String
 			const messageString = rawData.toString();
@@ -339,8 +347,20 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 		}
 	});
 
+	socket.on('pong', () => {
+        if (playerId && isPlayerExist(playerId)) {
+            const player: GamesPlayer = getPlayer(playerId);
+			player.isWsAlive = true;
+
+		}
+       console.log("Received Pong from client");
+    });
+
 
 	socket.on('close', () => {
+
+		console.log("  ==> Cathing Socket on Close Event  <== ");
+
 		if (playerId && isPlayerExist(playerId)) {
             const player: GamesPlayer = getPlayer(playerId);
 			
@@ -358,9 +378,17 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	});
 
 	socket.on('error', (err) => {
+		console.log("  ==> Cathing Socket on Error Event  <== ");
 		console.error(`❌ WS Error for ${playerId}:`, err);
 	});
 	
+}
+
+function setWsIsAlive(playerId: string) {
+
+	const player: GamesPlayer = getPlayer(playerId);
+	if (player)
+        player.isWsAlive = true;
 }
 
 export { wsHandler, sendWSMsg, breakPongGame };

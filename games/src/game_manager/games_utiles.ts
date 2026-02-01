@@ -38,7 +38,8 @@ function createNewPlayer(playerId: string, playerName: string, socket: WebSocket
 		game: 'not_selected',
 		pongPlayer: null,
 		sudokuPlayer: null,
-		ws: socket
+		ws: socket,
+		isWsAlive: true
 	}
 	return newPlayer;
 }

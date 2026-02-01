@@ -29,7 +29,7 @@ interface GamesPlayer {
 	playerState: PongPlayerState;
 	concurrentId: string | null; // for remote game
 	ws: WebSocket | null; // null if create a local player for local game (use one socket cause two player playing in the same machine)
-	
+	isWsAlive: boolean;
 	game: AvailableGames;
 	// pongSutUp: PongSutUp;
 	// sudokuSetUp: SudokuSetUp;
