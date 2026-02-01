@@ -1,7 +1,9 @@
 // import { GameConfig, PongState } from "../types/PongTypes";
 
 import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
-				, HttpPongSetupReq, HttpSetupResponse } from '../../../../shared/types';
+				, HttpPongSetupReq, HttpSetupResponse 
+			// } from '../../../../shared/types';
+			} from '../../../shared/types';
 
 // import { wsConnectionsHandler } from "./ws_handler";
 import { WSConnectionsHandler } from "./ws_handler";

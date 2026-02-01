@@ -7,7 +7,9 @@ import {
 	BALL_RADIUS 
 } from './pong_constants'; // Import your constants
 
-import type { PongPayload } from '../../../../shared/types';
+// import type { PongPayload } from '../../../../shared/types';
+import type { PongPayload } from '../../../shared/types';
+
 
 type Scale = {
     scaleX: number;

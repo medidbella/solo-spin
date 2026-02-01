@@ -3,7 +3,9 @@
 import type { ClientMessage, WSMsgType,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
 				 WSPongInput, WSPongPauseMessage, WSPongResumeMessage, WSPongBreakMessage,
-				PongSessionIsReady} from '../../../../shared/types'; 
+				PongSessionIsReady
+			// } from '../../../../shared/types'; 
+			} from '../../../shared/types'; 
 
 import { gameClient } from "./game_client";
 import { renderPongFrame } from './pong_renderer';

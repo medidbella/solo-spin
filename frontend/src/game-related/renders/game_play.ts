@@ -3,7 +3,8 @@ import gamePlayContent from '../pages/game_play.html?raw';
 import { renderHeader } from '../../components/Header';
 import { gameClient } from '../services/game_client';
 import { FRAME_TIME_MS } from '../services/pong_constants';
-import type { GameMode, Side } from '../../../../shared/types';
+// import type { GameMode, Side } from '../../../../shared/types';
+import type { GameMode, Side } from '../../../shared/types';
 
 // import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
