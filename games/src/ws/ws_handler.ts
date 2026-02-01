@@ -37,13 +37,13 @@ function sendWSMsg(results: ServerMessage, session: PongSession) {
     // 4. Send to Player 1
     if (session.breaker !== 'p1' && player1 && player1.ws) {
         player1.ws.send(JSON.stringify(results));
-        console.log(`  -> Sent to P1 (${player1.playerName})`);
+        // console.log(`  -> Sent to P1 (${player1.playerName})`);
     }
 
     // 5. Send to Player 2
     if (session.breaker !== 'p2' && player2 && player2.ws) {
         player2.ws.send(JSON.stringify(results));
-        console.log(`  -> Sent to P2 (${player2.playerName})`);
+        // console.log(`  -> Sent to P2 (${player2.playerName})`);
     }
 }
 
