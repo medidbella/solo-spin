@@ -50,6 +50,7 @@ services:
     volumes:
       - ./backend/avatars:/app/avatars
       - ./logs:/app/logs
+      - ./backend/dev.db:/app/dev.db
 
   frontend:
     build:
