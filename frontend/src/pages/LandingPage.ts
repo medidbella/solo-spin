@@ -13,7 +13,7 @@ return /* html */`
                 </a>
             </div>
             <div class="energy-aura"></div>
-            <img class="hidden lg:block w-[700px] h-auto self-stretch animate-float" src="imgs/person.svg" alt="person">
+            <img class="hidden lg:block w-[700px] h-auto self-stretch animate-float  drop-shadow-[0_0_30px_rgba(200,23,200,1)]" src="imgs/landingPage.png" alt="person">
         </section>
     `;
 }
