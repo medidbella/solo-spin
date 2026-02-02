@@ -96,4 +96,28 @@ function createPongPlayer(playerId: string, side: Side): PongPlayer {
 	return player;
 }
 
-export { createPongPlayer, createBall };
+
+async function storeMatchResult(jsonGameResult: any): Promise<any> {
+	const serverPrefx = process.env.NODE_ENV == "deployment" ? "internal" : "api" 
+
+	const res = await fetch(`http://backend:3000/${serverPrefx}/games`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			   'x-internal-secret': process.env.INTERNAL_SECRET || 'non'
+		},
+		body: jsonGameResult
+	})
+
+	if (!res.ok) {
+		const errorText = await res.text();
+		throw new Error(`HTTP Error ${res.status}: ${errorText}`);
+	}
+
+	const data = await res.json();
+	console.log("✅ [Storage] Game saved successfully:", data);
+	return data;
+
+}
+
+export { createPongPlayer, createBall, storeMatchResult };

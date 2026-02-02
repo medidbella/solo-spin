@@ -2,13 +2,14 @@
 // import { GameState } from '../game_manager/gamesTypes';
 import { GameMode, GameState, PongSessionData, Winner, Breaker } from '../../../shared/types';
 import { createBall } from './pong_utils';
-import { pongEngine } from './pong_memory';
-import { getPlayer, resetPlayers } from '../game_manager/games_utiles';
+import { pongEngine, pongGameSessionsRoom } from './pong_memory';
+import { getBreaker, getPlayer, resetPlayers } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
-import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT } from '../../../shared/pong_constants';
+import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT, STARTGAMETIMEOUT, REMOVESESSIONDELAY } from '../../../shared/pong_constants';
 import { GamesPlayer } from '../game_manager/games_types';
 import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
 import { onlinePlayersRooom, playingPlayersRoom } from '../game_manager/games_memory';
+import { storeMatchResult } from './pong_utils';
 
 export type Side = 'right' | 'left'
 export type PongPlayerState =
@@ -80,8 +81,10 @@ interface PongSession {
 	winner: Winner; // the id of the winnere player
 	breaker: Breaker;
 	stop: boolean;
+	timeOuted: boolean;
 
 	nextRoundStartTimestamp: number; // time to start the next round
+	startGameTimeoutChecker?: NodeJS.Timeout;
 }
 
 interface GameResult {
@@ -158,7 +161,8 @@ class PongSessionsRoom {
 			winner: 'none',
 			breaker: 'none',
 			nextRoundStartTimestamp: 0,
-			stop: false
+			stop: false,
+			timeOuted: false
         };
 
 		if (gameMode === 'local')
@@ -285,28 +289,60 @@ class PongSessionsRoom {
         console.log("[PongRoom] All loops stopped.");
     }
 
+	private async handlesStartGameTimeout(session: PongSession, playerId: string) {
+
+		console.log("  ===>> Time outEd  <<==");
+
+		session.breaker = getBreaker(session, playerId);
+		session.timeOuted = true;
+
+		await pongGameSessionsRoom.endGame(session.sessionId, session.gameMode);
+
+
+		// try {
+		// 	const jsonGameResult = this.getJsonGameResult(session);
+
+		// 	const data = await storeMatchResult(jsonGameResult);
+		// } catch (err: any){
+		// 	console.error(` Failed to save Match Result for Session: ${err.message} `);
+		// }
+
+
+	}
+
     /**
      * 3. Start the game: Set state = 'playing'
      */
-    public startGame(sessionId: string): void {
+    public startGame(sessionId: string, playerId: string): void {
 
 		const session: PongSession | undefined = this.getSession(sessionId)
 
-		// session = this.localSessions.get(sessionId);
-		// if (!session)
-		// 	session = this.remoteSessions.get(sessionId);
 		if (!session) {
             // console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
             return;
         }
 
 		if (session.gameMode == 'remote') {
+			// 1. Increment Count
 			session.playerStarted++;
-
 			// console.log(`   **************** Started Players: ${session.playerStarted} *********************** `)
 
-			if (session.playerStarted != 2)
-				return ;
+			if (session.playerStarted === 1) {
+				session.startGameTimeoutChecker = setTimeout(() => {
+					// session.breaker = (session.players[0].playerId === playerId) ? 'p1' : 'p2';
+                    this.handlesStartGameTimeout(session, playerId);
+                }, STARTGAMETIMEOUT);
+
+				return;
+			}
+
+			else if (session.playerStarted === 2) {
+				// CANCEL THE TIMER! Important!
+                if (session.startGameTimeoutChecker) {
+                    clearTimeout(session.startGameTimeoutChecker);
+                    session.startGameTimeoutChecker = undefined;
+                }
+			}
 		}
 
 		// console.log(`   _____ Player 1 Side: ${session.players[0].side} __________`);
@@ -417,28 +453,7 @@ class PongSessionsRoom {
 				const jsonGameResult = this.getJsonGameResult(session);
 				// const PORT: number = 3000;
 				// console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
-	
-	
-				// console.log(`  ### prefex: ${serverPrefx} ### `);
-				const res = await fetch(`http://backend:3000/${serverPrefx}/games`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						   'x-internal-secret': process.env.INTERNAL_SECRET || 'non'
-					},
-					body: jsonGameResult
-				})
-	
-				// throw if res is not ok
-				if (!res.ok) {
-					const errorText = await res.text();
-					throw new Error(`HTTP Error ${res.status}: ${errorText}`);
-				}
-		
-				const data = await res.json();
-				// console.log("✅ [Storage] Game saved successfully:", data);
-	
-				// console.log(" ### response: ", res);
+				const data = await storeMatchResult(jsonGameResult);
 			
 			} catch (err: any){
 				console.error(` Failed to save Match Result for Session: ${err.message} `);
@@ -447,12 +462,7 @@ class PongSessionsRoom {
 
 		// console.log(`  Game Mode ==> ${gameMode} <=== `);
 
-		if (session.breaker !== 'none' && session.stop) {
-
-				// variable = (condition) ? valueIfTrue : valueIfFalse;
-
-				// const player: GamesPlayer = (session.breaker === 'p1') ? getPlayer(session.players[0].playerId) : getPlayer(session.players[1].playerId);
-				
+		if (session.breaker !== 'none' && (session.stop || session.timeOuted)) {	
 				const stopMsg = pongEngine.createStopGameMsg(sessionId);
 				
 				let player1: GamesPlayer | null;
@@ -462,13 +472,8 @@ class PongSessionsRoom {
 					player1 = getPlayer(session.players[0].playerId);
 					if (player1 && player1.ws)
 						player1.ws.send(JSON.stringify(stopMsg));
-					// player2 = null
 				} else {
 					const breakMsg : PongSessionData = pongEngine.createResutlsMsg(session);
-					// console.log(`    break Message type: ${breakMsg.type} || Winner: ${breakMsg.payload.winner}  `);
-					// console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
-					// sendWSMsg(breakMsg, session);
-
 					player1 = getPlayer(session.players[0].playerId);
 					player2 = getPlayer(session.players[1].playerId);
 
@@ -496,6 +501,7 @@ class PongSessionsRoom {
 					}
 				}
 		}
+
 	
 		// 6. reset the players objects
 		resetPlayers(session.players[0].playerId, session.players[1].playerId, session.gameMode);
@@ -505,7 +511,7 @@ class PongSessionsRoom {
 		setTimeout(() => {
 			this.removeSession(sessionId, gameMode);
 			// console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
-		}, 10000);
+		}, REMOVESESSIONDELAY);
 	}
 
 

@@ -62,7 +62,7 @@ function startPongGame(playerId: string, parsedMessage: ClientMessage) {
 	parsedMessage = parsedMessage as WSPongStartGameMessage;
 	// console.log(`   ###### Got start pong game message gameId: ${parsedMessage.payload.gameId} #####`);
 
-	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId);
+	pongGameSessionsRoom.startGame(parsedMessage.payload.gameId, playerId);
 
 }
 
@@ -208,29 +208,15 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 							if (session) {
 								session.stop = true;
 
-								console.log(`  *** Set Stop to : ${session.stop} *** ` );
+								// console.log(`  *** Set Stop to : ${session.stop} *** ` );
 
 								// variable = (condition) ? valueIfTrue : valueIfFalse;
 								session.breaker = getBreaker(session, playerId);
 								console.log(`  Breaker:   ${session.breaker}   `);
 								// if (session.gameMode === 'local') {
-									console.log(' ===>>> Debugin end Game <<<====');
+									// console.log(' ===>>> Debugin end Game <<<====');
 									await pongGameSessionsRoom.endGame(player.pongPlayer.sessiondId, session.gameMode);
-									console.log(' ===>>> finish end Game <<<====');
-
-								// 	console.log(' ===>>> Debugin-3 <<<====');
-
-
-								// 	const stopMsg = pongEngine.createStopGameMsg(player.pongPlayer.sessiondId);
-								// 	console.log(' ===>>> Debugin-4 <<<====');
-									
-								// 	console.log(`  ***  Trying to send Stop message **** `);
-								// 	// sendWSMsg(stopMsg, session);
-								// 	player.ws.send(JSON.stringify(stopMsg));
-
-								// } else if (session.gameMode === 'remote') {
-
-								// }
+									// console.log(' ===>>> finish end Game <<<====');
 							}
 						}
 					}
@@ -241,9 +227,9 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 					// 3. Kill it
 					player.ws.terminate();
-					console.log(" ==> Kill the old socker <==");
+					// console.log(" ==> Kill the old socker <==");
 
-					console.log(`  Server:  player State: ${player.playerState}  `);
+					// console.log(`  Server:  player State: ${player.playerState}  `);
 				}
 					
 				// 4. Assign the NEW socket
