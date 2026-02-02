@@ -100,13 +100,6 @@ down: ## Stop and remove all containers (App & ELK)
 	@echo "$(RED)[WARN] Terminating services...$(RESET)"
 	@docker compose $(COMPOSE_ALL) down --remove-orphans
 
-clean: ## Danger: Deep clean volumes, images, and certificates
-	@echo "$(RED)[DANGER] Irreversible purge: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
-	@read -p "Confirm destructive action? [y/N] " ans && [ $${ans:-N} = y ]
-	@docker compose $(COMPOSE_ALL) down -v --rmi local
-	@rm -rf nginx/certs/*
-	@rm -rf elk/certs/*
-	@echo "$(GREEN)[INFO] System purged.$(RESET)"
 
 # ==============================================================================
 # OBSERVABILITY & DIAGNOSTICS
@@ -140,7 +133,46 @@ db-import: ## Import Kibana Dashboards from local file
 # RESET OPTIONS
 # ==============================================================================
 
-re: down clean prod
+clean: ## Danger: clean volumes, images, and certificates
+	@echo "$(RED)[DANGER] Irreversible purge: Volumes and SSL Keys will be deleted.$(RESET)"
+	@docker compose $(COMPOSE_ALL) down -v --rmi local
+	@rm -rf nginx/certs/*
+	@rm -rf elk/certs/*
+	@echo "$(GREEN)[INFO] System purged.$(RESET)"
+
+remove-database: ## Danger: remove backend-database
+	@echo "$(RED)[DANGER] Irreversible purge: Database will be deleted.$(RESET)"
+	@rm -rf backend/data
+	@echo "$(GREEN)[INFO] Database purged.$(RESET)"
+
+shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificate
+
+re: down clean prod ## Danger: quick refresh (volumes delete is included)
+
+reset: ## Danger: Deep clean volumes, database, images, and certificates
+	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
+	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
+	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
+	@# 2. If we passed the check, now we trigger the other targets manually
+	@echo "$(YELLOW)[INFO] Stopping containers first...$(RESET)"
+	@docker compose down  # Safety: Stop containers before deleting files
+	@$(MAKE) remove-database
+	@$(MAKE) re
+	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
+
+hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
+	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
+	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
+	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
+	@# 2. If we passed the check, now we trigger the other targets manually
+	@echo "$(YELLOW)[INFO] Stopping containers first...$(RESET)"
+	@docker compose down  # Safety: Stop containers before deleting files
+	@$(MAKE) remove-database
+	@docker system prune
+	@docker volume prune
+	@$(MAKE) re
+	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
+
 
 
 

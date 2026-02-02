@@ -34,6 +34,8 @@ const onlineusers = new Map<string, string>();
 
 fastify.get('/health', async () => { return { status: 'ok' }; });
 
+// console.log(`${process.env.INTERNAL_API_SECRET}`)
+
 const start = async () => {
   try {
     await fastify.listen({ port: port, host: host });
@@ -68,16 +70,15 @@ const start = async () => {
         {
           const targetid = String(data.to);
           const recipientsocketid = onlineusers.get(targetid);
-          let backendEndpoint = "internal"
-          if (process.env.NODE_ENV === "development")
-              backendEndpoint = "api"
+          const backendEndpoint = process.env.NODE_ENV == "deployment" ? "internal" : "api"
+
           try 
           {
             const response = await fetch(`http://backend:3000/${backendEndpoint}/messages`, {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',
-                'x-internal-secret': process.env.INTERNAL_SECRET || 'fallback'
+                'x-internal-secret': process.env.INTERNAL_API_SECRET || 'fallback'
               },
               body: JSON.stringify({
                 sender_id: Number(id),
