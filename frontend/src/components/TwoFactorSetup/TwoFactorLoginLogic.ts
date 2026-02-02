@@ -29,7 +29,7 @@ async function handleVerifyTwoFaButton(event: Event)
 	try {
 		await apiFetch("/api/2fa/verify", {method:'POST', body:JSON.stringify(payload)})
 		history.pushState(null, '', `/home`);
-		showAlert('2FA verification succeeded', "error");
+		showAlert('2FA verification succeeded', "success");
 		router('/home')
 	}
 	catch (err:any)

@@ -1,6 +1,3 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import {prisma} from "../prisma/database.js"
-
 // goals scored:
 // 	score 25 goals -> {first achievement}, score 75 goals {second achievement},  200 goals {last achievement}
 // games played:
@@ -48,14 +45,14 @@ function updateGoalsAchievement(scored_goals:number, current_scored_goals:number
 	// console.log(`scored_goals : ${scored_goals}, game_goals : ${current_scored_goals}`)//debug
 	if (achievement_consts.last_goals > scored_goals &&
 			scored_goals + current_scored_goals >= achievement_consts.last_goals)
-		return ("1-3,")
+		return  ("1-3,")
 	else if (achievement_consts.second_goals > scored_goals &&
-			scored_goals + current_scored_goals >= achievement_consts.last_goals)
-		return ("1-2,")
+			scored_goals + current_scored_goals >= achievement_consts.second_goals)
+		return  ("1-2,")
 	else if (achievement_consts.first_goals > scored_goals &&
-			scored_goals + current_scored_goals >= achievement_consts.last_goals)
+			scored_goals + current_scored_goals >= achievement_consts.first_goals)
 		return ("1-1,")
-	return ""
+	return ("")
 }
 
 function updatePlayedGamesAchievement(played_games:number):string
