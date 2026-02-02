@@ -11,6 +11,7 @@ import { router } from '../../main';
 import { gameClient } from './game_client';
 import type { PlayerState, GameMode, AvailableGames } from '../../../shared/types';
 // import { createAndSendMessages } from './ws_handler';
+import { setupHeaderLogic } from '../../components/Header';
 
 export function navigateTo(url: string) {
     // 1. Update the URL in the browser history without reloading
@@ -97,7 +98,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 
 	// console.log("  ## Pong Routes ## ");
 
-	if (path === '/games/pong/') path = '/games/pong/game-mode';
+	if (path === '/games/pong') path = '/games/pong/game-mode';
 
 	path = validateGameEntry(path);
 	
@@ -141,6 +142,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			}
 			app.innerHTML = innerHTML;
 			setFriendNameLogic();
+			setupHeaderLogic();
 			break;
 			
 		case '/games/pong/waiting':
@@ -153,6 +155,7 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			}
 			app.innerHTML = innerHTML;
 			setWaitingPageLogic();
+			setupHeaderLogic();
 			break;
 		
 		case '/games/pong/game-play':
@@ -171,7 +174,8 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 				// gameClient.initGamePage(canvas);
 				
 				// Start logic
-				setGamePlayPageLogic(); 
+				setGamePlayPageLogic();
+				setupHeaderLogic();
 			}
 			break;
 
