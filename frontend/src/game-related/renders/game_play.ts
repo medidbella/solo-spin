@@ -186,13 +186,15 @@ function startInputLoop(keysPressed: any) {
 
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
-	// console.log("🚀 Space: Sending Start Game...");
+	console.log("🚀 Space: Sending Start Game...");
 
-		console.log(` _________ Player Side: ${gameClient.getSide()} _________`);
+	gameClient.setPlayerState('PLAYING');
+		console.log(` _________ Player Side: ${gameClient.getSide()}  || player State: ${gameClient.getPlayerState()} _________`);
 
 		// 1. Send the Message
 		gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 		gameClient.setHasStarted(true);
+
 		
 		// 2. Start Input Loop
 		if (!gameClient.getInputLoopId()) {

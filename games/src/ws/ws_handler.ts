@@ -7,7 +7,7 @@ import { getPlayer, isPlayerExist, registerNewPlayer, resetPlayerStatesIfAlready
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
 			WSPongInput, PongInput, inputPlayer,
 			WSPongResumeMessage,
-			WSPongPauseMessage, WSPongBreakMessage, GameMode,
+			WSPongPauseMessage, WSPongBreakMessage, GameMode, PongSessionStop,
 			Breaker
  		} from '../../../shared/types'
 
@@ -16,7 +16,9 @@ import { PINGTIMEOUT } from '../../../shared/pong_constants';
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
-import { onlinePlayersRooom } from "../game_manager/games_memory";
+import { getBreaker } from '../game_manager/games_utiles';
+// import { onlinePlayersRooom } from "../game_manager/games_memory";
+// import { Session } from "inspector/promises";
 // import { stat } from "fs";
 
 
@@ -182,7 +184,7 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, pl
 // 	}
 // }
 
-function wsHandler(connection: SocketStream, req: FastifyRequest) {
+async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log(' Server: 🔌 New WebSocket connection established');
 	// console.log('🔌 ');
 
@@ -217,13 +219,49 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 				// Check if they have an EXISTING, OPEN socket
 				if (player.ws && player.ws.readyState === WebSocket.OPEN) {
-					// console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
+					console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
+					console.log(`   ### player State: ${player.playerState}  ### `);
 
 					// 1. Notify the old socket (Optional but polite)
 					player.ws.send(JSON.stringify({
 						type: 'ERROR',
 						payload: { error: 'Multiple Tabs Detected', message: 'New login from another tab.' }
 					}));
+
+					if (player.playerState === 'PLAYING' ) {
+
+						
+						if (player.pongPlayer && player.pongPlayer.sessiondId) {
+							const session: PongSession | undefined = pongGameSessionsRoom.getSession(player.pongPlayer.sessiondId);
+							if (session) {
+								session.stop = true;
+
+								console.log(`  *** Set Stop to : ${session.stop} *** ` );
+
+								// variable = (condition) ? valueIfTrue : valueIfFalse;
+								session.breaker = getBreaker(session, playerId);
+								console.log(`  Breaker:   ${session.breaker}   `);
+								// if (session.gameMode === 'local') {
+									console.log(' ===>>> Debugin end Game <<<====');
+									await pongGameSessionsRoom.endGame(player.pongPlayer.sessiondId, session.gameMode);
+									console.log(' ===>>> finish end Game <<<====');
+
+								// 	console.log(' ===>>> Debugin-3 <<<====');
+
+
+								// 	const stopMsg = pongEngine.createStopGameMsg(player.pongPlayer.sessiondId);
+								// 	console.log(' ===>>> Debugin-4 <<<====');
+									
+								// 	console.log(`  ***  Trying to send Stop message **** `);
+								// 	// sendWSMsg(stopMsg, session);
+								// 	player.ws.send(JSON.stringify(stopMsg));
+
+								// } else if (session.gameMode === 'remote') {
+
+								// }
+							}
+						}
+					}
 
 					// 2. Remove listeners from old socket to prevent triggering 'onclose' cleanup logic
                 	// (This prevents the 'onclose' below from deleting the player entirely)
@@ -232,6 +270,8 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					// 3. Kill it
 					player.ws.terminate();
 					console.log(" ==> Kill the old socker <==");
+
+					console.log(`  Server:  player State: ${player.playerState}  `);
 				}
 					
 				// 4. Assign the NEW socket

@@ -3,12 +3,12 @@
 import { GameMode, GameState, PongSessionData, Winner, Breaker } from '../../../shared/types';
 import { createBall } from './pong_utils';
 import { pongEngine } from './pong_memory';
-import { resetPlayers } from '../game_manager/games_utiles';
+import { getPlayer, resetPlayers } from '../game_manager/games_utiles';
 import { sendWSMsg } from '../ws/ws_handler';
 import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT } from '../../../shared/pong_constants';
 import { GamesPlayer } from '../game_manager/games_types';
 import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
-import { onlinePlayersRooom } from '../game_manager/games_memory';
+import { onlinePlayersRooom, playingPlayersRoom } from '../game_manager/games_memory';
 
 export type Side = 'right' | 'left'
 export type PongPlayerState =
@@ -79,6 +79,7 @@ interface PongSession {
 
 	winner: Winner; // the id of the winnere player
 	breaker: Breaker;
+	stop: boolean;
 
 	nextRoundStartTimestamp: number; // time to start the next round
 }
@@ -95,6 +96,7 @@ interface GameResult {
 // import { v4 as uuidv4 } from 'uuid'; // Assuming you use uuid for unique IDs
 import { randomUUID } from 'crypto';
 import { Session } from 'inspector/promises';
+import fastify from 'fastify';
 
 class PongSessionsRoom {
 
@@ -155,7 +157,8 @@ class PongSessionsRoom {
             ball: createBall(),
 			winner: 'none',
 			breaker: 'none',
-			nextRoundStartTimestamp: 0
+			nextRoundStartTimestamp: 0,
+			stop: false
         };
 
 		if (gameMode === 'local')
@@ -326,6 +329,18 @@ class PongSessionsRoom {
 
 		// 1. Mark as ready:
         session.state = 'playing';
+		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
+		let player2: GamesPlayer | undefined;
+		if (session.gameMode === 'remote')
+			player2 = getPlayer(session.players[0].playerId);
+		else
+			player2 = playingPlayersRoom.get(session.players[1].playerId);
+
+		if (player1)
+			player1.playerState = 'PLAYING';
+		if (player2)
+			player2.playerState = 'PLAYING';
+		
         // console.log(`[PongRoom] Game started: ${sessionId}`);
     }
 
@@ -393,6 +408,8 @@ class PongSessionsRoom {
 		//     session = this.localSessions.get(sessionId);
 		// else
 		// 	session = this.remoteSessions.get(sessionId);
+
+		console.log(" ********* Ending the Game *********");
 		
 		// 1. Find the session
 		const session: PongSession | undefined = this.getSession(sessionId);
@@ -408,6 +425,13 @@ class PongSessionsRoom {
 			session.state = 'finished';
 		else
 			session.state = 'break';
+
+			// if (session.breaker !== 'none')
+			// 	session.state = 'break';
+			// else if (session.stop)
+			// 	session.state = 'stop';
+			// else
+			// 	session.state = 'finished';
 	
 		// store the finale score !!
 		if (gameMode === 'remote') {
@@ -434,13 +458,89 @@ class PongSessionsRoom {
 				}
 		
 				const data = await res.json();
-				// console.log("✅ [Storage] Game saved successfully:", data);
+				console.log("✅ [Storage] Game saved successfully:", data);
 	
 				// console.log(" ### response: ", res);
 			
 			} catch (err: any){
 				console.error(` Failed to save Match Result for Session: ${err.message} `);
 			}
+		}
+
+		console.log(`  Game Mode ==> ${gameMode} <=== `);
+
+		if (session.breaker !== 'none' && session.stop) {
+
+				// variable = (condition) ? valueIfTrue : valueIfFalse;
+
+				// const player: GamesPlayer = (session.breaker === 'p1') ? getPlayer(session.players[0].playerId) : getPlayer(session.players[1].playerId);
+				
+				const stopMsg = pongEngine.createStopGameMsg(sessionId);
+				
+				let player1: GamesPlayer | null;
+				let player2: GamesPlayer | null;
+
+				if (gameMode === 'local') {
+					player1 = getPlayer(session.players[0].playerId);
+					if (player1 && player1.ws)
+						player1.ws.send(JSON.stringify(stopMsg));
+					// player2 = null
+				} else {
+					const breakMsg : PongSessionData = pongEngine.createResutlsMsg(session);
+					console.log(`    break Message type: ${breakMsg.type} || Winner: ${breakMsg.payload.winner}  `);
+					// console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
+					// sendWSMsg(breakMsg, session);
+
+					player1 = getPlayer(session.players[0].playerId);
+					player2 = getPlayer(session.players[1].playerId);
+
+					if (session.breaker === 'p1') {
+						if (player1 && player1.ws) {
+							console.log("   Stop message to player 1");
+							player1.ws.send(JSON.stringify(stopMsg));
+						}
+
+						if (player2 && player2.ws) {
+							console.log("   Break message to player 2");
+							player2.ws.send(JSON.stringify(breakMsg));
+						}
+					}
+					else if (session.breaker === 'p2') {
+						if (player1 && player1.ws) {
+							console.log("   Break message to player 1");
+							player1.ws.send(JSON.stringify(breakMsg));
+						}
+							
+						if (player2 && player2.ws) {
+							console.log("   Stop message to player 2");
+							player2.ws.send(JSON.stringify(stopMsg));
+						}
+					}
+				}
+				
+				// if (player1 && player1.ws) {
+					
+					
+				// 	console.log(`  ***  Trying to send Stop message to player 1 **** `);
+					
+				// 	// console.log(' ===>>> Debugin-4 <<<====');
+				// 	// 
+				// 	// sendWSMsg(stopMsg, session);
+
+				// 	player1.ws.send(JSON.stringify(stopMsg));
+				// }
+
+				// if (player2 && player2.ws) {
+					
+					
+				// 	console.log(`  ***  Trying to send Stop message to player 2 **** `);
+					
+				// 	// console.log(' ===>>> Debugin-4 <<<====');
+				// 	// 
+				// 	// sendWSMsg(stopMsg, session);
+
+				// 	player2.ws.send(JSON.stringify(stopMsg));
+				// }
 		}
 	
 		// console.log(`[PongRoom] Game finished: ${sessionId}`);

@@ -279,6 +279,13 @@ export class WSConnectionsHandler {
 						handleGameOver(data.payload);
 					}
 					break ;
+
+				case 'STOP':
+					console.log("  Got Stop Message ");
+					gameClient.reset();
+					// Navigate to home
+					navigateTo('/home');
+					break;
 				
 				default:
 					break ;

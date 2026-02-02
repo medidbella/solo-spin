@@ -120,7 +120,7 @@ export type ClientMessage = WSConnectMessage
 							| WSPongInput | WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage | WSPongBreakMessage
 export type ServerMessage = 
 							// WSConnectSuccess |
-							PongSessionData | PongSessionIsReady |
+							PongSessionData | PongSessionIsReady | PongSessionStop |
 							WSConnectError; // + GameState updates later
 
 
@@ -129,7 +129,7 @@ export type ServerMessage =
 export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
-export type GameState = 'waiting' | 'ready' | 'playing' | 'PAUSE' | 'finished' | 'break';
+export type GameState = 'waiting' | 'ready' | 'playing' | 'PAUSE' | 'finished' | 'break' | 'stop';
 export type Side = 'left' | 'right';
 export type Breaker = 'p1' | 'p2' | 'none';
 
@@ -195,6 +195,14 @@ export interface PongSessionData {
 
 export interface PongSessionIsReady {
 	type: 'SESSION_READY';
+	game: 'pong';
+	payload: {
+		sessionId: string
+	};
+}
+
+export interface PongSessionStop {
+	type: 'STOP';
 	game: 'pong';
 	payload: {
 		sessionId: string

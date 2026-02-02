@@ -246,4 +246,6 @@ function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlaye
 
 export { addToPlayingPlayersRoom, registerNewPlayer, isPlayerExist,
 		showOnlinePlayers, getPlayer, initializePlayerGameContext,
-		prepareLocalPlayers, resetPlayers, resetPlayerStatesIfAlreadyExist };
+		prepareLocalPlayers, resetPlayers, resetPlayerStatesIfAlreadyExist, getBreaker };
+
+

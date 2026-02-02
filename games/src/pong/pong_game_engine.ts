@@ -6,7 +6,7 @@ import {
     BALL_START_X, BALL_START_Y, BALL_START_SPEED, ROUND_START_DELAY_MS
 } from '../../../shared/pong_constants';
 
-import { PongInput, PongSessionData, PongSessionIsReady, Winner } from '../../../shared/types';
+import { PongInput, PongSessionData, PongSessionIsReady, Winner, PongSessionStop } from '../../../shared/types';
 import { playingPlayersRoom } from '../game_manager/games_memory';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getPlayer } from '../game_manager/games_utiles';
@@ -123,7 +123,7 @@ class PongEngine {
 	}
 
     // create Match Ready Message
-    public createWSMatchIsReadyMessage(sessionId: string) {
+    public createWSMatchIsReadyMessage(sessionId: string): PongSessionIsReady {
         const msg: PongSessionIsReady = {
             type: 'SESSION_READY',
             game: 'pong',
@@ -133,6 +133,19 @@ class PongEngine {
         }
         return msg
     }
+
+    public  createStopGameMsg(sessionId: string): PongSessionStop {
+        console.log(" ===>>> Creating stop message");
+        const msg: PongSessionStop = {
+            type: 'STOP',
+            game: 'pong',
+            payload: {
+                sessionId
+            }
+        }
+        return msg;
+    }
+    
 
     // Keeps the paddle inside the top/bottom edges
     private clamp(y: number): number {
