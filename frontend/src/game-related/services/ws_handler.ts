@@ -3,7 +3,7 @@
 import type { ClientMessage, WSMsgType,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
 				 WSPongInput, WSPongPauseMessage, WSPongResumeMessage, WSPongBreakMessage,
-				PongSessionIsReady, PongSessionData
+				PongSessionIsReady, ServerMessage, PongSessionData
 			// } from '../../../../shared/types'; 
 			} from '../../../shared/types'; 
 
@@ -199,7 +199,7 @@ export class WSConnectionsHandler {
 	private handleIncomingMessage(event: MessageEvent) {
 		try {
 			// 1. Parse the string data into a JSON object
-			const data: PongSessionIsReady = JSON.parse(event.data as string) as PongSessionIsReady;
+			let data: ServerMessage = JSON.parse(event.data as string) as ServerMessage;
 			// console.log("📩 Received:", data);
 			const type: WSMsgType = data.type as WSMsgType;
 			// const payload = data.payload as PongSessionData;
@@ -211,7 +211,7 @@ export class WSConnectionsHandler {
 
 				case 'SESSION_READY':
 					// console.log("🔔 Match Found! Navigating to game arena...");
-					
+					data = data as PongSessionIsReady;
 					// 1. Save the received Game ID
 					gameClient.setGameId(data.payload.sessionId);
 
@@ -223,6 +223,7 @@ export class WSConnectionsHandler {
 					break ;
 
 				case 'GAME_STATE':
+					data = data as PongSessionData;
 					// if (this.onGameUpdate) {
 					// 	// console.log("Calling the call Back");
 					// 	// this.onGameUpdate(data);
@@ -240,6 +241,7 @@ export class WSConnectionsHandler {
 				// Handle Game Over
 				case 'GAME_FINISHED':
 					// console.log("Game Finished");
+					data = data as PongSessionData;
 					if (gameClient.canvas && data.payload) {
 
 						// 1. Draw the final frame so players see the final score

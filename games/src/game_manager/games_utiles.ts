@@ -7,7 +7,7 @@ import { GamesPlayer, AvailableGames } from './games_types';
 
 import { PongPlayer, PongPlayerState, PongSession } from '../pong/pong_types';
 import { createPongPlayer } from '../pong/pong_utils';
-import { SudokuPlayer } from '../sudoku/sudoku_types';
+// import { SudokuPlayer } from '../sudoku/sudoku_types';
 import { Breaker, GameMode } from '../../../shared/types';
 import { pongGameSessionsRoom } from '../pong/pong_memory';
 import { breakPongGame } from '../ws/ws_handler';
@@ -37,7 +37,7 @@ function createNewPlayer(playerId: string, playerName: string, socket: WebSocket
 		concurrentId: null,
 		game: 'not_selected',
 		pongPlayer: null,
-		sudokuPlayer: null,
+		// sudokuPlayer: null,
 		ws: socket,
 		isWsAlive: true
 	}
@@ -70,12 +70,12 @@ function setPongPlayer(playerId: string, pongPlayer: PongPlayer) {
 	player.pongPlayer = pongPlayer;
 }
 
-function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
-	const player: GamesPlayer = getPlayer(playerId);
+// function setSudokuPlayer(playerId: string, sudokuPlayer: SudokuPlayer) {
+// 	const player: GamesPlayer = getPlayer(playerId);
 
-	player.game = 'sudoku';
-	player.sudokuPlayer = sudokuPlayer;
-}
+// 	player.game = 'sudoku';
+// 	player.sudokuPlayer = sudokuPlayer;
+// }
 
 function getBreaker(session: PongSession, playerId: string): Breaker {
 	return (session.players[0].playerId) ? 'p1' : 'p2';
@@ -166,7 +166,7 @@ function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) 
 		player1.concurrentId = null;
 		player1.game = 'not_selected';
 		player1.pongPlayer = null;
-		player1.sudokuPlayer = null;
+		// player1.sudokuPlayer = null;
 
 		// console.log("  ==>> Resetde player 1 <<==");
 		addToAvailablePlayersRoom(player1.playerId);
@@ -185,7 +185,7 @@ function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) 
 			player2.concurrentId = null;
 			player2.game = 'not_selected';
 			player2.pongPlayer = null;
-			player2.sudokuPlayer = null;
+			// player2.sudokuPlayer = null;
 
 			// console.log("  ==>> Resetde player 2 <<==");
 			addToAvailablePlayersRoom(player2.playerId);
@@ -208,14 +208,14 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
     if (gameType === 'pong') {
         // Create the PongPlayer instance (assuming it needs name & side)
         player.pongPlayer = createPongPlayer(playerId, 'left');
-        player.sudokuPlayer = null; // Ensure other games are null
+        // player.sudokuPlayer = null; // Ensure other games are null
 		// console.log("   ## Create pong player1",  player);
 
 		player.playerState = 'WAITING_MATCH';
     } 
     else if (gameType === 'sudoku') {
         // player.sudokuPlayer = new SudokuPlayer(player.playerName);
-        player.sudokuPlayer = null; // not yet
+        // player.sudokuPlayer = null; // not yet
         player.pongPlayer = null;
     }
 }

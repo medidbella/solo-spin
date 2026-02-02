@@ -8,7 +8,7 @@ import {
 } from './pong_constants'; // Import your constants
 
 // import type { PongPayload } from '../../../../shared/types';
-import type { PongPayload } from '../../../shared/types';
+// import type { PongPayload } from '../../../shared/types';
 
 
 type Scale = {
@@ -75,7 +75,7 @@ function drawBall(ctx: CanvasRenderingContext2D, ball: Ball, fillStyle: string |
  * PURE FUNCTION: Renders one frame of the game.
  * Call this every time you get a WebSocket message.
  */
-export function renderPongFrame(canvas: HTMLCanvasElement, data: PongPayload) {
+export function renderPongFrame(canvas: HTMLCanvasElement, data: any) {
     
     // 1. Get Context
     const ctx = canvas.getContext('2d');

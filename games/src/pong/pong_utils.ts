@@ -91,6 +91,7 @@ function createPongPlayer(playerId: string, side: Side): PongPlayer {
 		paddle: createPaddle(side),
 		score: 0,
 		input: { up: false, down: false},
+		sessiondId: null
 	}
 	return player;
 }

@@ -1,6 +1,6 @@
 
 import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
-import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
+// import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
 import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
 import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
 import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
@@ -9,7 +9,7 @@ import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play';
 
 import { router } from '../../main';
 import { gameClient } from './game_client';
-import type { PlayerState, GameMode } from '../../../shared/types';
+import type { PlayerState, GameMode, AvailableGames } from '../../../shared/types';
 // import { createAndSendMessages } from './ws_handler';
 
 export function navigateTo(url: string) {
@@ -25,7 +25,12 @@ function validateGameEntry(path: string): string {
 
 	const playerState: PlayerState = gameClient.getPlayerState();
 	const gameMode: GameMode | null = gameClient.getGameMode();
-	const hasStarted: boolean = gameClient.getHasStarted();
+	const gameId: string | null = gameClient.getGameId();
+	let game: AvailableGames | null = gameClient.getGame();
+	if (!game) {
+		game = 'pong';
+		gameClient.setGame(game);
+	}
 
 	switch (path) {
 		case '/games/pong/game-mode':
@@ -38,8 +43,8 @@ function validateGameEntry(path: string): string {
 			if (playerState === 'GAME_MODE_SELECTED' && gameMode === 'local')
 				path = path;
 			else {
-				if (hasStarted || gameClient.getGameId())
-					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+				if (gameId)
+					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
 
 				gameClient.reset();
 				path = '/games/pong/game-mode';
@@ -51,8 +56,8 @@ function validateGameEntry(path: string): string {
 			if ((playerState === 'FRIEND_NAME_SELECTED' && gameMode === 'local') || (playerState === 'GAME_MODE_SELECTED' && gameMode === 'remote'))
 				path = path;
 			else {
-				if (hasStarted || gameClient.getGameId())
-					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+				if (gameId)
+					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
 
 				gameClient.reset();
 				path = '/games/pong/game-mode';
@@ -65,11 +70,11 @@ function validateGameEntry(path: string): string {
 				path = path;
 			else {
 
-				// console.log("  Game Id: ", gameClient.getGameId());
+				// console.log("  Game Id: ", gameId);
 
-				if (hasStarted || gameClient.getGameId()) {
+				if (gameId) {
 					// console.log("   ==> Sending Break Message <==");
-					gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);
+					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
 				}
 
 				gameClient.reset();

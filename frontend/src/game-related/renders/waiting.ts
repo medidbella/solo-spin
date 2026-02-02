@@ -84,11 +84,17 @@ export function setWaitingPageLogic() {
 			}
 			
 			// D. Handle Server Error (e.g., "System Busy")
-			else {
-				console.error(`❌ Server Error: ${response.error}`);
-				alert(`Setup Failed: ${response.error}`); // Simple feedback
-				navigateTo('/games/pong/setup'); // Go back to try again
+			else if (response.status === 'error') {
+				// TypeScript now knows 'response' is HttpSetupError
+				console.error(`❌ Server Error: ${response.error}`); // ✅ Works now
+				alert(`Setup Failed: ${response.error}`);
+				navigateTo('/games/pong/game-mode');
 			}
+			// else {
+				// console.error(`❌ Server Error: ${response.error}`);
+				// alert(`Setup Failed: ${response.error}`); // Simple feedback
+				// navigateTo('/games/pong/setup'); // Go back to try again
+			// }
 
 		} catch (error) {
 

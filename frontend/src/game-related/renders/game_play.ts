@@ -131,7 +131,7 @@ function startInputLoop(keysPressed: any) {
 	if (!gameId) return;
 
 	const gameMode: GameMode = gameClient.getGameMode() || 'local';
-	const playerSide: Side = gameClient.getSide();
+	const playerSide: Side | null = gameClient.getSide();
 	
 	const inputLoopId = window.setInterval(() => {
 

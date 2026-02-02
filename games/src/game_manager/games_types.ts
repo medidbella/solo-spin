@@ -3,7 +3,7 @@
 import { WebSocket } from 'ws';
 
 import { PongPlayer, PongPlayerState } from '../pong/pong_types';
-import { SudokuPlayer } from '../sudoku/sudoku_types';
+// import { SudokuPlayer } from '../sudoku/sudoku_types';
 
 type AvailableGames = 'not_selected' | 'pong' | 'sudoku';
 // type GameState = 'waiting' | 'playing' | 'finished';
@@ -34,7 +34,7 @@ interface GamesPlayer {
 	// pongSutUp: PongSutUp;
 	// sudokuSetUp: SudokuSetUp;
 	pongPlayer: PongPlayer | null;
-	sudokuPlayer: SudokuPlayer | null;
+	// sudokuPlayer: SudokuPlayer | null;
 
 	// pongPlayer2: PongPlayer | null; // for player 2 for local pong game
 }
