@@ -112,7 +112,8 @@ export class WSConnectionsHandler {
 	}
 
 	private sendWSMessage(msg: ClientMessage) {
-		this.socket!.send(JSON.stringify(msg));
+		if (this.socket)
+			this.socket.send(JSON.stringify(msg));
 	}
 
 	// private isWinner(payload: PongSessionData) {

@@ -42,7 +42,7 @@ export const routeStatesMap: Record<string, 'private' | 'public'> = {
   '/profiles'    : 'private',
 };
 
-export async function router(path: string)
+export async function router(path: string): Promise<string>
 {  
 	path = await redirectBasedOnAuth(path);
 	
@@ -86,7 +86,7 @@ export async function router(path: string)
 					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
 							|| 'unexpected error please login again')}`);
 					router('/login');
-					return;
+					return path;
 				}
 			}
 			setupHeaderLogic();
@@ -108,7 +108,7 @@ export async function router(path: string)
 					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
 							|| 'unexpected error please login again')}`);
 					router('/login');
-					return;
+					return path;
 				}
 			}
 			setupHeaderLogic();
@@ -165,6 +165,7 @@ export async function router(path: string)
 		default:
 			app.innerHTML = '<div class="text-center mt-20"><h1 class="text-3xl font-bold text-red-600">404 - Not Found</h1><a href="/" data-link class="text-white underline">Go Home</a></div>';
 	}
+	return path;
 }
 
 window.addEventListener('popstate', () => {
@@ -188,14 +189,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
   });
-
   
-  router(window.location.pathname);
-
-	// Initialize WebSocket connection after app is ready
-	gameClient.protectGameWSUpdates().catch((err) => {
-		console.error("Failed to initialize WebSocket connection:", err);
-	});
+	(async () => {
+		const resolvedPath = await router(window.location.pathname);
+		gameClient.protectGameWSUpdates(resolvedPath);
+	})();
 
 });
 

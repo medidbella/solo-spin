@@ -237,14 +237,22 @@ class GameClient {
 		}
 	}
 
-	public async protectGameWSUpdates() {
+	public async protectGameWSUpdates(path: string) {
+
+		if (this.wsConnectionsHandler.isSocketConnected()) {
+			console.log("  ## WS already Connected ## ");
+			return ;
+		}
 
 		// THE GLOBAL CONNECTION LOGIC:
 		// Define which routes require a server connection
-		// const publicRoutes = ['/', '/login', '/signup', '/404'];
+		// const path = window.location.pathname;
+		console.log(` >>>> Current path: ${path}  <<<< `);
+		const publicRoutes = ['/', '/login', '/signup', '/404'];
 	
-		// if (!publicRoutes.includes(path)) {
-			// If the user is on /home, /game, /chat, etc... they MUST be logged in.
+		if (!publicRoutes.includes(path)) {
+			// If the user is on /home, /game, 
+			console.log("🔒 Private Route Detected. Initializing Game Connection..."); //chat, etc... they MUST be logged in.
 			// So we ensure the socket is connected.
 			try {
 					console.log(" Client: connecting Ws to server ...");
@@ -261,7 +269,9 @@ class GameClient {
 				} catch (err: any) {
 					navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
 				}
-			// }
+			}
+			else
+				console.log("🔓 Public Route. Skipping WS connection.");
 		}
 }
 
