@@ -135,4 +135,13 @@ db-import: ## Import Kibana Dashboards from local file
 	@curl -s -k -X POST "$(KIBANA_URL)/api/saved_objects/_import?overwrite=true" $(KIBANA_AUTH) -H "kbn-xsrf:true" --form file=@$(DASH_FILE) > /dev/null
 	@echo "$(GREEN)[SUCCESS] Assets restored.$(RESET)"
 
+
+# ==============================================================================
+# RESET OPTIONS
+# ==============================================================================
+
+re: down clean prod
+
+
+
 .PHONY: help dev prod down clean logs ps db-gen db-push db-studio db-export db-import
