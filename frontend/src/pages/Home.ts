@@ -34,8 +34,12 @@ return /* html */`
 						</div>
 					</div>
 					
-					<div class="relative bg-[#2A3FA1] flex items-center justify-around lg:justify-between flex-none lg:flex-4 min-h-[200px] px-4 md:px-6 py-4 shadow-[-6px_-6px_0px_#441563] md:shadow-[-10px_-10px_0px_#441563]">
-						<img class="hidden lg:block h-full max-w-[25%] object-contain" src="./../../public/imgs/orange-boy.png" alt="Orange Team Player">
+					<div class="relative bg-[#2A3FA1] flex items-center justify-around lg:justify-between flex-none lg:flex-4 min-h-[200px] px-4 md:px-6 py-4 shadow-[-6px_-6px_0px_#441563] md:shadow-[-10px_-10px_0px_#441563] overflow-visible">
+    
+						<img class="hidden lg:block h-[120%] w-auto object-contain drop-shadow-[0_0_40px_rgba(255,0,0,0.7)] scale-110 -translate-x-4 -translate-y-6 z-20" 
+							src="./../../public/imgs/igris.png" 
+							alt="Orange Team Player">
+
 						<div class="flex flex-col items-center text-[#F2F2F2] z-10">
 							<h1 class="font-[solo] text-5xl md:text-7xl lg:text-9xl text-[#441563] opacity-80 mb-2">
 								SoloSpin
@@ -46,7 +50,10 @@ return /* html */`
 								<p>JOIN US FOR A MATCH!</p>
 							</div>
 						</div>
-						<img class="hidden lg:block h-full max-w-[25%] object-contain" src="./../../public/imgs/SignUpimg.png" alt="Blue Team Player">
+
+						<img class="hidden lg:block h-[130%] max-w-[30%] object-contain drop-shadow-[0_0_30px_rgba(200,23,200,1)] scale-100 translate-x-6 -translate-y-10 z-20" 
+							src="./../../public/imgs/sungjin.png" 
+							alt="Blue Team Player">
 					</div>
 					
 					<div class="flex-none lg:flex-3 min-h-0 w-full flex gap-6 pb-20 lg:pb-0">
