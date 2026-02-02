@@ -1,47 +1,65 @@
-<div class="flex flex-col items-center justify-center w-full max-w-lg">
+<div class="w-full h-full relative flex items-center justify-center">
 
-    <div class="w-full bg-black border-2 border-[#441563] shadow-[10px_-10px_0px_#441563] p-10 flex flex-col gap-8 relative overflow-hidden">
-        
-        <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#2A3FA1] to-transparent opacity-20"></div>
-
-        <div class="text-center space-y-2">
-            <i class="fa-solid fa-user-plus text-4xl text-[#441563] mb-4"></i>
-            <h1 class="font-[solo] text-3xl lg:text-4xl text-[#F2F2F2] tracking-wider drop-shadow-[0_0_5px_#441563]">
-                CHALLENGE A FRIEND
-            </h1>
-            <p class="font-sans text-gray-400 text-sm">Enter Player 2's Name</p>
+    <div class="flex md:hidden flex-col items-center justify-center h-full text-center gap-8 px-8 bg-black/95 z-50 absolute inset-0">
+        <div class="space-y-6 border-[4px] border-[#441563] p-8 shadow-[0_0_25px_#2A3FA155]">
+            <h2 class="text-[#F2F2F2] text-3xl font-[solo] tracking-[0.1em] uppercase drop-shadow-[0_0_5px_#441563]">
+                SCREEN TOO SMALL
+            </h2>
+            <div class="w-full h-[2px] bg-[#441563]"></div>
+            <p class="text-[#2A3FA1] text-lg font-bold tracking-widest uppercase leading-loose">
+                GAMEPLAY NOT SUPPORTED <br> AT THIS RESOLUTION
+            </p>
+            <p class="text-[#F2F2F2] text-sm tracking-wider uppercase animate-pulse">
+                PLEASE RESIZE WINDOW
+            </p>
         </div>
-        
-        <div class="space-y-6">
+    </div>
+
+    <div class="hidden md:flex flex-col items-center justify-center w-full max-w-lg">
+
+        <div class="w-full bg-black border-2 border-[#441563] shadow-[10px_-10px_0px_#441563] p-10 flex flex-col gap-8 relative overflow-hidden">
             
-            <div class="relative group">
-                <label for="friendNameInput" class="block font-[solo] text-lg text-[#2A3FA1] mb-2 group-focus-within:text-[#F2F2F2] transition-colors">
-                    FRIEND'S NAME
-                </label>
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#2A3FA1] to-transparent opacity-20"></div>
+
+            <div class="text-center space-y-2">
+                <i class="fa-solid fa-user-plus text-4xl text-[#441563] mb-4"></i>
+                <h1 class="font-[solo] text-3xl lg:text-4xl text-[#F2F2F2] tracking-wider drop-shadow-[0_0_5px_#441563]">
+                    CHALLENGE A FRIEND
+                </h1>
+                <p class="font-sans text-gray-400 text-sm">Enter Player 2's Name</p>
+            </div>
+            
+            <div class="space-y-6">
                 
-                <input 
-                    type="text" 
-                    id="friendNameInput" 
-                    autocomplete="off"
-                    class="w-full bg-[#0F0317] border-2 border-[#441563] text-[#F2F2F2] font-sans text-lg px-4 py-3 
-                           focus:outline-none focus:border-[#2A3FA1] focus:shadow-[0_0_15px_#2A3FA1] 
-                           placeholder-gray-600 transition-all duration-300"
-                    placeholder="Type name here..."
+                <div class="relative group">
+                    <label for="friendNameInput" class="block font-[solo] text-lg text-[#2A3FA1] mb-2 group-focus-within:text-[#F2F2F2] transition-colors">
+                        FRIEND'S NAME
+                    </label>
+                    
+                    <input 
+                        type="text" 
+                        id="friendNameInput" 
+                        autocomplete="off"
+                        class="w-full bg-[#0F0317] border-2 border-[#441563] text-[#F2F2F2] font-sans text-lg px-4 py-3 
+                               focus:outline-none focus:border-[#2A3FA1] focus:shadow-[0_0_15px_#2A3FA1] 
+                               placeholder-gray-600 transition-all duration-300"
+                        placeholder="Type name here..."
+                    >
+                    
+                    <div id="errorMessage" class="text-red-500 font-[solo] text-sm mt-2 min-h-[1.5rem] tracking-wide"></div>
+                </div>
+
+                <button 
+                    id="startGameBtn"
+                    class="w-full bg-black font-[solo] text-2xl text-[#441563] border border-[#441563] py-3 
+                           shadow-[5px_-5px_0px_#441563] cursor-pointer 
+                           hover:scale-[1.02] hover:text-[#F2F2F2] hover:bg-[#2A3FA1] hover:border-[#2A3FA1] hover:shadow-[5px_-5px_0px_#F2F2F2]
+                           active:scale-95 duration-300 uppercase tracking-widest"
                 >
-                
-                <div id="errorMessage" class="text-red-500 font-[solo] text-sm mt-2 min-h-[1.5rem] tracking-wide"></div>
+                    Start Game
+                </button>
             </div>
 
-            <button 
-                id="startGameBtn"
-                class="w-full bg-black font-[solo] text-2xl text-[#441563] border border-[#441563] py-3 
-                       shadow-[5px_-5px_0px_#441563] cursor-pointer 
-                       hover:scale-[1.02] hover:text-[#F2F2F2] hover:bg-[#2A3FA1] hover:border-[#2A3FA1] hover:shadow-[5px_-5px_0px_#F2F2F2]
-                       active:scale-95 duration-300 uppercase tracking-widest"
-            >
-                Start Game
-            </button>
         </div>
-
     </div>
 </div>

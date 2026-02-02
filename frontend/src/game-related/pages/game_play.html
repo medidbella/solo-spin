@@ -1,77 +1,105 @@
-<div class="relative flex flex-col items-center justify-center w-full max-w-[1200px] mx-auto gap-4 mt-24">
+<div class="w-full h-full relative">
 
-    <div class="relative grid grid-cols-[min-content_auto_min-content] items-center gap-6">
+    <div class="flex md:hidden flex-col items-center justify-center h-full text-center gap-8 px-8 bg-black/95 z-50 absolute inset-0">
+        
+        <div class="space-y-6 border-[4px] border-[#441563] p-8 shadow-[0_0_25px_#2A3FA155]">
+            <h2 class="text-[#F2F2F2] text-3xl font-[solo] tracking-[0.1em] uppercase drop-shadow-[0_0_5px_#441563]">
+                SCREEN TOO SMALL
+            </h2>
+            
+            <div class="w-full h-[2px] bg-[#441563]"></div>
 
-        <button 
-            id="pauseBtn" 
-            class="absolute left-1/2 -translate-x-1/2 -top-[80px] z-30
-                   w-[60px] h-[60px] rounded-full flex items-center justify-center
-                   bg-black border-2 border-[#441563] shadow-[0_0_15px_#441563_inset,0_0_15px_#441563] text-[#F2F2F2]
-                   hover:border-[#2A3FA1] hover:shadow-[0_0_20px_#2A3FA1_inset,0_0_20px_#2A3FA1] hover:scale-105 
-                   transition-all duration-300 cursor-pointer"
-            aria-label="Pause"
-        >
-            <i class="fa-solid fa-pause text-2xl drop-shadow-[0_0_5px_#F2F2F2]"></i>
-        </button>
-        <div class="flex flex-col items-center gap-3">
-            <span id="player1Name" class="text-[#2A3FA1] text-xl tracking-widest uppercase truncate max-w-[120px]">
-                Player 1
-            </span>
-            <div class="w-[120px] h-[80px] flex items-center justify-center bg-black border-2 border-[#441563] shadow-[5px_5px_0px_#441563] rounded-lg">
-                <span id="score1" class="text-4xl text-[#F2F2F2] drop-shadow-[0_0_10px_#F2F2F2]">0</span>
-            </div>
+            <p class="text-[#2A3FA1] text-lg font-bold tracking-widest uppercase leading-loose">
+                GAMEPLAY NOT SUPPORTED 
+                <br>
+                AT THIS RESOLUTION
+            </p>
+            
+            <p class="text-[#F2F2F2] text-sm tracking-wider uppercase animate-pulse">
+                PLEASE RESIZE WINDOW
+            </p>
         </div>
 
+    </div>
 
-        <div class="relative group">
-            
-            <div class="relative p-0 border-[4px] border-[#441563] shadow-[0_0_25px_#2A3FA155]">
-                <canvas 
-                    id="pongCanvas" 
-                    width="900" 
-                    height="540" 
-                    class="bg-[#050505] block w-[900px] h-[540px]"
-                ></canvas>
-            </div>
 
-            <div id="startMessage" class="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px] z-10">
-                <div class="text-center animate-pulse">
-                    <p class="text-[#F2F2F2] text-4xl tracking-[0.2em] drop-shadow-[0_0_10px_#2A3FA1]">
-                        PRESS SPACE
-                    </p>
-                    <p class="text-[#2A3FA1] text-lg tracking-widest mt-3 uppercase">
-                        TO START GAME
-                    </p>
+    <div class="hidden md:flex flex-col items-center justify-center w-full h-full max-w-[1400px] mx-auto">
+
+        <div class="relative w-full grid grid-cols-[min-content_minmax(0,1fr)_min-content] items-center gap-2 lg:gap-6 px-2 lg:px-8">
+
+            <button 
+                id="pauseBtn" 
+                class="absolute left-1/2 -translate-x-1/2 -top-[60px] z-30
+                       w-[60px] h-[60px] rounded-full flex items-center justify-center
+                       bg-black border-2 border-[#441563] shadow-[0_0_15px_#441563_inset,0_0_15px_#441563] text-[#F2F2F2]
+                       hover:border-[#2A3FA1] hover:shadow-[0_0_20px_#2A3FA1_inset,0_0_20px_#2A3FA1] hover:scale-105 
+                       transition-all duration-300 cursor-pointer"
+                aria-label="Pause"
+            >
+                <i class="fa-solid fa-pause text-2xl drop-shadow-[0_0_5px_#F2F2F2]"></i>
+            </button>
+
+
+            <div class="flex flex-col items-center gap-2 lg:gap-3">
+                <span id="player1Name" class="text-[#2A3FA1] text-lg lg:text-xl font-bold tracking-widest uppercase truncate max-w-[100px] lg:max-w-[120px]">
+                    Player 1
+                </span>
+                <div class="w-24 h-16 lg:w-[120px] lg:h-[80px] flex items-center justify-center bg-black border-2 border-[#441563] shadow-[5px_5px_0px_#441563] rounded-lg">
+                    <span id="score1" class="text-3xl lg:text-4xl text-[#F2F2F2] drop-shadow-[0_0_10px_#F2F2F2]">0</span>
                 </div>
             </div>
 
-            <div id="gameOverMessage" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md z-20 border-[4px] border-[#441563]">
-                
-                <h2 class="text-[#F2F2F2] text-5xl tracking-widest uppercase mb-6 drop-shadow-[0_0_15px_#441563]">
-                    GAME OVER
-                </h2>
-                
-                <p id="winnerText" class="text-[#2A3FA1] text-3xl mb-10 drop-shadow-[0_0_5px_#2A3FA1]">
-                    PLAYER 1 WINS!
-                </p>
 
-                <button id="backHomeBtn" class="px-8 py-3 bg-[#441563] hover:bg-[#2A3FA1] text-[#F2F2F2] text-xl border border-[#F2F2F2] 
-                    shadow-[0_0_15px_#441563] hover:shadow-[0_0_20px_#2A3FA1] transition-all transform hover:scale-105 active:scale-95">
-                    RETURN HOME
-                </button>
+            <div class="relative group w-full flex justify-center items-center">
+                
+                <div class="relative w-full max-w-[900px] max-h-[70vh] aspect-[5/3] border-[4px] border-[#441563] shadow-[0_0_25px_#2A3FA155]">
+                    
+                    <canvas 
+                        id="pongCanvas" 
+                        width="900" 
+                        height="540" 
+                        class="bg-[#050505] block w-full h-full"
+                    ></canvas>
+                    
+                    <div class="absolute left-1/2 top-0 bottom-0 w-[2px] -ml-[1px] bg-gradient-to-b from-transparent via-[#2A3FA1] to-transparent opacity-20 pointer-events-none"></div>
+                </div>
+
+                <div id="startMessage" class="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px] z-10 w-full max-w-[900px] max-h-[70vh] aspect-[5/3] mx-auto">
+                    <div class="text-center animate-pulse">
+                        <p class="text-[#F2F2F2] text-2xl lg:text-4xl tracking-[0.2em] drop-shadow-[0_0_10px_#2A3FA1]">
+                            PRESS SPACE
+                        </p>
+                        <p class="text-[#2A3FA1] text-sm lg:text-lg tracking-widest mt-3 uppercase">
+                            TO START GAME
+                        </p>
+                    </div>
+                </div>
+
+                <div id="gameOverMessage" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md z-20 border-[4px] border-[#441563] w-full max-w-[900px] max-h-[70vh] aspect-[5/3] mx-auto">
+                    <h2 class="text-[#F2F2F2] text-3xl lg:text-5xl tracking-widest uppercase mb-6 drop-shadow-[0_0_15px_#441563]">
+                        GAME OVER
+                    </h2>
+                    <p id="winnerText" class="text-[#2A3FA1] text-xl lg:text-3xl mb-10 drop-shadow-[0_0_5px_#2A3FA1]">
+                        PLAYER 1 WINS!
+                    </p>
+                    <button id="backHomeBtn" class="px-8 py-3 bg-[#441563] hover:bg-[#2A3FA1] text-[#F2F2F2] text-lg lg:text-xl border border-[#F2F2F2] 
+                        shadow-[0_0_15px_#441563] hover:shadow-[0_0_20px_#2A3FA1] transition-all transform hover:scale-105 active:scale-95">
+                        RETURN HOME
+                    </button>
+                </div>
+
+            </div>
+
+
+            <div class="flex flex-col items-center gap-2 lg:gap-3">
+                <span id="player2Name" class="text-[#2A3FA1] text-lg lg:text-xl font-bold tracking-widest uppercase truncate max-w-[100px] lg:max-w-[120px]">
+                    Player 2
+                </span>
+                <div class="w-24 h-16 lg:w-[120px] lg:h-[80px] flex items-center justify-center bg-black border-2 border-[#2A3FA1] shadow-[-5px_5px_0px_#2A3FA1] rounded-lg">
+                    <span id="score2" class="text-3xl lg:text-4xl text-[#F2F2F2] drop-shadow-[0_0_10px_#F2F2F2]">0</span>
+                </div>
             </div>
 
         </div>
-
-
-        <div class="flex flex-col items-center gap-3">
-            <span id="player2Name" class="text-[#2A3FA1] text-xl tracking-widest uppercase truncate max-w-[120px]">
-                Player 2
-            </span>
-            <div class="w-[120px] h-[80px] flex items-center justify-center bg-black border-2 border-[#2A3FA1] shadow-[-5px_5px_0px_#2A3FA1] rounded-lg">
-                <span id="score2" class="text-4xl text-[#F2F2F2] drop-shadow-[0_0_10px_#F2F2F2]">0</span>
-            </div>
-        </div>
-
     </div>
 </div>

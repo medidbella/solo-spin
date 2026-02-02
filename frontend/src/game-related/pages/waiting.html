@@ -1,30 +1,49 @@
-<div class="flex flex-col items-center justify-center w-full max-w-lg">
+<div class="w-full h-full relative flex items-center justify-center">
 
-    <div class="w-full bg-black border-2 border-[#441563] shadow-[10px_-10px_0px_#441563] p-12 flex flex-col items-center gap-8">
-        
-        <h2 class="font-[solo] text-3xl text-[#F2F2F2] tracking-wider drop-shadow-[0_0_5px_#441563]">
-            GAME LOBBY
-        </h2>
-
-        <div class="relative flex justify-center items-center h-24 w-24">
-            <div class="absolute w-20 h-20 border-4 border-[#441563] border-t-[#2A3FA1] rounded-full animate-spin shadow-[0_0_20px_#2A3FA1]"></div>
-            
-            <div class="w-10 h-10 bg-[#0F0317] border border-[#2A3FA1] rounded-full shadow-[inset_0_0_10px_#2A3FA1]"></div>
+    <div class="flex md:hidden flex-col items-center justify-center h-full text-center gap-8 px-8 bg-black/95 z-50 absolute inset-0">
+        <div class="space-y-6 border-[4px] border-[#441563] p-8 shadow-[0_0_25px_#2A3FA155]">
+            <h2 class="text-[#F2F2F2] text-3xl font-[solo] tracking-[0.1em] uppercase drop-shadow-[0_0_5px_#441563]">
+                SCREEN TOO SMALL
+            </h2>
+            <div class="w-full h-[2px] bg-[#441563]"></div>
+            <p class="text-[#2A3FA1] text-lg font-bold tracking-widest uppercase leading-loose">
+                GAMEPLAY NOT SUPPORTED <br> AT THIS RESOLUTION
+            </p>
+            <p class="text-[#F2F2F2] text-sm tracking-wider uppercase animate-pulse">
+                PLEASE RESIZE WINDOW
+            </p>
         </div>
+    </div>
 
-        <p id="waitingMessage" class="font-[solo] text-xl text-[#F2F2F2] animate-pulse text-center tracking-wide">
-            Initializing...
-        </p>
 
-        <button 
-            id="cancelWaitBtn"
-            class="w-full bg-black font-[solo] text-2xl text-[#441563] border border-[#441563] py-2 
-                   shadow-[5px_-5px_0px_#441563] cursor-pointer 
-                   hover:scale-[1.02] hover:text-[#F2F2F2] hover:bg-red-600 hover:border-red-600 hover:shadow-[5px_-5px_0px_#F2F2F2]
-                   active:scale-95 duration-300 uppercase tracking-widest mt-4"
-        >
-            Cancel
-        </button>
+    <div class="hidden md:flex flex-col items-center justify-center w-full max-w-lg">
 
+        <div class="w-full bg-black border-2 border-[#441563] shadow-[10px_-10px_0px_#441563] p-12 flex flex-col items-center gap-8">
+            
+            <h2 class="font-[solo] text-3xl text-[#F2F2F2] tracking-wider drop-shadow-[0_0_5px_#441563]">
+                GAME LOBBY
+            </h2>
+
+            <div class="relative flex justify-center items-center h-24 w-24">
+                <div class="absolute w-20 h-20 border-4 border-[#441563] border-t-[#2A3FA1] rounded-full animate-spin shadow-[0_0_20px_#2A3FA1]"></div>
+                
+                <div class="w-10 h-10 bg-[#0F0317] border border-[#2A3FA1] rounded-full shadow-[inset_0_0_10px_#2A3FA1]"></div>
+            </div>
+
+            <p id="waitingMessage" class="font-[solo] text-xl text-[#F2F2F2] animate-pulse text-center tracking-wide">
+                Initializing...
+            </p>
+
+            <button 
+                id="cancelWaitBtn"
+                class="w-full bg-black font-[solo] text-2xl text-[#441563] border border-[#441563] py-2 
+                       shadow-[5px_-5px_0px_#441563] cursor-pointer 
+                       hover:scale-[1.02] hover:text-[#F2F2F2] hover:bg-red-600 hover:border-red-600 hover:shadow-[5px_-5px_0px_#F2F2F2]
+                       active:scale-95 duration-300 uppercase tracking-widest mt-4"
+            >
+                Cancel
+            </button>
+
+        </div>
     </div>
 </div>
