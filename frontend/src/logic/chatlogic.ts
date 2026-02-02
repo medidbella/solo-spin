@@ -59,13 +59,8 @@ export async function setupchatlogic() {
     }
 
     socket.on('private_message', (data: any) => {
-        if (activechatid === data.from) {
+        if (activechatid === data.from)
             appendmessage({ senderId: data.from, content: data.content }, currentuserid);
-            apiFetch('/api/messages/seen', {
-                method: 'PATCH',
-                body: JSON.stringify({ user_id: currentuserid, peer_id: data.from })
-            });
-        }
     });
 
     socket.on('update_user_list', (onlineids: string[]) => {
@@ -94,11 +89,7 @@ export async function setupchatlogic() {
                     try {
                         const history = await apiFetch<any[]>(`/api/messages?user1_id=${currentuserid}&user2_id=${friend.id}`);
                         history?.forEach((msg: any) => appendmessage(msg, currentuserid));
-                        await apiFetch('/api/messages/seen', {
-                            method: 'PATCH',
-                            body: JSON.stringify({ user_id: currentuserid, peer_id: friend.id })
-                        });
-                    } catch (err) {}
+                    } catch {}
                 }
             };
             contactscontainer.appendChild(userelement);
