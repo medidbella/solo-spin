@@ -27,16 +27,8 @@ class PongEngine {
     }
 
     public gameTick(session: PongSession): PongSessionData {
-		let winner: Winner = 'none';
-        
-        // // 1. Retrieve the specific Game Session from Memory
-        // const session: PongSession | undefined = pongGameSessionsRoom.getSession(sessionId, gameMode);
-
-        // // Safety Check: Does the game exist?
-        // if (!session || session.state !== 'playing') {
-        //     console.error(`[PongEngine] Game ${sessionId} not active.`);
-        //     return null;
-        // }
+		// let winner: Winner = 'none';
+    
 
         // 2. all sub-methods here
         // this.updatePaddles(session, player.pongPlayer, move); // will be called only if player moves

@@ -28,22 +28,6 @@ const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
 export class WSConnectionsHandler {
 
 	private socket: WebSocket | null = null;
-	// public socket: WebSocket | null = null;
-
-	// private onGameUpdate: GameUpdateCallback | null = null;
-
-	/**
-		* Allow the Frontend to register a listener
-		* When the Game Page loads then it will pass the 'draw()' function here.
-	*/
-	// public setGameUpdateListenerCallback(callback: GameUpdateCallback | null) {
-	// 	console.log('Set the Call back');
-	//     this.onGameUpdate = callback;
-	// }
-
-	// private constructor() {
-	// 	this.connect();
-	// }
 
 	public isSocketConnected(): boolean { 
 		// 1. Check if socket object exists

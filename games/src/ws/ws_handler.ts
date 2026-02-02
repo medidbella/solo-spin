@@ -156,34 +156,6 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, pl
 	}
 }
 
-// function handlerWsOnCloseAndError(playerId: string | undefined, connection: SocketStream) {
-// 	// 1. Check if this player is already Exist !!
-// 	if (playerId && isPlayerExist(playerId)) {
-// 		const player: GamesPlayer = getPlayer(playerId);
-
-// 		// clear ws-related
-// 		if (player.ws) {
-
-// 			// console.log(`  ---  New WS === Old WS : ${(connection.socket == player.ws)}  --- `);
-
-// 			// console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
-			
-// 			// Remove listeners
-// 			player.ws.removeAllListeners();
-
-// 			// B. Force close the OLD connection
-// 			player.ws.terminate(); // terminate() is harder/faster than .close()
-// 			// console.log(`  Close the old Ws of the playerId: ${playerId}  `);
-// 		}
-
-// 		// 2. Create/Update the Player Object with the NEW Socket
-// 		// Just update the socket reference
-// 		player.ws = connection.socket;
-// 		// console.log(`✅ Updated socket for player ${playerId}`);
-// 		resetPlayerStatesIfAlreadyExist(playerId);
-// 	}
-// }
-
 async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log(' Server: 🔌 New WebSocket connection established');
 	// console.log('🔌 ');
@@ -284,30 +256,6 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
            		resetPlayerStatesIfAlreadyExist(playerId);
 			}
 
-
-		
-			// 1. Check if this player is already Exist !!
-			// if (isPlayerExist(playerId)) {
-			// 	const player: GamesPlayer = getPlayer(playerId);
-
-			// 	// clear ws-related
-			// 	if (player.ws) {
-
-			// 		console.log(`⚠️ Duplicate connection detected for ${playerId}. Closing old socket...`);
-					
-			// 		// Remove listeners
-			// 		player.ws.removeAllListeners();
-
-			// 		// B. Force close the OLD connection
-			// 	    player.ws.terminate(); // terminate() is harder/faster than .close()
-			// 		console.log(`  Close the old Ws of the playerId: ${playerId}  `);
-			// 	}
-
-			// 	// 2. Create/Update the Player Object with the NEW Socket
-			// 	// Just update the socket reference
-			// 	player.ws = connection.socket;
-			// 	console.log(`✅ Updated socket for player ${playerId}`);
-			// }
             
         } catch (err) {
 			// console.log("Invalid Token");

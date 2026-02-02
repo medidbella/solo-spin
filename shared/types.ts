@@ -12,7 +12,8 @@ export type WSMsgType =
 	| 'PAUSE'
 	| 'RESUME'
 	| 'SESSION_READY'
-	| 'BREAK' 
+	| 'BREAK'
+	| 'STOP'
 
 // 2. Define the Games
 export type GameType = 'pong' | 'sudoku';

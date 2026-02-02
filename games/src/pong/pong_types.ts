@@ -95,8 +95,8 @@ interface GameResult {
 
 // import { v4 as uuidv4 } from 'uuid'; // Assuming you use uuid for unique IDs
 import { randomUUID } from 'crypto';
-import { Session } from 'inspector/promises';
-import fastify from 'fastify';
+// import { Session } from 'inspector/promises';
+// import fastify from 'fastify';
 
 class PongSessionsRoom {
 
@@ -289,15 +289,6 @@ class PongSessionsRoom {
      * 3. Start the game: Set state = 'playing'
      */
     public startGame(sessionId: string): void {
-		// let session: PongSession | undefined;
-		// if (gameMode === 'local')
-	    //     session = this.localSessions.get(sessionId);
-        // else
-		// 	session = this.remoteSessions.get(sessionId);
-		// if (!session) {
-        //     console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
-        //     return;
-        // }
 
 		const session: PongSession | undefined = this.getSession(sessionId)
 
@@ -320,12 +311,6 @@ class PongSessionsRoom {
 
 		// console.log(`   _____ Player 1 Side: ${session.players[0].side} __________`);
 		// console.log(`   _____ Player 2 Side: ${session.players[1].side} __________`);
-
-		// console.log("__________________Player 1________________");
-		// console.log("player 1:", session.players[0]);
-		// console.log("__________________Player 2________________");
-		// console.log("player 2:", session.players[1]);
-		// console.log("__________________________________________");
 
 		// 1. Mark as ready:
         session.state = 'playing';
@@ -409,7 +394,7 @@ class PongSessionsRoom {
 		// else
 		// 	session = this.remoteSessions.get(sessionId);
 
-		console.log(" ********* Ending the Game *********");
+		// console.log(" ********* Ending the Game *********");
 		
 		// 1. Find the session
 		const session: PongSession | undefined = this.getSession(sessionId);
@@ -425,13 +410,6 @@ class PongSessionsRoom {
 			session.state = 'finished';
 		else
 			session.state = 'break';
-
-			// if (session.breaker !== 'none')
-			// 	session.state = 'break';
-			// else if (session.stop)
-			// 	session.state = 'stop';
-			// else
-			// 	session.state = 'finished';
 	
 		// store the finale score !!
 		if (gameMode === 'remote') {
@@ -458,7 +436,7 @@ class PongSessionsRoom {
 				}
 		
 				const data = await res.json();
-				console.log("✅ [Storage] Game saved successfully:", data);
+				// console.log("✅ [Storage] Game saved successfully:", data);
 	
 				// console.log(" ### response: ", res);
 			
@@ -467,7 +445,7 @@ class PongSessionsRoom {
 			}
 		}
 
-		console.log(`  Game Mode ==> ${gameMode} <=== `);
+		// console.log(`  Game Mode ==> ${gameMode} <=== `);
 
 		if (session.breaker !== 'none' && session.stop) {
 
@@ -487,7 +465,7 @@ class PongSessionsRoom {
 					// player2 = null
 				} else {
 					const breakMsg : PongSessionData = pongEngine.createResutlsMsg(session);
-					console.log(`    break Message type: ${breakMsg.type} || Winner: ${breakMsg.payload.winner}  `);
+					// console.log(`    break Message type: ${breakMsg.type} || Winner: ${breakMsg.payload.winner}  `);
 					// console.log(`  ***  Trying to send Break message to the winner (breaker: ${session.breaker}) **** `);
 					// sendWSMsg(breakMsg, session);
 
@@ -496,60 +474,28 @@ class PongSessionsRoom {
 
 					if (session.breaker === 'p1') {
 						if (player1 && player1.ws) {
-							console.log("   Stop message to player 1");
+							// console.log("   Stop message to player 1");
 							player1.ws.send(JSON.stringify(stopMsg));
 						}
 
 						if (player2 && player2.ws) {
-							console.log("   Break message to player 2");
+							// console.log("   Break message to player 2");
 							player2.ws.send(JSON.stringify(breakMsg));
 						}
 					}
 					else if (session.breaker === 'p2') {
 						if (player1 && player1.ws) {
-							console.log("   Break message to player 1");
+							// console.log("   Break message to player 1");
 							player1.ws.send(JSON.stringify(breakMsg));
 						}
 							
 						if (player2 && player2.ws) {
-							console.log("   Stop message to player 2");
+							// console.log("   Stop message to player 2");
 							player2.ws.send(JSON.stringify(stopMsg));
 						}
 					}
 				}
-				
-				// if (player1 && player1.ws) {
-					
-					
-				// 	console.log(`  ***  Trying to send Stop message to player 1 **** `);
-					
-				// 	// console.log(' ===>>> Debugin-4 <<<====');
-				// 	// 
-				// 	// sendWSMsg(stopMsg, session);
-
-				// 	player1.ws.send(JSON.stringify(stopMsg));
-				// }
-
-				// if (player2 && player2.ws) {
-					
-					
-				// 	console.log(`  ***  Trying to send Stop message to player 2 **** `);
-					
-				// 	// console.log(' ===>>> Debugin-4 <<<====');
-				// 	// 
-				// 	// sendWSMsg(stopMsg, session);
-
-				// 	player2.ws.send(JSON.stringify(stopMsg));
-				// }
 		}
-	
-		// console.log(`[PongRoom] Game finished: ${sessionId}`);
-		// if (session.breaker !== 'none') {
-		// 	const breakMsg: PongSessionData = this.createBreakMsg(session);
-		// 	sendWSMsg(breakMsg, session);
-		// }
-		// 5. send the result to backend (database)
-		// later...
 	
 		// 6. reset the players objects
 		resetPlayers(session.players[0].playerId, session.players[1].playerId, session.gameMode);
@@ -616,15 +562,6 @@ class PongSessionsRoom {
 			// E. Add players to playing room
 			addToPlayingPlayersRoom(player1.playerId);
 			addToPlayingPlayersRoom(player2.playerId);
-
-			// D. IMPORTANT: We need to tell Player 1 (who is waiting) that the game started!
-            // We return the info needed to notify them.
-			// return {
-            //     sessionId: newSessionId,
-            //     side: 'right', // The player who triggered this (Player 2) gets Right
-            //     opponent: player1 // The waiting player (Player 1)
-            // };
-
 			// console.log(`[Matchmaking] Session Created: ${newSessionId}`);
 
 			return newSessionId;
@@ -633,18 +570,6 @@ class PongSessionsRoom {
 		// 3. Not enough players yet
         return null;
 	}
-
-	// { sessionId: string, side: Side, opponent?: GamesPlayer } | null
-
-	// Matchmaking: Find a session that is waiting for a player
-	// public findWaitingSession(): string | null {
-    //     for (const [id, session] of this.remoteSessions) {
-    //         if (session.state === 'waiting' && session.players.length === 1) {
-    //             return id;
-    //         }
-    //     }
-    //     return null;
-    // }
 
 	// Create a session with ONLY Player 1:
 	public createRemoteSession(player1: PongPlayer): string {
@@ -657,24 +582,6 @@ class PongSessionsRoom {
 		return newId;
 	}
 
-    // Add Player 2 to an existing session.    
-    // public joinRemoteSession(sessionId: string, player2: PongPlayer): string {
-	// 	const session = this.remoteSessions.get(sessionId);
-
-	// 	if (!session || session.state !== 'waiting') {
-    //         throw new Error("Session not available or not found");
-    //     }
-
-	// 	// Add Player 2
-    //     session.players.push(player2);
-
-	// 	session.state = 'ready';
-
-	// 	console.log(`[PongRoom] Player 2 joined Session: ${sessionId}`);
-    //     return sessionId;
-	// }
-
-	// ================================================================
 }
 
 export  {

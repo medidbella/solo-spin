@@ -113,32 +113,6 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 			breakPongGame(playerId, null, playerSession, 'BREAK');
 		}
 	}
-
-
-	// if (player && player.pongPlayer && player.pongPlayer.sessiondId) {
-	// 	const playerSession: PongSession | undefined = pongGameSessionsRoom.getSession(player.pongPlayer.sessiondId)
-	// 	if (playerSession) {
-	// 		const gameMode: GameMode | null = playerSession.gameMode;
-	// 		if (gameMode === 'local') {
-	// 			console.log("  **** Local Case ******");
-	// 			pongGameSessionsRoom.endGame(playerSession.sessionId, gameMode);
-
-	// 		} else if (gameMode === 'remote') {
-	// 			console.log("  **** Remote Case ******");
-	// 		}	
-	// 	}
-	// }
-	// else {
-	// 	player.playerState = 'IDLE';
-	// 	player.concurrentId = null;
-	// 	player.game = 'not_selected';
-	// 	player.pongPlayer = null;
-	// 	player.sudokuPlayer = null;
-	// }
-
-
-
-	// addToAvailablePlayersRoom(playerId);
 }
 
 function registerNewPlayer(playerId: string, playerName: string, socket: WebSocket): void {
