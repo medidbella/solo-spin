@@ -20,15 +20,13 @@ services:
     depends_on:
       es01:
         condition: service_healthy
-      # kibana:
-      #   condition: service_healthy
     image: curlimages/curl:latest
     networks:
       - elastic
     volumes:
       - ./elk/certs:/config/certs
       - ./scripts/setup-stack.sh:/scripts/setup-stack.sh
-      - ./dashboards:/dashboards  # Mount dashboard file here
+      - ./dashboards:/dashboards
     user: "root"
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
@@ -119,8 +117,6 @@ services:
     depends_on:
       es01:
         condition: service_healthy
-      kibana:
-        condition: service_healthy
     image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
     networks:
       - elastic    
@@ -138,8 +134,23 @@ services:
       - ELASTIC_HOSTS=https://es01:9200
     command: logstash -f /usr/share/logstash/pipeline/logstash.conf
     mem_limit: ${LS_MEM_LIMIT}
+    healthcheck:
+      test: 
+        [
+         "CMD",
+         "curl",
+         "-f",
+         "http://localhost:9600/_node/pipelines/main?pretty",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
   
   filebeat:
+    depends_on:
+      logstash:
+        condition: service_healthy
     image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
     user: root
     networks:
@@ -148,13 +159,10 @@ services:
       - ./elk/certs:/usr/share/filebeat/certs
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./logs:/app/logs
-      # Mount the entrypoint script
       - ./scripts/entrypoint-filebeat.sh:/usr/local/bin/entrypoint-filebeat.sh
-    depends_on:
-      - logstash
-    # Use the custom entrypoint to fix permissions
     entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint-filebeat.sh"]
 
   nginx:
     depends_on:
-      - kibana
+      kibana:
+        condition: service_healthy
