@@ -240,7 +240,8 @@ class GameClient {
 		// THE GLOBAL CONNECTION LOGIC:
 		// Define which routes require a server connection
 		// const path = window.location.pathname;
-		console.log(` >>>> Current path: ${path}  <<<< `);
+		// console.log(` >>>> Current path: ${path}  <<<< `);
+
 		if (routeStatesMap[path] == 'private') {
 			// If the user is on /home, /game, 
 			console.log("🔒 Private Route Detected. Initializing Game Connection..."); //chat, etc... they MUST be logged in.

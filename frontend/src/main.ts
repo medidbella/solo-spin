@@ -29,17 +29,21 @@ import { showAlert } from './utils/alert.ts';
 const app = document.getElementById('app') as HTMLDivElement;
 
 export const routeStatesMap: Record<string, 'private' | 'public'> = {
-  '/'            : 'public',
-  '/login'       : 'public',
-  '/signup'      : 'public',
-  '/home'        : 'private',
-  '/settings'    : 'private',
-  '/security'    : 'private',
-  '/chat'        : 'private',
-  '/game'        : 'private',
-  '/leaderboard' : 'private',
-  '/profile'     : 'private',
-  '/profiles'    : 'private',
+  '/'            			: 'public',
+  '/login'       			: 'public',
+  '/signup'      			: 'public',
+  '/home'        			: 'private',
+  '/settings'    			: 'private',
+  '/security'    			: 'private',
+  '/chat'        			: 'private',
+  '/game'        			: 'private',
+  '/leaderboard' 			: 'private',
+  '/profile'     			: 'private',
+  '/profiles'    			: 'private',
+  '/games/pong/game-mode'	: 'private',
+  '/games/pong/friend-name'	: 'private',
+  '/games/pong/waiting'		: 'private',
+  '/games/pong/game-play'	: 'private'
 };
 
 export async function router(path: string): Promise<string>

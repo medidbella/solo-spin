@@ -184,7 +184,7 @@ export class WSConnectionsHandler {
 			};
 	
 			this.socket.onclose = () => {
-				// console.log('🔌 WebSocket Closed');
+				console.log('🔌 WebSocket Closed');
 				this.socket = null;
 				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
 				router('/login');

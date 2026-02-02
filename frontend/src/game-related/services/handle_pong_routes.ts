@@ -143,18 +143,12 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			// Render the HTML first
 			innerHTML = renderGamePlayPage();
 			if (!innerHTML) {
-				// console.log(" ERROR: can't read the file, try again!!");
-				// router('/games/pong/game-play');
 				return ;
 			}
 			app.innerHTML = innerHTML;
 
 			const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
-			// Initialize the Canvas & start logic
 			if (canvas) {
-				// gameClient.initGamePage(canvas);
-				
-				// Start logic
 				setGamePlayPageLogic();
 				setupHeaderLogic();
 			}
