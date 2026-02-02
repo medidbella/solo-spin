@@ -52,7 +52,7 @@ return /* html */`
 						</div>
 
 						<img class="hidden lg:block h-[130%] max-w-[30%] object-contain drop-shadow-[0_0_30px_rgba(200,23,200,1)] scale-100 translate-x-6 -translate-y-10 z-20" 
-							src="./../../public/imgs/sungjin.png" 
+							src="./../../public/imgs/landingPage.png" 
 							alt="Blue Team Player">
 					</div>
 					
