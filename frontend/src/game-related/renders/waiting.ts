@@ -28,7 +28,7 @@ export function setWaitingPageLogic() {
 			isCancelled = true;
 			console.log("❌ User cancelled the operation");
 			gameClient.reset(); // Clear data
-			navigateTo('/home'); // Or back to setup
+			navigateTo('/games/pong/game-mode'); // Or back to setup
 		});
 	}
 
