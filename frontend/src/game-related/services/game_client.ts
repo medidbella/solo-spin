@@ -2,7 +2,6 @@
 import {routeStatesMap} from "../../main"
 import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
 				, HttpPongSetupReq, HttpSetupResponse 
-			// } from '../../../../shared/types';
 			} from '../../../shared/types';
 
 // import { wsConnectionsHandler } from "./ws_handler";
@@ -10,8 +9,6 @@ import { WSConnectionsHandler } from "./ws_handler";
 import { apiFetch } from '../../api_integration/api_fetch';
 import type { UserInfo } from '../../api_integration/api_types';
 import { navigateTo } from './handle_pong_routes';
-
-// import { PongRenderer } from './pong_renderer';
 
 class GameClient {
 	public wsConnectionsHandler: WSConnectionsHandler;
@@ -108,10 +105,6 @@ class GameClient {
     }
 
 	public reset() {
-		// Reset Game Config
-		// if (this.hasReseted || this.gameId)
-		// 	gameClient.wsConnectionsHandler.createAndSendMessages(gameClient.getGame(), 'BREAK', gameClient.getGameId(), null);	
-
 		this.playerState = 'IDLE';
 		this.game = null;
 		this.gameMode = null;

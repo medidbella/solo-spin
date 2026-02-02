@@ -1,10 +1,8 @@
 
-// import { WebSocket } from 'ws';
 import type { ClientMessage, WSMsgType,
 				AvailableGames, PongInput, WSPongStartGameMessage, inputPlayer,
 				 WSPongInput, WSPongPauseMessage, WSPongResumeMessage, WSPongBreakMessage,
 				PongSessionIsReady, ServerMessage, PongSessionData
-			// } from '../../../../shared/types'; 
 			} from '../../../shared/types'; 
 
 import { gameClient } from "./game_client";
@@ -20,7 +18,6 @@ const host = window.location.hostname;
 // Automatically sets port (443 for https, 80 for http, or specific port if needed)
 const port = window.location.port ? window.location.port : (protocol === 'wss' ? '443' : '80');
 const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
-// console.log(` Game ES Url: ${gameWSUrl}`);
 
 // ------- WS connections hanlder (send/receive) ------------
 // type GameUpdateCallback = (data: any) => void;

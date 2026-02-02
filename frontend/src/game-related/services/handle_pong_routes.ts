@@ -1,16 +1,11 @@
 
 import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
-// import { renderPlayModePage, setPlayModeLogic } from '../renders/play_mode'; // New: Choose Random/Friend
 import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
 import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
 import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
-
-// import { gameClient } from './game_client';
-
 import { router } from '../../main';
 import { gameClient } from './game_client';
 import type { PlayerState, GameMode, AvailableGames } from '../../../shared/types';
-// import { createAndSendMessages } from './ws_handler';
 import { setupHeaderLogic } from '../../components/Header';
 
 export function navigateTo(url: string) {
@@ -117,20 +112,6 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			app.innerHTML = innerHTML; // 1. Render HTML
             setGameModeLogic();        // 2. Attach Listeners immediately
             break;
-
-		// CASE 2: Play Mode Selection	
-		// case '/games/pong/play-mode':
-		// 	// console.log( "  ====>> play mode detected <<===");
-		// 	innerHTML = renderPlayModePage();
-		// 	if (!innerHTML) {
-		// 		// console.log(" ERROR: can't read the file, try again!!");
-		// 		// router('/games/pong/play-mode');
-		// 		return ;
-		// 	}
-		// 	// return innerHTML;
-		// 	app.innerHTML = innerHTML; // 1. Render HTML
-        //     setPlayModeLogic();        // 2. Attach Listeners immediately
-        //     break;
 		
 		case '/games/pong/friend-name':
 			// Enter Friend's Name
