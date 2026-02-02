@@ -9,19 +9,6 @@ import type { GameMode, Side } from '../../../shared/types';
 // import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
 
-// export function withGameLayout(contentHTML: string): string {
-//     return /* html */ `
-//     <div class="flex flex-col h-screen w-full bg-[#0F0317] text-[#F2F2F2] font-[solo] select-none overflow-hidden">
-        
-//         ${renderHeader()}
-
-//         <main class="flex-1 flex flex-col items-center justify-center relative w-full h-full p-4">
-//             ${contentHTML}
-//         </main>
-//     </div>
-//     `;
-// }
-
 export function withGameLayout(contentHTML: string): string {
     return /* html */ `
     <div class="flex flex-col h-screen w-full bg-[#0F0317] text-[#F2F2F2] font-[solo] select-none overflow-hidden">
