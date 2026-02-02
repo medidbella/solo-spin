@@ -3,25 +3,8 @@
 import { WebSocket } from 'ws';
 
 import { PongPlayer, PongPlayerState } from '../pong/pong_types';
-// import { SudokuPlayer } from '../sudoku/sudoku_types';
 
 type AvailableGames = 'not_selected' | 'pong' | 'sudoku';
-// type GameState = 'waiting' | 'playing' | 'finished';
-
-// enum GameMessageTypes {
-// 	CONNECT = 'CONNECT',             // client → server: request connection
-// 	EVENT = 'EVENT',                   // client → server: event
-// 	CONNECTION_SUCCESS = 'CONNECTION_SUCCESS', // server → client: connection accepted
-// 	CONNECTION_FAILED = 'CONNECTION_FAILED',   // server → client: connection rejected
-// 	CLOSE = "CLOSE"
-// }
-
-// type WsMessageType =
-// 	GameMessageTypes.CONNECT
-// 	| GameMessageTypes.CONNECTION_SUCCESS
-// 	| GameMessageTypes.CONNECTION_FAILED
-// 	| GameMessageTypes.EVENT
-// 	| GameMessageTypes.CLOSE;
 
 interface GamesPlayer {
 	playerId: string,
