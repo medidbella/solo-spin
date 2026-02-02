@@ -90,6 +90,9 @@ function updateLevelAchievement(user_level:number)
 
 export function updateUserAchievements(winner:any, leveledUp:boolean, loser:any, winner_score:number, loser_score:number)
 {
+	winner.achievement_string = winner.achievement_string || ""
+	loser.achievement_string = loser.achievement_string || ""
+
 	if (leveledUp)
 		winner.achievement_string += updateLevelAchievement(winner.level)
 	winner.achievement_string     += updateGoalsAchievement(winner.goals_scored, winner_score)
