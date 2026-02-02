@@ -84,7 +84,8 @@ export async function router(path: string)
 				}
 				else {
 					console.log(error.message)
-					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
+							|| 'unexpected error please login again')}`);
 					router('/login');
 					return;
 				}
@@ -105,7 +106,8 @@ export async function router(path: string)
 				}
 				else {
 					console.log(error.message)
-					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message)}`);
+					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
+							|| 'unexpected error please login again')}`);
 					router('/login');
 					return;
 				}

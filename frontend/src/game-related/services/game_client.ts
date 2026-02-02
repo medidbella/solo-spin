@@ -256,7 +256,7 @@ class GameClient {
 				const user = await apiFetch<UserInfo>("/api/basic-info")
 				gameClient.setPlayerName(user.username)
 			} catch (err: any) {
-				navigateTo(`/login?error=${encodeURIComponent(err.message)}`);
+				navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
 			}
 		}
 	}
