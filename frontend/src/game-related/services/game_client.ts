@@ -45,7 +45,9 @@ class GameClient {
 		this.playerState = 'IDLE';
 
 		// SINGLE instance
+		console.log(" Client: New Client Object ");
 		this.wsConnectionsHandler = new WSConnectionsHandler();
+		// this.protectGameWSUpdates() - REMOVED: Will be called explicitly after app initialization
     	// this.pongRenderer = new PongRenderer(canvas);
 		console.log("🎮 Game Client Initialized");
 	}
@@ -235,31 +237,58 @@ class GameClient {
 		}
 	}
 
-	public async protectGameWSUpdates(path: string) {
+	// public async protectGameWSUpdates(path: string) {
 
-	// THE GLOBAL CONNECTION LOGIC:
-	// Define which routes require a server connection
-	const publicRoutes = ['/', '/login', '/signup', '/404'];
+	// // THE GLOBAL CONNECTION LOGIC:
+	// // Define which routes require a server connection
+	// const publicRoutes = ['/', '/login', '/signup', '/404'];
 
-	if (!publicRoutes.includes(path)) {
-		// If the user is on /home, /game, /chat, etc... they MUST be logged in.
-		// So we ensure the socket is connected.
-		try {
-				console.log("🔒 Protected route detected, ensuring WS connection...");
-				gameClient.wsConnectionsHandler.connect().catch(err => {
-					console.error("Failed to auto-connect WS:", err);
-					throw new Error(err);
-				});
+	// if (!publicRoutes.includes(path)) {
+	// 	// If the user is on /home, /game, /chat, etc... they MUST be logged in.
+	// 	// So we ensure the socket is connected.
+	// 	try {
+	// 			console.log("🔒 Protected route detected, ensuring WS connection...");
+	// 			gameClient.wsConnectionsHandler.connect().catch(err => {
+	// 				console.error("Failed to auto-connect WS:", err);
+	// 				throw new Error(err);
+	// 			});
 
-				// set player info
-				// console.log("  ==>> fetching '/api/basic-info' <<== ");
-				const user = await apiFetch<UserInfo>("/api/basic-info")
-				gameClient.setPlayerName(user.username)
-			} catch (err: any) {
-				navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
-			}
+	// 			// set player info
+	// 			console.log("  ==>> fetching '/api/basic-info' <<== ");
+	// 			const user = await apiFetch<UserInfo>("/api/basic-info")
+	// 			gameClient.setPlayerName(user.username)
+	// 		} catch (err: any) {
+	// 			navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
+	// 		}
+	// 	}
+	// }
+
+	public async protectGameWSUpdates() {
+
+		// THE GLOBAL CONNECTION LOGIC:
+		// Define which routes require a server connection
+		// const publicRoutes = ['/', '/login', '/signup', '/404'];
+	
+		// if (!publicRoutes.includes(path)) {
+			// If the user is on /home, /game, /chat, etc... they MUST be logged in.
+			// So we ensure the socket is connected.
+			try {
+					console.log(" Client: connecting Ws to server ...");
+					gameClient.wsConnectionsHandler.connect().catch(err => {
+						console.error("Failed to auto-connect WS:", err);
+						throw new Error(err);
+					});
+	
+					// set player info
+					console.log("  ==>> fetching '/api/basic-info' <<== ");
+					const user = await apiFetch<UserInfo>("/api/basic-info")
+					console.log(" Setting player name ... ");
+					gameClient.setPlayerName(user.username)
+				} catch (err: any) {
+					navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
+				}
+			// }
 		}
-	}
 }
 
 // Export the Single Instance directly for ease of use

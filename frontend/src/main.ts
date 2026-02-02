@@ -47,7 +47,6 @@ export async function router(path: string)
 	path = await redirectBasedOnAuth(path);
 	
 	console.log(`  next path: ${path} || Has Started: ${gameClient.getHasStarted()}`);
-	gameClient.protectGameWSUpdates(path);
 	gameClient.handleMidGameNavigate(path);
 
 	switch (true) {
@@ -192,6 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   router(window.location.pathname);
+
+	// Initialize WebSocket connection after app is ready
+	gameClient.protectGameWSUpdates().catch((err) => {
+		console.error("Failed to initialize WebSocket connection:", err);
+	});
+
 });
 
 if (import.meta.hot) {

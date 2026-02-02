@@ -44,4 +44,4 @@ COPY --from=builder /app/shared ../shared
 
 EXPOSE 3002
 # fixed the path & server file name
-CMD ["node", "/app/games/dist/games/games_server.js"] 
+CMD ["node", "/app/games/dist/games/games_server.js"]

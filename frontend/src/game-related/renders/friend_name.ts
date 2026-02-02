@@ -35,8 +35,17 @@ function setFriendNameLogic() {
 
 	// 4. Event Listener
     startGameBtn.addEventListener('click', (e) => {
-	
 		e.preventDefault(); // Prevent form submission if inside a form tag
+
+        // // CONNECTION GUARD CLAUSE:
+        // // Check if socket is actually connected
+        // if (!gameClient.wsConnectionsHandler.isSocketConnected()) {
+        //     // console.warn("⚠️ Start attempted without WebSocket connection.");
+        //     errorMessage.innerText = "⚠️ Disconnected from server. Please refresh.";
+        //     return; // Stop execution immediately
+        // }
+
+
 		const friendName = friendNameInput.value.trim();
 		const myName = gameClient.getPlayerName(); // Assuming this exists
 

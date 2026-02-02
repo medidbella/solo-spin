@@ -19,8 +19,23 @@ function setGameModeLogic() {
 
 	if (!localModeBtn || !remoteModeBtn || !errorMessage) { return; }
 
+	// Helper to check connection
+    const checkConnection = (): boolean => {
+        if (!gameClient.wsConnectionsHandler.isSocketConnected()) {
+            errorMessage.innerText = "⚠️ Disconnected from server. Please refresh the page.";
+            errorMessage.classList.remove('hidden'); // Ensure it's visible if you use 'hidden' class
+            return false;
+        }
+        errorMessage.innerText = ""; // Clear error if healthy
+        return true;
+    };
+
 	// 1. local Game event listener
 	localModeBtn.addEventListener('click', () => {
+
+		// Check Connection
+		if (!checkConnection()) return;
+
 		// console.log('🎮 User selected: Local Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('local');
@@ -32,6 +47,10 @@ function setGameModeLogic() {
 
 	// 2. local Game event listener
 	remoteModeBtn.addEventListener('click', () => {
+
+		// Check Connection
+		if (!checkConnection()) return;
+
 		// console.log('🎮 User selected: Remote Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('remote');

@@ -28,6 +28,8 @@ const gameWSUrl = `${protocol}://${host}:${port}/ws/games/`;
 export class WSConnectionsHandler {
 
 	private socket: WebSocket | null = null;
+	// public socket: WebSocket | null = null;
+
 	// private onGameUpdate: GameUpdateCallback | null = null;
 
 	/**
@@ -38,6 +40,18 @@ export class WSConnectionsHandler {
 	// 	console.log('Set the Call back');
 	//     this.onGameUpdate = callback;
 	// }
+
+	// private constructor() {
+	// 	this.connect();
+	// }
+
+	public isSocketConnected(): boolean { 
+		// 1. Check if socket object exists
+        if (!this.socket) return false;
+
+        // 2. Check if state is OPEN (ready to send/receive)
+        return this.socket.readyState === WebSocket.OPEN;
+	}
 
 	private createWSConnectMessage(): ClientMessage {
 		const message: ClientMessage = {
@@ -142,6 +156,7 @@ export class WSConnectionsHandler {
 	}
 	connect(): Promise<void> {
 
+		console.log(" Client: Calling .connect()  ");
 		return new Promise((resolve, reject) => {
 
 			// Check: If already connected, just stop and say "OK"
@@ -162,7 +177,7 @@ export class WSConnectionsHandler {
 
 			// 2. Handle Connection Success
 			this.socket.onopen = () => {
-				// console.log('✅ Connection established!');
+				console.log('Client: ✅ Connection established!');
 
 				// Send the initial CONNECT message
 				this.createAndSendMessages('pong', 'CONNECT', null, null);

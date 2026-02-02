@@ -183,7 +183,7 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, pl
 // }
 
 function wsHandler(connection: SocketStream, req: FastifyRequest) {
-	// console.log('🔌 New WebSocket connection established');
+	console.log(' Server: 🔌 New WebSocket connection established');
 	// console.log('🔌 ');
 
 	const socket: WebSocket = connection.socket;
@@ -231,13 +231,14 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 					// 3. Kill it
 					player.ws.terminate();
+					console.log(" ==> Kill the old socker <==");
 				}
 					
 				// 4. Assign the NEW socket
 				player.ws = socket;
 				player.isWsAlive = true;
 				// A. Mark connection as alive initially
-				// console.log(`✅ Socket updated for player ${playerId}`);
+				console.log(`✅ Socket updated for player ${playerId}`);
 
 				// 5. Reset states (if they were in a game, reconnect or finish the game 'not made the behavior yet !!!' )
            		resetPlayerStatesIfAlreadyExist(playerId);
@@ -353,7 +354,7 @@ function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			player.isWsAlive = true;
 
 		}
-       console.log("Received Pong from client");
+    //    console.log("Received Pong from client");
     });
 
 
