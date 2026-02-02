@@ -7,20 +7,13 @@ import { getPlayer, isPlayerExist, registerNewPlayer, resetPlayerStatesIfAlready
 import { ClientMessage, ServerMessage, WSPongStartGameMessage, WSMsgType, PongSessionData,
 			WSPongInput, PongInput, inputPlayer,
 			WSPongResumeMessage,
-			WSPongPauseMessage, WSPongBreakMessage, GameMode, PongSessionStop,
-			Breaker
+			WSPongPauseMessage, WSPongBreakMessage, GameMode
  		} from '../../../shared/types'
-
-import { PINGTIMEOUT } from '../../../shared/pong_constants';
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getBreaker } from '../game_manager/games_utiles';
-// import { onlinePlayersRooom } from "../game_manager/games_memory";
-// import { Session } from "inspector/promises";
-// import { stat } from "fs";
-
 
 function sendWSMsg(results: ServerMessage, session: PongSession) {
 	// 1. here are 2 players
@@ -352,7 +345,7 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 	});
 
-	socket.on('error', (err) => {
+	socket.on('error', (err: any) => {
 		console.log("  ==> Cathing Socket on Error Event  <== ");
 		console.error(`❌ WS Error for ${playerId}:`, err);
 	});

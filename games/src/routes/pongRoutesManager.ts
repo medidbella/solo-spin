@@ -1,5 +1,4 @@
 
-// import { FastifyInstance } from "fastify";
 import { FastifyRequest, FastifyReply } from "fastify";
 
 import { HttpPongSetupReq, HttpSetupResponse } from '../../../shared/types';
@@ -12,7 +11,6 @@ import { GamesPlayer } from "../game_manager/games_types";
 import { isPlayerExist, getPlayer } from '../game_manager/games_utiles';
 
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
-// import { sendWSMsg } from '../ws/ws_handler';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
 	
@@ -104,56 +102,8 @@ function RemoteMode(playerId: string, body: HttpPongSetupReq, reply: FastifyRepl
 		// We return a specialized "Queued" status, NOT success yet || send empty session id means no session made yet
 		const resBody: HttpSetupResponse = createHttpSuccessResponseBody('', 'left', 'remote');
 		return reply.status(200).send(resBody);
-		// return reply.status(200).send({
-        //     status: 'queued', // custom status
-        //     message: 'Added to matchmaking queue'
-        // });
 
 	}
-
-	// // 2. MATCHMAKING LOGIC:
-    // // looking if there is any session waiting for a player!!!
-    // const availableSessionId = pongGameSessionsRoom.findWaitingSession();
-
-	// let gameSessionId: string;
-    // let finalSide: Side;
-
-	// if (availableSessionId) {
-	// 	// --- CASE A: JOIN EXISTING GAME (You are Player 2) ---
-    //     console.log(`   >>> Found waiting game: ${availableSessionId}. Joining...`);
-
-	// 	// 1. Update side to RIGHT (the player 2 is always in the right side)
-    //     player.pongPlayer.side = 'right';
-    //     finalSide = 'right';
-
-	// 	// 2. Join the session
-    //     gameSessionId = pongGameSessionsRoom.joinRemoteSession(availableSessionId, player.pongPlayer);
-
-	// 	// 3. Update Player State
-	// 	player.playerState = 'READY';
-	// } else {
-    //     // --- CASE B: CREATE NEW GAME (You are Player 1) ---
-	// 	console.log("   >>> No waiting game found. Creating new session...");
-
-	// 	// 1. Side remains LEFT
-    //     finalSide = 'left';
-
-	// 	// 2. Create new remote session (Wait for P2)
-    //     gameSessionId = pongGameSessionsRoom.createRemoteSession(player.pongPlayer);
-
-	// 	// 3. Update Player State
-    //     player.playerState = 'WAITING_MATCH';
-	// }
-
-	// 3. Return Success Response
-    // const resBody: HttpSetupResponse = createHttpSuccessResponseBody(gameSessionId, finalSide, 'remote');
-    // return reply.status(200).send(resBody);
-
-
-	// return reply.status(200).send({ 
-	// 	status: 'success', 
-	// 	message: 'Remote Invite processed (Stub)' 
-	// });
 }
 
 function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {

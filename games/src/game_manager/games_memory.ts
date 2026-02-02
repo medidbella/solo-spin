@@ -1,10 +1,10 @@
 
 import { GamesPlayer } from './games_types';
 
-const onlinePlayersRooom = new Map<string, GamesPlayer>(); // online players (can be playing or not, but they are online in our website)
+const onlinePlayersRooom = new Map<string, GamesPlayer>();
 
-const availablePlayersRoom = new Map<string, GamesPlayer>(); // // Available Players (not playing, and ready to play it an pong game invite comes)
+const availablePlayersRoom = new Map<string, GamesPlayer>();
 
-const playingPlayersRoom = new Map<string, GamesPlayer>(); // playing players (playing, not available to play)
+const playingPlayersRoom = new Map<string, GamesPlayer>();
 
 export { onlinePlayersRooom, availablePlayersRoom, playingPlayersRoom };

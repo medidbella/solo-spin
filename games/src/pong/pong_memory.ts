@@ -1,8 +1,6 @@
 
-import { PongSessionsRoom } from './pong_types';
+import { PongSessionsRoom } from './pong_session';
 import { PongEngine } from './pong_game_engine';
-// import { FastifyInstance } from 'fastify';
-
 
 const pongEngine = PongEngine.getInstance();
 const pongGameSessionsRoom = PongSessionsRoom.getInstance();
