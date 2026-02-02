@@ -134,11 +134,16 @@ app.register(fastifyOauth2, {
 
 const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET;
 
-if (process.env.NODE_ENV != "development")
+// console.log(`current mode: ${process.env.NODE_ENV}`)
+
+if (process.env.NODE_ENV == "deployment")
 {
   app.addHook('onRequest', async (req:FastifyRequest, res:FastifyReply) => {
     if (req.url.startsWith('/internal')) {
       const key = req.headers['x-internal-secret'];
+      // console.log(`headers: `, req.headers)
+      // console.log(`key value: ${key}`)
+      // console.log(`env key value: ${INTERNAL_SECRET}`)
       if (key !== INTERNAL_SECRET) {
         return res.code(404).send({message: "Not found", statusCode: 404});
       }
@@ -206,7 +211,9 @@ app.post("/api/friends/unblock", {preHandler: authVerifier, schema: friendBlockS
 
 app.get("/api/friends/blocked", {preHandler: authVerifier}, listBlockedFriends)
 
-const protectedRoutesPrefix = process.env.NODE_ENV == "development" ? 'api' : 'internal'  
+const protectedRoutesPrefix = process.env.NODE_ENV == "deployment" ? "internal" : "api"
+
+// console.log(`endpoint: ${protectedRoutesPrefix}`)
 
 app.post(`/${protectedRoutesPrefix}/messages`, {schema: storeMessageSchema}, storeMessage)
 
