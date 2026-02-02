@@ -145,11 +145,11 @@ remove-database: ## Danger: remove backend-database
 	@rm -rf backend/data
 	@echo "$(GREEN)[INFO] Database purged.$(RESET)"
 
-shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificates
+shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificate
 
 re: down clean prod ## Danger: quick refresh (volumes delete is included)
 
-hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
+reset: ## Danger: Deep clean volumes, database, images, and certificates
 	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
 	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
 	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
@@ -159,6 +159,20 @@ hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
 	@$(MAKE) remove-database
 	@$(MAKE) re
 	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
+
+hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
+	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
+	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
+	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
+	@# 2. If we passed the check, now we trigger the other targets manually
+	@echo "$(YELLOW)[INFO] Stopping containers first...$(RESET)"
+	@docker compose down  # Safety: Stop containers before deleting files
+	@$(MAKE) remove-database
+	@docker system prune
+	@docker volume prune
+	@$(MAKE) re
+	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
+
 
 
 
