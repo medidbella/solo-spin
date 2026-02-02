@@ -145,6 +145,8 @@ remove-database: ## Danger: remove backend-database
 	@rm -rf backend/data
 	@echo "$(GREEN)[INFO] Database purged.$(RESET)"
 
+shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificates
+
 re: down clean prod ## Danger: quick refresh (volumes delete is included)
 
 hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
