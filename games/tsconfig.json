@@ -3,7 +3,7 @@
       "target": "ES2022",                // Targets Node 18+ features
       "module": "NodeNext",              // Uses modern module resolution
       "moduleResolution": "NodeNext",
-      "rootDir": "./",                   // Where your source files are
+      // "rootDir": "./",                   // Where your source files are
       "outDir": "./dist",                // Where the compiled JS goes
       "esModuleInterop": true,           // Allows importing CommonJS modules
       "forceConsistentCasingInFileNames": true,
