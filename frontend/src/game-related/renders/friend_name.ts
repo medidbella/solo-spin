@@ -10,7 +10,7 @@ function renderFriendNamePage(): string | undefined {
 
 function setFriendNameLogic() {
 
-	// 1. Get DOM Elements
+	//Get DOM Elements
 	const friendNameInput = document.getElementById('friendNameInput') as HTMLInputElement;
 	const startGameBtn = document.getElementById('startGameBtn') as HTMLButtonElement;
 	const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
@@ -18,11 +18,8 @@ function setFriendNameLogic() {
 	
 	const mode = gameClient.getGameMode();
 
-	// 2. Safety Check
-    if (!friendNameInput || !startGameBtn || !errorMessage) {
-        console.error("❌ Friend Invite elements not found!");
+    if (!friendNameInput || !startGameBtn || !errorMessage)
         return;
-    }
 
     if (mode === 'remote') {
         if (titleElement) titleElement.textContent = "Challenge Online User";
@@ -32,7 +29,7 @@ function setFriendNameLogic() {
         startGameBtn.textContent = "Start Game";
     }
 
-	// 4. Event Listener
+	// Event Listener
     startGameBtn.addEventListener('click', (e) => {
 		e.preventDefault();
 
@@ -40,7 +37,7 @@ function setFriendNameLogic() {
 		const myName = gameClient.getPlayerName();
 
         if (!friendName) {
-            errorMessage.innerText = "⚠️ Please enter a name.";
+            errorMessage.innerText = " Please enter a name.";
             return;
         }
 
@@ -52,14 +49,14 @@ function setFriendNameLogic() {
         if (mode === 'remote') {
             // Check: Cannot invite yourself
             if (myName && friendName === myName) {
-                errorMessage.innerText = "⚠️ You cannot invite yourself.";
+                errorMessage.innerText = "You cannot invite yourself.";
                 return;
             }
 		}
 		// --- LOCAL SPECIFIC LOGIC ---
         else if (mode === 'local') {
             if (myName && friendName === myName) {
-                errorMessage.innerText = "⚠️ Player 2 must have a different name.";
+                errorMessage.innerText = "Player 2 must have a different name.";
                 return;
             }
             navigateTo('/games/pong/waiting');

@@ -31,7 +31,6 @@ function setGameModeLogic() {
 
 		if (!checkConnection()) return;
 
-		// console.log('🎮 User selected: Local Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('local');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
@@ -43,7 +42,6 @@ function setGameModeLogic() {
 
 		if (!checkConnection()) return;
 
-		// console.log('🎮 User selected: Remote Game');
 		gameClient.setGame('pong');
 		gameClient.setGameMode('remote');
         gameClient.setPlayerState('GAME_MODE_SELECTED');

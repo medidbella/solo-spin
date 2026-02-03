@@ -61,10 +61,8 @@ function validateGameEntry(path: string): string {
 			if ((playerState === 'WAITING_MATCH') || (playerState === 'READY'))
 				path = path;
 			else {
-				if (gameId) {
-					// console.log("   ==> Sending Break Message <==");
+				if (gameId)
 					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
-				}
 
 				gameClient.reset();
 				path = '/games/pong/game-mode';
@@ -75,16 +73,11 @@ function validateGameEntry(path: string): string {
 		default:
 			break;
 	}
-
-	// console.log(`  ## Up dated path: ${path}  ##`);
-	// console.log(" =============== End Of Validating ====================");
 	return path;
 }
 
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
-
-	// console.log("  ## Pong Routes ## ");
 
 	if (path === '/games/pong') path = '/games/pong/game-mode';
 

@@ -29,13 +29,8 @@ export function setGamePlayPageLogic() {
 	const pauseBtn = document.getElementById('pauseBtn') as HTMLCanvasElement;
 	const startMsg = document.getElementById('startMessage');
 
-	if (!canvas || !pauseBtn || !startMsg) {
-		console.error("❌ Critical elements not found! Game cannot start.");
+	if (!canvas || !pauseBtn || !startMsg)
 		return;
-	}
-
-
-	console.log(`  W: ${canvas.width} || H: ${canvas.height}  `);
 
 	gameClient.initGamePage(canvas);
 
@@ -158,19 +153,18 @@ function startInputLoop(keysPressed: any) {
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
 	gameClient.setPlayerState('PLAYING');
-		// console.log(` _________ Player Side: ${gameClient.getSide()}  || player State: ${gameClient.getPlayerState()} _________`);
 
 		// Send Start Message
 		gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 		gameClient.setHasStarted(true);
 
 		
-		// 2. Start Input Loop
+		// Start Input Loop
 		if (!gameClient.getInputLoopId()) {
 			startInputLoop(keysPressed);
 		}
 
-		// 3. Hide the "Press Space" Message
+		// Hide the "Press Space" Message
 		const startMsg = document.getElementById('startMessage');
 		if (startMsg) {
 			startMsg.classList.add('hidden');

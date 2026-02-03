@@ -18,7 +18,6 @@ function setPlayModeLogic() {
 
 	playFriendBtn.addEventListener('click', () => {
 
-		// console.log('🎮 User selected: Play with Friend');
 		gameClient.setPlayMode('friend');
         gameClient.setPlayerState('PLAY_MODE_SELECTED');
 
