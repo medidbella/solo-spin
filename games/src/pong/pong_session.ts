@@ -1,15 +1,15 @@
 
 import { PongPlayer, PongSession, GameResult } from "./pong_types";
 import { GamesPlayer } from '../game_manager/games_types';
-import { addToPlayingPlayersRoom } from '../game_manager/games_utiles';
+import { addToPlayingPlayersRoom, isPlayerExist } from '../game_manager/games_utiles';
 import { pongGameSessionsRoom, pongEngine } from './pong_memory';
 import { createBall } from './pong_utils';
 import { randomUUID } from 'crypto';
 import { GameMode, PongSessionData } from '../../../shared/types'
 import { sendWSMsg } from '../ws/ws_handler';
 import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT, STARTGAMETIMEOUT, REMOVESESSIONDELAY } from '../../../shared/pong_constants';
-import { onlinePlayersRooom, playingPlayersRoom } from '../game_manager/games_memory';
-import { getBreaker, getPlayer, resetPlayers } from '../game_manager/games_utiles';
+import { availablePlayersRoom, onlinePlayersRooom, playingPlayersRoom } from '../game_manager/games_memory';
+import { getBreaker, getPlayer, resetPlayers, resetPlayerStatesIfAlreadyExist } from '../game_manager/games_utiles';
 import { storeMatchResult } from './pong_utils';
 
 function createLocalPongSession(players: GamesPlayer[]): string {
@@ -44,6 +44,8 @@ class PongSessionsRoom {
     private localSessionsTickInterval: NodeJS.Timeout | null = null;
     private remoteSessionsTickInterval: NodeJS.Timeout | null = null;
     private WsPingInterval: NodeJS.Timeout | null = null;
+
+	private closeWSTimeOut: any | null = null;
 	// ------------------------------------------------------
 
 	// Singleton Instance:
@@ -183,7 +185,38 @@ class PongSessionsRoom {
 			});
 		
 		}, PINGTIMEOUT);
+	}
 
+	public startDeletePlayerTimeOut(playerId: string) {
+		const player: GamesPlayer = getPlayer(playerId);
+		console.log(" start Time Out ");
+		this.closeWSTimeOut = setTimeout(() => {
+			// if (!player.ws) {
+				if (player.ws && player.ws.readyState === WebSocket.OPEN)
+					return ;
+
+				console.log(" It's not a refresh");
+
+				if (player.playerState === 'PLAYING') {
+					console.log("  reset the player ");
+					resetPlayerStatesIfAlreadyExist(playerId);
+				}
+
+				setTimeout(() => {
+					// if (player.playerState === 'PLAYING')
+						playingPlayersRoom.delete(playerId);
+					// else
+						availablePlayersRoom.delete(playerId);
+	
+					playingPlayersRoom.delete(playerId);
+
+					console.log("delete player object");
+				}, 2000);
+
+			// }
+			 // this.removeSession(sessionId, gameMode);
+			 // console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
+		 }, 1000);
 	}
 
 	public stopGlobalLoop(): void {

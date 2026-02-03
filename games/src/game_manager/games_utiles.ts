@@ -62,7 +62,7 @@ function setPongPlayer(playerId: string, pongPlayer: PongPlayer) {
 }
 
 function getBreaker(session: PongSession, playerId: string): Breaker {
-	return (session.players[0].playerId) ? 'p1' : 'p2';
+	return (session.players[0].playerId === playerId) ? 'p1' : 'p2';
 }
 
 function resetPlayerStatesIfAlreadyExist(playerId: string) {

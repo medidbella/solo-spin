@@ -14,6 +14,7 @@ import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 import { PongSession, PongPlayer } from '../pong/pong_types';
 import { GamesPlayer } from '../game_manager/games_types';
 import { getBreaker } from '../game_manager/games_utiles';
+import { PongSessionsRoom } from "../pong/pong_session";
 
 function sendWSMsg(results: ServerMessage, session: PongSession) {
 	// 1. here are 2 players
@@ -224,6 +225,10 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 					// console.log(`  Server:  player State: ${player.playerState}  `);
 				}
+				else {
+
+					console.log("  the old socker is terminated <<< ");
+				}
 					
 				// 4. Assign the NEW socket
 				player.ws = socket;
@@ -329,25 +334,45 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
 		console.log("  ==> Cathing Socket on Close Event  <== ");
 
-		if (playerId && isPlayerExist(playerId)) {
-            const player: GamesPlayer = getPlayer(playerId);
-			
-            // Only remove the player if the socket closing is the CURRENT one.
-			if (player.ws === socket) {
-                // console.log(`👋 Player ${playerId} disconnected.`);
-                // Clean up logic (remove from online list, lose the game if playing ...)
-                // onlinePlayersRooom.delete(playerId);
-            } else {
-                // console.log(` Old socket for ${playerId} closed (Ignored).`);
-            }
 
-		}
+
+			// Source - https://stackoverflow.com/q/13686867
+			// Posted by Vural, modified by community. See post 'Timeline' for change history
+			// Retrieved 2026-02-03, License - CC BY-SA 3.0
+
+			// const timerA = setInterval(function()
+			// {
+			//    //codes..
+
+			//    console.log(" It's not a refresh");
+
+			//    clearInterval(timerA);
+			// }, 2000);
+
+			if (playerId)
+				pongGameSessionsRoom.startDeletePlayerTimeOut(playerId);
+
+		// if (playerId && isPlayerExist(playerId)) {
+        //     const player: GamesPlayer = getPlayer(playerId);
+			
+        //     // Only remove the player if the socket closing is the CURRENT one.
+		// 	if (player.ws === socket) {
+        //         // console.log(`👋 Player ${playerId} disconnected.`);
+        //         // Clean up logic (remove from online list, lose the game if playing ...)
+        //         // onlinePlayersRooom.delete(playerId);
+        //     } else {
+        //         // console.log(` Old socket for ${playerId} closed (Ignored).`);
+        //     }
+
+		// }
 
 	});
 
 	socket.on('error', (err: any) => {
-		console.log("  ==> Cathing Socket on Error Event  <== ");
-		console.error(`❌ WS Error for ${playerId}:`, err);
+		if (playerId)
+			pongGameSessionsRoom.startDeletePlayerTimeOut(playerId);
+		// console.log("  ==> Cathing Socket on Error Event  <== ");
+		// console.error(`❌ WS Error for ${playerId}:`, err);
 	});
 	
 }
