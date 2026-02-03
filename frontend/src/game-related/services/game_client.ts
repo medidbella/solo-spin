@@ -1,10 +1,9 @@
-// import { GameConfig, PongState } from "../types/PongTypes";
+
 import {routeStatesMap} from "../../main"
 import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
 				, HttpPongSetupReq, HttpSetupResponse 
 			} from '../../../shared/types';
 
-// import { wsConnectionsHandler } from "./ws_handler";
 import { WSConnectionsHandler } from "./ws_handler";
 import { apiFetch } from '../../api_integration/api_fetch';
 import type { UserInfo } from '../../api_integration/api_types';
@@ -26,26 +25,15 @@ class GameClient {
 	private inputLoopId: number | null = null;
 	public canvas: HTMLCanvasElement | null = null;
 
-	// I store the specific function references here so i can remove them later (when the game finished or the client leaves the game page)
     private cleanupListeners: (() => void) | null = null;
 	private isPaused: boolean = false;
 	private hasReseted: boolean = true;
 
-
-	// /**
-	//  * Singleton Instance:
-	//  * This ensures we don't accidentally create two versions of the game state.
-	//  */
 	private static instance: GameClient;
 
 	private constructor() {
 		this.playerState = 'IDLE';
-
-		// SINGLE instance
-		// console.log(" Client: New Client Object ");
 		this.wsConnectionsHandler = new WSConnectionsHandler();
-		// this.protectGameWSUpdates() - REMOVED: Will be called explicitly after app initialization
-    	// this.pongRenderer = new PongRenderer(canvas);
 		console.log("🎮 Game Client Initialized");
 	}
 
@@ -82,17 +70,13 @@ class GameClient {
 	public setSide(side: Side | null) { this.side = side; }
 	public getSide(): Side | null { return this.side; }
 
-	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; 
-		// console.log(` **** Set Has Started: ${this.hasStarted} ****** `);
-	}
+	public setHasStarted(hasStarted: boolean) { this.hasStarted = hasStarted; }
 	public getHasStarted(): boolean { return this.hasStarted; }
 
 	public setInputLoopId(id: number | null) { this.inputLoopId = id; }
 	public getInputLoopId(): number | null { return this.inputLoopId; }
 
-	public setCanvas(canvas: HTMLCanvasElement | null) { this.canvas = canvas;
-		// console.log(`   ### Set canvas: ${canvas}  #### `);
-	}
+	public setCanvas(canvas: HTMLCanvasElement | null) { this.canvas = canvas; }
 
 	public setHasReseted(hasReseted: boolean) { this.hasReseted = hasReseted; }
 	public getHasReseted(): boolean { return this.hasReseted; }
@@ -120,24 +104,18 @@ class GameClient {
 
 	public cleanupGamePage() {
 		console.log("🧹 Cleaning up game page...");
-
-		// 1. Stop the Input Loop
         if (this.inputLoopId) {
             window.clearInterval(this.inputLoopId);
             this.inputLoopId = null;
         }
 
-		// 2. Remove Event Listeners
         if (this.cleanupListeners) {
             this.cleanupListeners();
             this.cleanupListeners = null;
         }
 
-		// 3. Release DOM References
-        // this.canvas = null;
 		this.setCanvas(null)
 
-		// 4. Reset Status
 		this.isPaused = false;
 		this.hasStarted = false;
 	}
@@ -160,12 +138,10 @@ class GameClient {
 	public async sendSetUpRequest(): Promise<HttpSetupResponse> {
 
 		try {
-			// 1. Get the data
 			const reqData = this.createSetupRequest();
 	
 			// console.log("📤 Sending Game Setup:", reqData);
-	
-			// 2. Send the Request
+
 			const response = await fetch('/api/games/pong', {
 				method: 'POST',
 				headers: {
@@ -174,24 +150,19 @@ class GameClient {
 				body: JSON.stringify(reqData)
 			});
 	
-			// 3. Parse JSON response
 			const data = await response.json();
 	
-			// 4. Handle HTTP Errors (like 400 Bad Request or 500 Server Error)
 			if (!response.ok) {
 				return {
 					status: 'error',
 					error: data.message || "Server Error"
-					// code: response.status
 				};
 			}
 	
-			// 5. Success
 			return data as HttpSetupResponse;
 	
 	
 		} catch (err) {
-			// Network errors (server down, no internet)
 			console.error("❌ Network Error:", err);
 			return {
 				status: 'error',
@@ -203,19 +174,8 @@ class GameClient {
 	// ---------- Helpers ----------------------------
 	public initGamePage(canvas: HTMLCanvasElement) {
         console.log("🎮 Init game page...");
-
-
-		// // reset
-		// this.reset();
-
-        // 1. Just store the canvas reference
-        // this.canvas = canvas;
 		this.setCanvas(canvas);
-
-		// 2. set state
-		this.hasReseted = false // means the game is getting started or already started!
-
-		// sessionStorage.setItem('isInGame', 'true');
+		this.hasReseted = false
     }
 
 	public inputHandlerCleanup() {};
@@ -225,7 +185,6 @@ class GameClient {
 		// 	console.log("⚠️ Player leaving mid-game! Resetting state...");
 	
 		this.wsConnectionsHandler.createAndSendMessages('pong', 'BREAK', this.getGameId(), null);
-			// reset states: STOP THE GAME LOGIC
 			this.reset();
 		}
 	}
@@ -237,15 +196,8 @@ class GameClient {
 			return ;
 		}
 
-		// THE GLOBAL CONNECTION LOGIC:
-		// Define which routes require a server connection
-		// const path = window.location.pathname;
-		// console.log(` >>>> Current path: ${path}  <<<< `);
-
 		if (routeStatesMap[path] == 'private') {
-			// If the user is on /home, /game, 
 			console.log("🔒 Private Route Detected. Initializing Game Connection..."); //chat, etc... they MUST be logged in.
-			// So we ensure the socket is connected.
 			try {
 					console.log(" Client: connecting Ws to server ...");
 					gameClient.wsConnectionsHandler.connect().catch(err => {
@@ -253,7 +205,6 @@ class GameClient {
 						throw new Error(err);
 					});
 	
-					// set player info
 					console.log("  ==>> fetching '/api/basic-info' <<== ");
 					const user = await apiFetch<UserInfo>("/api/basic-info")
 					console.log(" Setting player name ... ");
@@ -267,6 +218,4 @@ class GameClient {
 		}
 }
 
-// Export the Single Instance directly for ease of use
-// this exports the INSTANCE, not the class.
 export const gameClient = GameClient.getInstance();

@@ -33,3 +33,4 @@ export const PINGTIMEOUT = 3000;
 export const STARTGAMETIMEOUT = 15000;
 
 export const REMOVESESSIONDELAY = 10000;
+export const DELETEPLAYERTIMEOUT = 1500;

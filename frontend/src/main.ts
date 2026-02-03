@@ -162,7 +162,6 @@ export async function router(path: string): Promise<string>
 
 		 // --- GAME FLOW START ---
 		case path.startsWith("/games/pong"):
-			// pong routes
 			handlePongRoutes(path, app);
 			break;
 

@@ -33,38 +33,28 @@ const server: FastifyInstance = Fastify( {
 });
 
 server.register(cookie);
-
 server.register(webSocket);
-
-// console.log(`  secrete ===> ${process.env.JWT_ACCESS_SECRET}`);
-
 server.register(fastifyJwt, {
 	secret: process.env.JWT_ACCESS_SECRET!
-	// secret: 'temp'
 });
 
-// Register CORS
 server.register(cors, {
-	origin: true, // Allow all origins in development
+	origin: true,
 	credentials: true
 });
-
-// registerGamesRoutes(server);
 
 server.register(async (childServer: FastifyInstance) => {
     registerGamesRoutes(childServer);
 });
 
-// addIntervalStopHook(server);
-
-server.addHook('onClose', (instance, done) => {
+server.addHook('onClose', (instance: any, done: any) => {
 	pongGameSessionsRoom.stopGlobalLoop();
 	done();
+	instance;
 });
 
 const start = async () => {
 	try {
-		// Start listening for HTTP requests
         const port = Number(process.env.GAMES_PORT) || 3002;
         const host: string = "0.0.0.0";
 		await server.listen({ port, host });
@@ -75,5 +65,4 @@ const start = async () => {
 	}
 };
 
-// Execute the start function to begin listening
 start();

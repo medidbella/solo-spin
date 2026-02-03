@@ -7,7 +7,7 @@ import { createBall } from './pong_utils';
 import { randomUUID } from 'crypto';
 import { GameMode, PongSessionData } from '../../../shared/types'
 import { sendWSMsg } from '../ws/ws_handler';
-import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT, STARTGAMETIMEOUT, REMOVESESSIONDELAY } from '../../../shared/pong_constants';
+import { GAME_STATE_UPDATE_INTERVAL_MS, WINNING_SCORE, PINGTIMEOUT, STARTGAMETIMEOUT, REMOVESESSIONDELAY, DELETEPLAYERTIMEOUT } from '../../../shared/pong_constants';
 import { availablePlayersRoom, onlinePlayersRooom, playingPlayersRoom } from '../game_manager/games_memory';
 import { getBreaker, getPlayer, resetPlayers, resetPlayerStatesIfAlreadyExist } from '../game_manager/games_utiles';
 import { storeMatchResult } from './pong_utils';
@@ -21,21 +21,15 @@ function createLocalPongSession(players: GamesPlayer[]): string {
 	player1.sessiondId = sessionId;
 	player2.sessiondId = sessionId;
 
-
-	// set state of player object belongs to the client
 	addToPlayingPlayersRoom(players[0].playerId);
 	players[0].playerState = 'READY';
 
 	return sessionId;
 }
 
-// ----------- Pong Game Session ------------------------
-
-
 class PongSessionsRoom {
 
 	// ------------ Properties -----------------------------
-    // Maps sessionId -> PongSession object
     private localSessions = new Map<string, PongSession>();
     private remoteSessions = new Map<string, PongSession>();
 	private waitingPlayersQueue: GamesPlayer[] = [];
@@ -44,8 +38,6 @@ class PongSessionsRoom {
     private localSessionsTickInterval: NodeJS.Timeout | null = null;
     private remoteSessionsTickInterval: NodeJS.Timeout | null = null;
     private WsPingInterval: NodeJS.Timeout | null = null;
-
-	private closeWSTimeOut: any | null = null;
 	// ------------------------------------------------------
 
 	// Singleton Instance:
@@ -189,63 +181,46 @@ class PongSessionsRoom {
 
 	public startDeletePlayerTimeOut(playerId: string) {
 		const player: GamesPlayer = getPlayer(playerId);
-		console.log(" start Time Out ");
-		this.closeWSTimeOut = setTimeout(() => {
-			// if (!player.ws) {
+		setTimeout(() => {
 				if (player.ws && player.ws.readyState === WebSocket.OPEN)
 					return ;
 
-				console.log(" It's not a refresh");
-
-				if (player.playerState === 'PLAYING') {
-					console.log("  reset the player ");
+				if (player.playerState === 'PLAYING')
 					resetPlayerStatesIfAlreadyExist(playerId);
-				}
 
 				setTimeout(() => {
-					// if (player.playerState === 'PLAYING')
-						playingPlayersRoom.delete(playerId);
-					// else
-						availablePlayersRoom.delete(playerId);
-	
 					playingPlayersRoom.delete(playerId);
+					availablePlayersRoom.delete(playerId);
+					playingPlayersRoom.delete(playerId);
+				}, DELETEPLAYERTIMEOUT);
 
-					console.log("delete player object");
-				}, 2000);
-
-			// }
-			 // this.removeSession(sessionId, gameMode);
-			 // console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
-		 }, 1000);
+		}, 1000);
 	}
 
 	public stopGlobalLoop(): void {
-        console.log("[PongRoom] Stopping Global Game Loops...");
+        // console.log("[PongRoom] Stopping Global Game Loops...");
 
-        // 1. Clear Local Game Loop
         if (this.localSessionsTickInterval) {
             clearInterval(this.localSessionsTickInterval);
             this.localSessionsTickInterval = null;
         }
 
-        // 2. Clear Remote Game Loop
         if (this.remoteSessionsTickInterval) {
             clearInterval(this.remoteSessionsTickInterval);
             this.remoteSessionsTickInterval = null;
         }
 
-        // 3. Clear Heartbeat (Ping) Interval
         if (this.WsPingInterval) {
             clearInterval(this.WsPingInterval);
             this.WsPingInterval = null;
         }
 
-        console.log("[PongRoom] All loops stopped.");
+        // console.log("[PongRoom] All loops stopped.");
     }
 
 	private async handlesStartGameTimeout(session: PongSession, playerId: string) {
 
-		console.log("  ===>> Time outEd  <<==");
+		// console.log("  ===>> Time outEd  <<==");
 
 		session.breaker = getBreaker(session, playerId);
 		session.timeOuted = true;
@@ -253,26 +228,19 @@ class PongSessionsRoom {
 		await pongGameSessionsRoom.endGame(session.sessionId, session.gameMode);
 	}
 
-    /**
-     * 3. Start the game: Set state = 'playing'
-     */
     public startGame(sessionId: string, playerId: string): void {
 
 		const session: PongSession | undefined = this.getSession(sessionId)
 
-		if (!session) {
-            // console.error(`[PongRoom] Cannot start: Session ${sessionId} not found.`);
+		if (!session)
             return;
-        }
 
 		if (session.gameMode == 'remote') {
-			// 1. Increment Count
 			session.playerStarted++;
 			// console.log(`   **************** Started Players: ${session.playerStarted} *********************** `)
 
 			if (session.playerStarted === 1) {
 				session.startGameTimeoutChecker = setTimeout(() => {
-					// session.breaker = (session.players[0].playerId === playerId) ? 'p1' : 'p2';
                     this.handlesStartGameTimeout(session, playerId);
                 }, STARTGAMETIMEOUT);
 
@@ -280,7 +248,6 @@ class PongSessionsRoom {
 			}
 
 			else if (session.playerStarted === 2) {
-				// CANCEL THE TIMER! Important!
                 if (session.startGameTimeoutChecker) {
                     clearTimeout(session.startGameTimeoutChecker);
                     session.startGameTimeoutChecker = undefined;
@@ -288,7 +255,6 @@ class PongSessionsRoom {
 			}
 		}
 
-		// 1. Mark as ready:
         session.state = 'playing';
 		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
 		let player2: GamesPlayer | undefined;
@@ -304,11 +270,6 @@ class PongSessionsRoom {
 		
         // console.log(`[PongRoom] Game started: ${sessionId}`);
     }
-
-    /**
-     * 4. End the game: Set state = 'finished'
-     * Optional: You might want to auto-remove it after a delay here.
-     */
 
 	private getJsonGameResult(session: PongSession): any {
 
@@ -356,8 +317,6 @@ class PongSessionsRoom {
 			}
 		}
 
-		// console.log("  ### game result: ", gameResult);
-
 		const jsonGameResutl = JSON.stringify(gameResult);
 		return jsonGameResutl;
 
@@ -366,37 +325,26 @@ class PongSessionsRoom {
 	public async endGame(sessionId: string, gameMode: GameMode): Promise<void> {
 		const serverPrefx = process.env.NODE_ENV == "deployment" ? "internal" : "api" 
 
-		// console.log(" ********* Ending the Game *********");
-		
-		// 1. Find the session
 		const session: PongSession | undefined = this.getSession(sessionId);
-		// 2. Safety Check
 		if (!session) {
 			console.error(`[PongRoom] Cannot end: Session ${sessionId} not found.`);
 			return;
 		}
 	
-		// 3. Mark as Finished 
-		// (The Global Loop will see this and stop updating physics)
 		if (session.breaker === 'none')
 			session.state = 'finished';
 		else
 			session.state = 'break';
 	
-		// store the finale score !!
 		if (gameMode === 'remote') {
 			try {
 				const jsonGameResult = this.getJsonGameResult(session);
-				// const PORT: number = 3000;
-				// console.log(`[Storage] Saving match ${session.sessionId} to DB...`);
 				const data = await storeMatchResult(jsonGameResult);
 			
 			} catch (err: any){
 				console.error(` Failed to save Match Result for Session: ${err.message} `);
 			}
 		}
-
-		// console.log(`  Game Mode ==> ${gameMode} <=== `);
 
 		if (session.breaker !== 'none' && (session.stop || session.timeOuted)) {	
 				const stopMsg = pongEngine.createStopGameMsg(sessionId);
@@ -438,12 +386,8 @@ class PongSessionsRoom {
 				}
 		}
 
-	
-		// 6. reset the players objects
 		resetPlayers(session.players[0].playerId, session.players[1].playerId, session.gameMode);
 	
-		// 7. Schedule Cleanup
-		// Wait 10 seconds to let clients read the score, then delete.
 		setTimeout(() => {
 			this.removeSession(sessionId, gameMode);
 			// console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
@@ -453,17 +397,13 @@ class PongSessionsRoom {
 
 	//  ======================== [REMOTE MODE] ======================
 
-	// add player to remote waiting room
 	public addToWaitingRoom(player: GamesPlayer) {
 		
-		// 1. Avoid duplicates
-        // 1. Avoid duplicates
         if (this.waitingPlayersQueue.find(p => p.playerId === player.playerId)) {
             // console.log("Player already in queue");
             return null; 
         }
 
-		// 2. Add to Queue
         this.waitingPlayersQueue.push(player);
         // console.log(`[Queue] Player added. Size: ${this.waitingPlayersQueue.length}`);
 
@@ -473,51 +413,37 @@ class PongSessionsRoom {
 	// match making
 	public matchMaking(player: GamesPlayer) {
 
-		// 1. get size
 		const size: number = this.waitingPlayersQueue.length;
         // console.log(`[Queue] Player added. Size: ${size}`);
 
-		// 2. CHECK 1: are there enough players ???
         if (size > 1) {
-			// A. Pop the first two players
             const player1 = this.waitingPlayersQueue.shift()!;
             const player2 = this.waitingPlayersQueue.shift()!;
 
-			// B. Assign Sides
-            // (You might need to update the internal PongPlayer inside GamesPlayer here)
             player1.pongPlayer!.side = 'left';
             player2.pongPlayer!.side = 'right';
 
-			// reset Paddles based on side
 			pongEngine.resetPaddle(player1.pongPlayer!.paddle, 'left');
 			pongEngine.resetPaddle(player2.pongPlayer!.paddle, 'right');
 
-			// C. Update States
 			player1.playerState = 'READY';
 			player2.playerState = 'READY';
 
-			// D. Create the Session
             const newSessionId = this.createSession(player1.pongPlayer!, player2.pongPlayer!, 'remote');
 			player1.pongPlayer!.sessiondId = newSessionId;
 			player2.pongPlayer!.sessiondId = newSessionId;
 
-			// E. Add players to playing room
 			addToPlayingPlayersRoom(player1.playerId);
 			addToPlayingPlayersRoom(player2.playerId);
-			// console.log(`[Matchmaking] Session Created: ${newSessionId}`);
 
 			return newSessionId;
 		}
 
-		// 3. Not enough players yet
         return null;
 	}
 
-	// Create a session with ONLY Player 1:
 	public createRemoteSession(player1: PongPlayer): string {
-		// const newId = randomUUID();
 
-		// create new game session
 		const newId: string = this.createSession(player1, null, 'remote');
         // console.log(`[PongRoom] Remote Session Waiting: ${newId}`);
 

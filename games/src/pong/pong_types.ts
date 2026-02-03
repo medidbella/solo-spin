@@ -1,5 +1,4 @@
 
-
 import { GameMode, GameState, Winner, Breaker } from '../../../shared/types';
 
 export type Side = 'right' | 'left'
@@ -45,23 +44,19 @@ export interface PongPlayer {
 
 interface PongSession {
 
-	createdAt: number;        // creating time
-
+	createdAt: number;
 	timeOut:	number;
 	playerStarted: number;
-	
-	state: GameState;		// ('waiting' | 'playing' | 'finished')
-	gameMode: GameMode;		// (local | remote)
-	sessionId: string;		// identifies this match
-	players: PongPlayer[];		// exactly 2 Player objects (1 per player)
-	ball: Ball;				// shared ball objetc instance
-
-	winner: Winner; // the id of the winnere player
+	state: GameState;
+	gameMode: GameMode;
+	sessionId: string;
+	players: PongPlayer[];
+	ball: Ball;
+	winner: Winner;
 	breaker: Breaker;
 	stop: boolean;
 	timeOuted: boolean;
-
-	nextRoundStartTimestamp: number; // time to start the next round
+	nextRoundStartTimestamp: number;
 	startGameTimeoutChecker?: NodeJS.Timeout;
 }
 

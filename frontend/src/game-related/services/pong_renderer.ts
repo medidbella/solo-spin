@@ -1,15 +1,10 @@
 
-// import type { PongSessionData } from '../../../../shared/types'
 
 import { 
 	CANVAS_WIDTH, CANVAS_HEIGHT, 
 	PADDLE_WIDTH, PADDLE_HEIGHT, 
 	BALL_RADIUS 
-} from './pong_constants'; // Import your constants
-
-// import type { PongPayload } from '../../../../shared/types';
-// import type { PongPayload } from '../../../shared/types';
-
+} from './pong_constants';
 
 type Scale = {
     scaleX: number;
@@ -71,22 +66,14 @@ function drawBall(ctx: CanvasRenderingContext2D, ball: Ball, fillStyle: string |
     ctx.fill();
 }
 
-/**
- * PURE FUNCTION: Renders one frame of the game.
- * Call this every time you get a WebSocket message.
- */
 export function renderPongFrame(canvas: HTMLCanvasElement, data: any) {
     
-    // 1. Get Context
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 2. Calculate Scale (Responsive)
-    // const scaleX = canvas.width / CANVAS_WIDTH;
-    // const scaleY = canvas.height / CANVAS_HEIGHT;
 	const scale: Scale = calculateScale(canvas);
 
-    // 3. Clear Canvas
+    // Clear Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // --- DRAWING THE GAME BOARD ---
@@ -104,11 +91,9 @@ export function renderPongFrame(canvas: HTMLCanvasElement, data: any) {
 
     // Draw Ball if Game Not Over
 	fillStyle = "#ffffff";
-	if (data.winner === 'none') // only draw the ball if the game is not over!!!
+	if (data.winner === 'none')
 		drawBall(ctx, data.ball, fillStyle, scale);
 
-    // --- UPDATING HTML UI (Scores & Names) ---
-    // I update the DOM elements directly here.
     const score1 = document.getElementById('score1');
     const score2 = document.getElementById('score2');
     const name1  = document.getElementById('player1Name');

@@ -1,13 +1,10 @@
 
 import { WebSocket } from 'ws';
 import { randomUUID } from 'crypto';
-
 import { onlinePlayersRooom, availablePlayersRoom, playingPlayersRoom } from './games_memory';
 import { GamesPlayer, AvailableGames } from './games_types';
-
 import { PongPlayer, PongPlayerState, PongSession } from '../pong/pong_types';
 import { createPongPlayer } from '../pong/pong_utils';
-// import { SudokuPlayer } from '../sudoku/sudoku_types';
 import { Breaker, GameMode } from '../../../shared/types';
 import { pongGameSessionsRoom } from '../pong/pong_memory';
 import { breakPongGame } from '../ws/ws_handler';
@@ -28,7 +25,6 @@ function createNewPlayer(playerId: string, playerName: string, socket: WebSocket
 		concurrentId: null,
 		game: 'not_selected',
 		pongPlayer: null,
-		// sudokuPlayer: null,
 		ws: socket,
 		isWsAlive: true
 	}
@@ -66,9 +62,6 @@ function getBreaker(session: PongSession, playerId: string): Breaker {
 }
 
 function resetPlayerStatesIfAlreadyExist(playerId: string) {
-
-	// console.log("   ==> reset already exist player <===");
-	
 	const player: GamesPlayer = getPlayer(playerId);
 	const state: PongPlayerState = player.playerState;
 	
@@ -82,8 +75,6 @@ function resetPlayerStatesIfAlreadyExist(playerId: string) {
 		const playerSession: PongSession | undefined = pongGameSessionsRoom.getSession(player.pongPlayer.sessiondId)
 		if (!playerSession)
 			return ;
-
-		// console.log("  ==> player Is Playing <==");
 
 		const gameMode: GameMode | null = playerSession.gameMode;
 		if (gameMode === 'local') {
@@ -120,7 +111,6 @@ function resetPlayers(player1Id: string, player2Id: string, gameMode: GameMode) 
 		player1.game = 'not_selected';
 		player1.pongPlayer = null;
 
-		// console.log("  ==>> Resetde player 1 <<==");
 		addToAvailablePlayersRoom(player1.playerId);
 	}
 
@@ -157,12 +147,10 @@ function initializePlayerGameContext(playerId: string, playerName: string, gameT
 function prepareLocalPlayers(player1Id: string, player2Name: string): GamesPlayer[] {
 	
 	const player2Id: string = `${player2Name}_${randomUUID()}`;
-	
+
 	const p1: GamesPlayer = getPlayer(player1Id);
 	p1.concurrentId = player2Id;
 	p1.playerId = player1Id;
-
-	// create temp local player
 	const p2: GamesPlayer = createNewPlayer(player2Id, player2Name, null);
 	p2.concurrentId = player1Id
 	p2.game = 'pong';

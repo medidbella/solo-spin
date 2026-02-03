@@ -1,8 +1,7 @@
 
 import { pongEngine } from './pong_memory';
-
-// ------------------------ HTTP ------------------------------------
 import { GameMode, HttpSetupResponse, PlayMode } from '../../../shared/types';
+import { PongPlayer, Paddle, Side, Ball } from './pong_types';
 
 function createHttpSuccessResponseBody(gameId: string, side: Side, gameMode: GameMode): HttpSetupResponse {
 
@@ -38,14 +37,7 @@ function createHttpErrorResponseBody(error: string): HttpSetupResponse {
 	return resBody;
 }
 
-export { createHttpSuccessResponseBody, createHttpErrorResponseBody };
-// -------------------------------------------------------------------------
-
-// ********************* Pong Player Utils ************************
-import { PongPlayer, Paddle, Side, Ball } from './pong_types';
-
 function createBall(): Ball {
-	// Create an empty ball object
 	const ball: Ball = {
 		x: 0,
 		y: 0,
@@ -55,32 +47,22 @@ function createBall(): Ball {
 		radius: 0
 	};
 
-	// init the ball
 	pongEngine.resetBall(ball);
 	return ball;
 }
 
 function createPaddle(side: Side) {
-	// create empty paddle object
 	const paddle: Paddle = {
 		x: 0,
 		y: 0,
-		// width: 0,
-		// height: 0
 	};
 
-	// init the Paddle
 	pongEngine.resetPaddle(paddle, side);
 	return paddle;
 }
 
-//  Create Players:
 function createPongPlayer(playerId: string, side: Side): PongPlayer {
-	// const paddle: Paddle = createPaddle(side);
 	const player: PongPlayer = {
-		// gameMode,
-		// playMode,
-		// friendName,
 		playerId,
 		side,
 		paddle: createPaddle(side),
@@ -90,7 +72,6 @@ function createPongPlayer(playerId: string, side: Side): PongPlayer {
 	}
 	return player;
 }
-
 
 async function storeMatchResult(jsonGameResult: any): Promise<any> {
 	const serverPrefx = process.env.NODE_ENV == "deployment" ? "internal" : "api" 
@@ -115,4 +96,6 @@ async function storeMatchResult(jsonGameResult: any): Promise<any> {
 
 }
 
-export { createPongPlayer, createBall, storeMatchResult };
+export { createPongPlayer, createBall, storeMatchResult,
+	createHttpSuccessResponseBody, createHttpErrorResponseBody
+};

@@ -9,15 +9,11 @@ import type { PlayerState, GameMode, AvailableGames } from '../../../shared/type
 import { setupHeaderLogic } from '../../components/Header';
 
 export function navigateTo(url: string) {
-    // 1. Update the URL in the browser history without reloading
     history.pushState(null, "", url);
-
     router(url);
 }
 
 function validateGameEntry(path: string): string {
-
-	// console.log(" =============== Validating ====================");
 
 	const playerState: PlayerState = gameClient.getPlayerState();
 	const gameMode: GameMode | null = gameClient.getGameMode();
@@ -65,9 +61,6 @@ function validateGameEntry(path: string): string {
 			if ((playerState === 'WAITING_MATCH') || (playerState === 'READY'))
 				path = path;
 			else {
-
-				// console.log("  Game Id: ", gameId);
-
 				if (gameId) {
 					// console.log("   ==> Sending Break Message <==");
 					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
@@ -99,28 +92,20 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 	
 	switch (path) {
 
-		// CASE 1: Game Mode Selection
 		case '/games/pong/game-mode':
 			innerHTML = renderGameModePage();
-			if (!innerHTML) {
-				// console.log(" ERROR: can't read the file, try again!!");
-				// router('/games/games/pong/game-mode');
+			if (!innerHTML)
 				return ;
-			}
-			// return innerHTML;
 
-			app.innerHTML = innerHTML; // 1. Render HTML
-            setGameModeLogic();        // 2. Attach Listeners immediately
+			app.innerHTML = innerHTML;
+            setGameModeLogic();
             break;
 		
 		case '/games/pong/friend-name':
-			// Enter Friend's Name
 			innerHTML = renderFriendNamePage();
-			if (!innerHTML) {
-				// console.log(" ERROR: can't read the file, try again!!");
-				// router('/games/pong/friend-match');
+			if (!innerHTML)
 				return ;
-			}
+
 			app.innerHTML = innerHTML;
 			setFriendNameLogic();
 			setupHeaderLogic();
@@ -129,22 +114,17 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 		case '/games/pong/waiting':
 			// Waiting room
 			innerHTML = renderWaitingPage();
-			if (!innerHTML) {
-				// console.log(" ERROR: can't read the file, try again!!");
-				// router('/games/pong/waiting-room');
+			if (!innerHTML)
 				return;
-			}
 			app.innerHTML = innerHTML;
 			setWaitingPageLogic();
 			setupHeaderLogic();
 			break;
 		
 		case '/games/pong/game-play':
-			// Render the HTML first
 			innerHTML = renderGamePlayPage();
-			if (!innerHTML) {
+			if (!innerHTML)
 				return ;
-			}
 			app.innerHTML = innerHTML;
 
 			const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
