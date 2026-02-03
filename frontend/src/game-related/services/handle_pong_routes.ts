@@ -1,8 +1,8 @@
 
-import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
-import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
-import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
-import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
+import { renderGameModePage, setGameModeLogic } from '../renders/game_mode';
+import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name';
+import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting';
+import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play';
 import { router } from '../../main';
 import { gameClient } from './game_client';
 import type { PlayerState, GameMode, AvailableGames } from '../../../shared/types';
@@ -61,10 +61,8 @@ function validateGameEntry(path: string): string {
 			if ((playerState === 'WAITING_MATCH') || (playerState === 'READY'))
 				path = path;
 			else {
-				if (gameId) {
-					// console.log("   ==> Sending Break Message <==");
+				if (gameId)
 					gameClient.wsConnectionsHandler.createAndSendMessages(game, 'BREAK', gameId, null);
-				}
 
 				gameClient.reset();
 				path = '/games/pong/game-mode';
@@ -75,16 +73,11 @@ function validateGameEntry(path: string): string {
 		default:
 			break;
 	}
-
-	// console.log(`  ## Up dated path: ${path}  ##`);
-	// console.log(" =============== End Of Validating ====================");
 	return path;
 }
 
 export function handlePongRoutes(path: string, app: HTMLElement) {
 	let innerHTML: string | undefined
-
-	// console.log("  ## Pong Routes ## ");
 
 	if (path === '/games/pong') path = '/games/pong/game-mode';
 
@@ -112,7 +105,6 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			break;
 			
 		case '/games/pong/waiting':
-			// Waiting room
 			innerHTML = renderWaitingPage();
 			if (!innerHTML)
 				return;

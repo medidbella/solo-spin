@@ -3,7 +3,6 @@ import {routeStatesMap} from "../../main"
 import type { PlayerState, GameMode, AvailableGames, PlayMode, Side
 				, HttpPongSetupReq, HttpSetupResponse 
 			} from '../../../shared/types';
-
 import { WSConnectionsHandler } from "./ws_handler";
 import { apiFetch } from '../../api_integration/api_fetch';
 import type { UserInfo } from '../../api_integration/api_types';
@@ -34,7 +33,6 @@ class GameClient {
 	private constructor() {
 		this.playerState = 'IDLE';
 		this.wsConnectionsHandler = new WSConnectionsHandler();
-		console.log("🎮 Game Client Initialized");
 	}
 
 	public static getInstance(): GameClient {
@@ -99,11 +97,9 @@ class GameClient {
 		this.cleanupGamePage();
 
 		this.hasReseted = true;
-		console.log("  #### RESETED THE GAME ####");
 	}
 
 	public cleanupGamePage() {
-		console.log("🧹 Cleaning up game page...");
         if (this.inputLoopId) {
             window.clearInterval(this.inputLoopId);
             this.inputLoopId = null;
@@ -139,8 +135,6 @@ class GameClient {
 
 		try {
 			const reqData = this.createSetupRequest();
-	
-			// console.log("📤 Sending Game Setup:", reqData);
 
 			const response = await fetch('/api/games/pong', {
 				method: 'POST',
@@ -163,7 +157,6 @@ class GameClient {
 	
 	
 		} catch (err) {
-			console.error("❌ Network Error:", err);
 			return {
 				status: 'error',
 				error: "Network connection failed"
@@ -173,7 +166,6 @@ class GameClient {
 
 	// ---------- Helpers ----------------------------
 	public initGamePage(canvas: HTMLCanvasElement) {
-        console.log("🎮 Init game page...");
 		this.setCanvas(canvas);
 		this.hasReseted = false
     }
@@ -182,8 +174,6 @@ class GameClient {
 
 	public handleMidGameNavigate(path: string) {
 	if (this.getHasStarted() && path !== '/games/pong/game-play') {
-		// 	console.log("⚠️ Player leaving mid-game! Resetting state...");
-	
 		this.wsConnectionsHandler.createAndSendMessages('pong', 'BREAK', this.getGameId(), null);
 			this.reset();
 		}
@@ -191,30 +181,25 @@ class GameClient {
 
 	public async protectGameWSUpdates(path: string) {
 
-		if (this.wsConnectionsHandler.isSocketConnected()) {
-			console.log("  ## WS already Connected ## ");
+		if (this.wsConnectionsHandler.isSocketConnected())
 			return ;
-		}
 
 		if (routeStatesMap[path] == 'private') {
-			console.log("🔒 Private Route Detected. Initializing Game Connection..."); //chat, etc... they MUST be logged in.
+			// Private Route Detected 
 			try {
-					console.log(" Client: connecting Ws to server ...");
 					gameClient.wsConnectionsHandler.connect().catch(err => {
-						console.error("Failed to auto-connect WS:", err);
 						throw new Error(err);
 					});
 	
-					console.log("  ==>> fetching '/api/basic-info' <<== ");
 					const user = await apiFetch<UserInfo>("/api/basic-info")
-					console.log(" Setting player name ... ");
 					gameClient.setPlayerName(user.username)
 				} catch (err: any) {
-					navigateTo(`/login?error=${encodeURIComponent(err.message || "server unexpected error please login again")}`);
+					navigateTo(`/login`);
 				}
 			}
-			else
-				console.log("🔓 Public Route. Skipping WS connection.");
+			else {
+				// Public Route. Skipping WS connection
+			}
 		}
 }
 

@@ -91,7 +91,7 @@ async function storeMatchResult(jsonGameResult: any): Promise<any> {
 	}
 
 	const data = await res.json();
-	console.log("✅ [Storage] Game saved successfully:", data);
+	console.log(" [Storage] Game saved successfully:", data);
 	return data;
 
 }

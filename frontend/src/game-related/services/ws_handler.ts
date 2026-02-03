@@ -21,10 +21,7 @@ export class WSConnectionsHandler {
 	private socket: WebSocket | null = null;
 
 	public isSocketConnected(): boolean { 
-		// 1. Check if socket object exists
         if (!this.socket) return false;
-
-        // 2. Check if state is OPEN (ready to send/receive)
         return this.socket.readyState === WebSocket.OPEN;
 	}
 
@@ -126,42 +123,31 @@ export class WSConnectionsHandler {
 		this.sendWSMessage(message!);
 	}
 	connect(): Promise<void> {
-
-		console.log(" Client: Calling .connect()  ");
 		return new Promise((resolve, reject) => {
 
 			if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-				// console.log("⚠️ Socket already connected, skipping...");
 				resolve(); 
 				return;
 			}
 
-			if (this.socket) {
-				console.warn("⚠️ Socket already connected");
+			if (this.socket)
 				reject();
-			}	
 
 			// Create Socket
-			// console.log(`🔌 Connecting to ${gameWSUrl}...`);
 			this.socket = new WebSocket(gameWSUrl);
 
 			// Handle Connection Success
 			this.socket.onopen = () => {
-				console.log('Client: ✅ Connection established!');
-
-				// Send the initial CONNECT message
 				this.createAndSendMessages('pong', 'CONNECT', null, null);
 				resolve(); // Unblock the await
 			};
 
 			// Handle Incoming Messages
 			this.socket.onmessage = (event: MessageEvent) => {
-				// console.log("  ### Detect incoming Message ###");
 				this.handleIncomingMessage(event);
 			};
 
 			this.socket.onerror = (error: any) => {
-				console.error('❌ WebSocket error:', error);
 				this.socket = null;
 				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
 				router('/login');
@@ -169,7 +155,6 @@ export class WSConnectionsHandler {
 			};
 	
 			this.socket.onclose = () => {
-				console.log('🔌 WebSocket Closed');
 				this.socket = null;
 				history.pushState(null, '', `/login?error=${encodeURIComponent('WebSocket Closed')}`);
 				router('/login');
@@ -182,14 +167,11 @@ export class WSConnectionsHandler {
 		try {
 			let data: ServerMessage = JSON.parse(event.data as string) as ServerMessage;
 			const type: WSMsgType = data.type as WSMsgType;
-			
-			// console.log(`  =========>>> Ws message received, type: ${type} <<< ========`);
 
 			// Route the message based on its type
 			switch (type) {
 
 				case 'SESSION_READY':
-					// console.log("🔔 Match Found! Navigating to game arena...");
 					data = data as PongSessionIsReady;
 					gameClient.setGameId(data.payload.sessionId);
 					gameClient.setSide('left');
@@ -204,7 +186,6 @@ export class WSConnectionsHandler {
 					break ;
 
 				case 'GAME_FINISHED':
-					// console.log("Game Finished");
 					data = data as PongSessionData;
 					if (gameClient.canvas && data.payload) {
 						// Draw the final frame so players see the final score
@@ -216,14 +197,12 @@ export class WSConnectionsHandler {
 
 				case 'BREAK':
 					if (gameClient.canvas && data.payload) {
-						// console.log(`  ==>> Catch Break Message <<==`);
 						renderPongFrame(gameClient.canvas, data.payload);
 						handleGameOver(data.payload);
 					}
 					break ;
 
 				case 'STOP':
-					console.log("  Got Stop Message ");
 					gameClient.reset();
 					navigateTo('/home');
 					break;
@@ -233,7 +212,7 @@ export class WSConnectionsHandler {
 			}
 
 		} catch (err) {
-			console.error("❌ received invalid JSON:", event.data);
+			return ;
 		}
 	}
 }

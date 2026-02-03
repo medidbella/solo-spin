@@ -58,7 +58,7 @@ const start = async () => {
         const port = Number(process.env.GAMES_PORT) || 3002;
         const host: string = "0.0.0.0";
 		await server.listen({ port, host });
-		console.log(`✅ Games service is running on http://0.0.0.0:${port}`);
+		console.log(` [GAMES SERVER]: Games service is running on http://0.0.0.0:${port}`);
 	} catch (err) {
 		server.log.error(err);
 		process.exit(1);

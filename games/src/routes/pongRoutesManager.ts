@@ -1,15 +1,11 @@
 
 import { FastifyRequest, FastifyReply } from "fastify";
-
 import { HttpPongSetupReq, HttpSetupResponse } from '../../../shared/types';
 import { createHttpSuccessResponseBody, createHttpErrorResponseBody } from '../pong/pong_utils';
-
 import { createLocalPongSession } from '../pong/pong_session';
 import { initializePlayerGameContext, prepareLocalPlayers } from '../game_manager/games_utiles';
-
 import { GamesPlayer } from "../game_manager/games_types";
 import { isPlayerExist, getPlayer } from '../game_manager/games_utiles';
-
 import { pongEngine, pongGameSessionsRoom } from '../pong/pong_memory';
 
 function localMode(playerId: string, body: HttpPongSetupReq, reply: FastifyReply) {
@@ -100,7 +96,7 @@ function pongRoutesManager(req: FastifyRequest, reply:FastifyReply) {
 		}
 
 	} catch (error) {
-		console.error("❌ [SERVER ERROR]", error);
+		console.error(" [GAMES SERVER ERROR]", error);
 		const resBody: HttpSetupResponse = createHttpErrorResponseBody('Internal Server Error');
 		return reply.status(500).send(resBody);
 	}

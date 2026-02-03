@@ -3,10 +3,7 @@ import gamePlayContent from '../pages/game_play.html?raw';
 import { renderHeader } from '../../components/Header';
 import { gameClient } from '../services/game_client';
 import { FRAME_TIME_MS } from '../services/pong_constants';
-// import type { GameMode, Side } from '../../../../shared/types';
 import type { GameMode, Side } from '../../../shared/types';
-
-// import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
 
 export function withGameLayout(contentHTML: string): string {
@@ -15,49 +12,33 @@ export function withGameLayout(contentHTML: string): string {
         
         ${renderHeader()}
 
-        <main class="flex-1 flex flex-col items-center justify-center relative w-full h-full p-4 overflow-hidden">
+        <main class="flex-1 flex flex-col items-center justify-center relative w-full h-full overflow-hidden">
             ${contentHTML}
         </main>
     </div>
     `;
 }
 
-
-// 1. Render Function
 export function renderGamePlayPage(): string {
 	return withGameLayout(gamePlayContent);
 }
 
-// 2. page logic
 export function setGamePlayPageLogic() {
 
-	// 1. Find the Canvas Element (It is now in the DOM!)
 	const canvas = document.getElementById('pongCanvas') as HTMLCanvasElement;
 	const pauseBtn = document.getElementById('pauseBtn') as HTMLCanvasElement;
 	const startMsg = document.getElementById('startMessage');
 
-	if (!canvas || !pauseBtn || !startMsg) {
-		console.error("❌ Critical elements not found! Game cannot start.");
+	if (!canvas || !pauseBtn || !startMsg)
 		return;
-	}
 
-
-	console.log(`  W: ${canvas.width} || H: ${canvas.height}  `);
-
-	// 2. Initialize the Game Engine (Renderer + WS Listener)
 	gameClient.initGamePage(canvas);
 
-
 	const gameMode: GameMode = gameClient.getGameMode() || 'local';
-	// const playerSide: Side = gameClient.getSide();
 
-	if (gameMode === 'remote') {
-        // 1. Remove Pause Button
+	if (gameMode === 'remote')
         pauseBtn.style.display = 'none';
-    }
 
-	// 3. STATE TRACKING
-	// let isPaused = false;
     const keysPressed: { [key: string]: boolean } = {
         ArrowUp: false,
         ArrowDown: false,
@@ -66,69 +47,55 @@ export function setGamePlayPageLogic() {
     };
 
 	// ---------------------------------------------------------
-    // ⏸️ PAUSE BUTTON LOGIC (Only active for Local)
+    // PAUSE BUTTON LOGIC (Only active for Local)
     // ---------------------------------------------------------
     const handlePauseToggle = () => {
-		// Only allow pause if the game has actually started and for the local mode
         if (!gameClient.getHasStarted() || gameMode == 'remote') return;
 
-		// isPaused = !isPaused;
 		gameClient.setIsPaused(!gameClient.getIsPaused());
         const icon = pauseBtn.querySelector('i');
+		if (!icon)
+			return ;
 
 		if (gameClient.getIsPaused()) {
 			// SWITCH TO PLAY ICON
-            icon?.classList.remove('fa-pause');
-            icon?.classList.add('fa-play');
-
-			// Optional: Add a visual blur to canvas to show it's paused
+			icon.classList.remove('fa-pause');
+			icon.classList.add('fa-play');
             canvas.style.opacity = '0.5';
-
-			// console.log("⏸️ PAUSE SENT");
-			// TODO: Uncomment when you add PAUSE to your WS Handler types
-			// gameClient.setIsPaused(true);
             gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'PAUSE', gameClient.getGameId()!, null);
 		} else {
 			// SWITCH TO PAUSE ICON
-            icon?.classList.remove('fa-play');
-            icon?.classList.add('fa-pause');
-
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-pause');
 			// Remove blur
             canvas.style.opacity = '1';
-
-			// console.log("▶️ RESUME SENT");
-			// gameClient.setIsPaused(true);
             gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'RESUME', gameClient.getGameId()!, null);
 		}
 	};
 
-	
-	
 	pauseBtn.addEventListener('click', handlePauseToggle);
 	
 	// ---------------------------------------------------------
-    // ⌨️ KEYBOARD INPUT LOGIC
+    // KEYBOARD INPUT LOGIC
     // ---------------------------------------------------------
     const handleKeyDown = (e: KeyboardEvent) => updateKeyState(e, true, keysPressed);
     const handleKeyUp = (e: KeyboardEvent) => updateKeyState(e, false, keysPressed);
 	
-	// 4. LISTENERS
+	// LISTENERS
 	window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-	// 5. REGISTER CLEANUP
-	// pass 'type' + function reference to "removeEventListener" to remove it
+	// REGISTER CLEANUP
     gameClient.setCleanupListeners(() => {
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
 		if (gameMode === 'local') {
-			pauseBtn.removeEventListener('click', handlePauseToggle); // Remove button listener
+			pauseBtn.removeEventListener('click', handlePauseToggle);
 		}
     });
 }
 
 // THE INPUT LOOP
-// this check what's the input and send message to the server
 function startInputLoop(keysPressed: any) {
 	const gameId = gameClient.getGameId();
 	if (!gameId) return;
@@ -138,7 +105,7 @@ function startInputLoop(keysPressed: any) {
 	
 	const inputLoopId = window.setInterval(() => {
 
-		// --- CASE 1: LOCAL MODE (Handle Both Players) ---
+		// --- LOCAL MODE (Handle Both Players) ---
         if (gameMode === 'local') {
 			// Check Player 1 (Left)
 			if (keysPressed['KeyW']) {
@@ -148,7 +115,7 @@ function startInputLoop(keysPressed: any) {
 				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'S');
 			}
 			
-			// Check Player 2 (Right) - INDEPENDENTLY
+			// Check Player 2 (Right)
 			if (keysPressed['ArrowUp']) {
 				gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
 			}
@@ -157,15 +124,12 @@ function startInputLoop(keysPressed: any) {
 			}
 		}
 
-		// --- CASE 2: REMOTE MODE (Handle Only My Side) ---
+		// --- REMOTE MODE (Handle Only My Side) ---
         else if (gameMode === 'remote') {
-			// LOGIC: Allow BOTH Arrow Keys and WASD to control MY paddle.
-
 			const upPressed = keysPressed['ArrowUp'] || keysPressed['KeyW'];
             const downPressed = keysPressed['ArrowDown'] || keysPressed['KeyS'];
 
 			if (playerSide === 'left') {
-				// If I am Left: 'W'/'S'
                 if (upPressed)
 					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'W');
                 if (downPressed)
@@ -173,7 +137,6 @@ function startInputLoop(keysPressed: any) {
 
 			}
 			else if (playerSide === 'right') {
-                // If I am Right: 'UP'/'DOWN'
                 if (upPressed)
 					gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'GAME_INPUT', gameId, 'UP');
 
@@ -189,26 +152,22 @@ function startInputLoop(keysPressed: any) {
 
 // START THE INPUT LOOP NOW
 function startGame(keysPressed: any) {
-	// console.log("🚀 Space: Sending Start Game...");
-
 	gameClient.setPlayerState('PLAYING');
-		// console.log(` _________ Player Side: ${gameClient.getSide()}  || player State: ${gameClient.getPlayerState()} _________`);
 
-		// 1. Send the Message
+		// Send Start Message
 		gameClient.wsConnectionsHandler.createAndSendMessages('pong', 'START_GAME', gameClient.getGameId()!, null);
 		gameClient.setHasStarted(true);
 
 		
-		// 2. Start Input Loop
+		// Start Input Loop
 		if (!gameClient.getInputLoopId()) {
 			startInputLoop(keysPressed);
 		}
 
-		// 3. Hide the "Press Space" Message
+		// Hide the "Press Space" Message
 		const startMsg = document.getElementById('startMessage');
 		if (startMsg) {
-			startMsg.classList.add('hidden'); // This hides it using Tailwind
-			// OR ==>> startMsg.style.display = 'none';
+			startMsg.classList.add('hidden');
 		}
 }
 
@@ -216,13 +175,11 @@ function updateKeyState(e: KeyboardEvent, isPressed: boolean, keysPressed: any) 
 
 	if (gameClient.getIsPaused())
 		return;
-	
-	// Prevent scrolling
+
 	if (["ArrowUp", "ArrowDown", "KeyW", "KeyS", "Space"].includes(e.code)) {
 		e.preventDefault();
 	}
 
-	// Handle START (Space) separately - it's a trigger, not a hold
 	if (e.code === 'Space' && isPressed && !gameClient.getHasStarted()) {
 		startGame(keysPressed);
 	}
@@ -240,34 +197,24 @@ export function handleGameOver(payload: any) {
     const homeBtn = document.getElementById('backHomeBtn');
 
 	if (gameOverEl && winnerTextEl) {
-        
-		// 1. Determine the winner's actual name
+
 		let winnerName = "DRAW";
         if (payload.winner === 'leftPlayer') winnerName = payload.leftPlayerName;
         else if (payload.winner === 'rightPlayer') winnerName = payload.rightPlayerName;
 
-		// 2. Update Text
         winnerTextEl.innerText = `${winnerName.toUpperCase()} WINS!`;
 
-		// 3. Show the Overlay
         gameOverEl.classList.remove('hidden');
         gameOverEl.classList.add('flex');
 
-		// 4. Attach Navigation to Button
         if (homeBtn) {
 
             homeBtn.onclick = () => {
-
-                // Hide the modal
                 gameOverEl.classList.add('hidden');
                 gameOverEl.classList.remove('flex');
-                
-                // Navigate to home
                 navigateTo('/home');
             };
         }
-
-		// 5. reset states: STOP THE GAME LOGIC
 		gameClient.reset();
 	}
 }

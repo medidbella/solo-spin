@@ -7,7 +7,7 @@ import { pongRoutesManager } from '../routes/pongRoutesManager';
 
 function registerWSRoutes(server: FastifyInstance) {
    server.get('/ws/games/', { websocket: true }, (connection: SocketStream, req: FastifyRequest) => {
-		console.log("📝 /register-player WS hit");
+		console.log(" /register-player WS hit");
 		wsHandler(connection, req);
 	});
 
@@ -15,7 +15,7 @@ function registerWSRoutes(server: FastifyInstance) {
 
 function registerPongRoutes(server: FastifyInstance) {
 	server.post('/api/games/pong', async (req: FastifyRequest, reply: FastifyReply) => {
-		console.log("📝 /api/games/pong POST hit"); // log immediately
+		console.log(" /api/games/pong POST hit");
 		pongRoutesManager(req, reply);
 	});
 }
