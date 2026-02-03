@@ -5,7 +5,6 @@ function renderAchievements(userAchievements: Achievement[])
     let result:string = ''
     if (userAchievements.length == 0)
         return `<p class="text-gray-400 text-center py-8 col-span-2">No achievements unlocked yet</p>`
-    // console.log(`passed achievements:`, userAchievements)
     for (let i = 0; i < 3 && i < userAchievements.length; i++){
         result += /* html */ `
             <div class="flex flex-col items-center">
@@ -14,7 +13,6 @@ function renderAchievements(userAchievements: Achievement[])
                 <span class="mt-2 text-white text-sm">${userAchievements[i].title}</span>
             </div>`
     }
-    // console.log(`achievement results: ${result}`)
     return result
 }
 

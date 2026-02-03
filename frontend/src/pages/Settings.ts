@@ -25,13 +25,10 @@ async function settingsFormSubmit(ev:Event)
     })
     showAlert('user info successfully updated', "success");
     const app = document.getElementById('app') as HTMLDivElement
-    console.log(res)
     app.innerHTML = renderSettings(res)
-    console.log("patched new data successfully")
   }
   catch(error:any)
   {
-    console.log(`exception status phrase ${error.message}`, error)
     if (!('statusCode' in error))//not api related error 
       throw error
     else if (error.statusCode == 401)

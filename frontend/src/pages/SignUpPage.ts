@@ -39,7 +39,8 @@ export function renderSignUpPage() : string {
                     <input type="text" 
                            id="name"
                            name="name" 
-                           placeholder="Name" 
+                           placeholder="Name"
+                           autocomplete="name" 
                            required
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
@@ -51,6 +52,7 @@ export function renderSignUpPage() : string {
                            name="username" 
                            placeholder="Username" 
                            required
+                           autocomplete="username"
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
 
@@ -61,6 +63,7 @@ export function renderSignUpPage() : string {
                            name="email" 
                            placeholder="Email" 
                            required
+                           autocomplete="email"
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all">
                 </div>
 
@@ -71,6 +74,7 @@ export function renderSignUpPage() : string {
                            name="password" 
                            placeholder="Password" 
                            required
+                           autocomplete="new-password"
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
                     
                     <button type="button" id="togglePassword" class="absolute top-1/2 right-4 -translate-y-1/2 text-gray-300 hover:text-white cursor-pointer">
@@ -88,6 +92,7 @@ export function renderSignUpPage() : string {
                            name="confirm_password" 
                            placeholder="Confirm Password" 
                            required
+                           autocomplete="new-password"
                            class="bg-[#5F3779] text-white placeholder-gray-300 w-full p-3 md:p-4 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A3FA1] transition-all pr-12">
                     
                     <button type="button" id="toggleConfirmPassword" class="absolute top-1/2 right-4 -translate-y-1/2 text-gray-300 hover:text-white cursor-pointer">

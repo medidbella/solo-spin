@@ -65,9 +65,6 @@ export interface BlockFriendRequest {
 export interface UnblockFriendRequest {
   friend_id: number;
 }
-
-// ==================== Request Path variables ====================
-
 // GET /api/user/:id params
 export interface UserIdParams {
   id: number;

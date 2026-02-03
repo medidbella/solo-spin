@@ -79,12 +79,10 @@ export async function router(path: string): Promise<string>
 				setupSettingPageLogic();
 			}
 			catch (error: any) {
-				console.log('Failed fetching settings:', error);
 				if (error.message == "Failed to fetch"){
 					showAlert('server error please try again later', "error");
 				}
 				else {
-					console.log(error.message)
 					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
 							|| 'unexpected error please login again')}`);
 					router('/login');
@@ -105,7 +103,6 @@ export async function router(path: string): Promise<string>
 					showAlert('server error please try again later', "error");
 				}
 				else {
-					console.log(error.message)
 					history.pushState(null, '', `/login?error=${encodeURIComponent(error.message
 							|| 'unexpected error please login again')}`);
 					router('/login');

@@ -21,6 +21,7 @@ return /* html */ `
                 type="text" 
                 name="username" 
                 placeholder="Username"
+                autocomplete="username"
                 minlength="4"
                 required>
               
@@ -32,6 +33,7 @@ return /* html */ `
                     type="password" 
                     name="password" 
                     placeholder="Password"
+                    autocomplete="current-password"
                     minlength="8"
                     required>
                   <button type="button" id="toggle-password" class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-white cursor-pointer">
@@ -88,7 +90,6 @@ function check2FaLoginQuery(): boolean
   const mfaParam = urlParams.get('requires2FA');
   if (mfaParam === 'true')
   {
-    console.log("2FA Mode Detected from OAuth redirect");
     const newUrl = window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
     return true
@@ -181,7 +182,6 @@ export function setUpLoginLogic() {
                 }
                 else
                 {
-                  console.log(response.message);
                   window.location.href = '/home';
                 }
         }

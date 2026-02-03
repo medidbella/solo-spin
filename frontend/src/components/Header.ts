@@ -23,7 +23,6 @@ export function setupHeaderLogic() : void
   if (!logoutBtn) return;
 
   logoutBtn.addEventListener('click', async() => {
-    console.log('logout button is clicked')
     try {
       const response = await fetch('/api/logout', {
         method: 'POST',

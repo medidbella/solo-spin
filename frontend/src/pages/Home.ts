@@ -101,7 +101,6 @@ export function setupSearchLogic(): void {
 				if (event.key !== 'Enter') return;
 
 				const username = searchInput.value.trim();
-				console.log(username);
 				if (username.length === 0) return;
 
 				hideSearchError(searchInput, searchError);
@@ -117,7 +116,6 @@ export function setupSearchLogic(): void {
             if ("statusCode" in error)
             {
               if (error.statusCode === 404) {
-                console.log(username);
                 showSearchError(searchInput, searchError);
                 if (input_error) input_error.innerText = "User not found";
               }
