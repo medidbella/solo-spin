@@ -260,7 +260,7 @@ class PongSessionsRoom {
 		const player1: GamesPlayer = getPlayer(session.players[0].playerId);
 		let player2: GamesPlayer | undefined;
 		if (session.gameMode === 'remote')
-			player2 = getPlayer(session.players[0].playerId);
+			player2 = getPlayer(session.players[1].playerId);
 		else
 			player2 = playingPlayersRoom.get(session.players[1].playerId);
 
