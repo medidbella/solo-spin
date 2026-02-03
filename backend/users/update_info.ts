@@ -65,7 +65,6 @@ export async function updateUserInfo(req: FastifyRequest, res:FastifyReply)
 			});
 		}
         if (error.code === 'P2002') {//when trying to update to a username/email that already exists
-			console.log(error)
             const target = error.meta?.target?.[0] || 'Field';
             return res.code(409).send({ 
                 message: `This ${target} is already taken.`,

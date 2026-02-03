@@ -39,7 +39,7 @@ export async function login(req:FastifyRequest, res:FastifyReply)
 				refresh_token:token
 			}
 		})
-		console.log(`login r_token: ${token}`)
+		// console.log(`login r_token: ${token}`)
 	}
 	catch (error){
 		req.log.error(error)

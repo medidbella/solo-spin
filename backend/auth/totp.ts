@@ -144,7 +144,7 @@ export async function TwoFactorLoginVerify(req: FastifyRequest, res: FastifyRepl
 	const {code} = req.body as {code:string}
 	try {
 		const user_id = (req.user as any).sub
-		console.log(`\nuser id = ${user_id}\n`)
+		// console.log(`\nuser id = ${user_id}\n`)
 		const user = await prisma.user.findUnique({
 			where: {
 				id : user_id
