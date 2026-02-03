@@ -121,7 +121,6 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, pl
 
 async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	console.log(' Server: 🔌 New WebSocket connection established');
-	// console.log('🔌 ');
 
 	const socket: WebSocket = connection.socket;
 	let playerId: string | undefined;
@@ -135,6 +134,8 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 	try {
         const decoded = req.server.jwt.verify(token) as { sub: string };
         playerId = decoded.sub;
+
+		console.log( `  >>> Is player exist: ${isPlayerExist(playerId)} <<<< `);
 
 		if (isPlayerExist(playerId)) {
 
@@ -164,10 +165,6 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 
                 player.ws.removeAllListeners();
 				player.ws.terminate();
-			}
-			else {
-
-				console.log("  the old socker is terminated <<< ");
 			}
 					
 			player.ws = socket;

@@ -2,9 +2,7 @@
 
 import gameModeContent from '../pages/game_mode.html?raw';
 import { gameClient } from '../services/game_client';
-
 import { withLayout } from './layout';
-
 import { navigateTo } from '../services/handle_pong_routes';
 
 function renderGameModePage() {
@@ -19,21 +17,18 @@ function setGameModeLogic() {
 
 	if (!localModeBtn || !remoteModeBtn || !errorMessage) { return; }
 
-	// Helper to check connection
     const checkConnection = (): boolean => {
         if (!gameClient.wsConnectionsHandler.isSocketConnected()) {
             errorMessage.innerText = "⚠️ Disconnected from server. Please refresh the page.";
-            errorMessage.classList.remove('hidden'); // Ensure it's visible if you use 'hidden' class
+            errorMessage.classList.remove('hidden');
             return false;
         }
-        errorMessage.innerText = ""; // Clear error if healthy
+        errorMessage.innerText = "";
         return true;
     };
 
-	// 1. local Game event listener
 	localModeBtn.addEventListener('click', () => {
 
-		// Check Connection
 		if (!checkConnection()) return;
 
 		// console.log('🎮 User selected: Local Game');
@@ -41,14 +36,11 @@ function setGameModeLogic() {
 		gameClient.setGameMode('local');
         gameClient.setPlayerState('GAME_MODE_SELECTED');
 
-		// NAVIGATE HERE, only after clicking
         navigateTo('/games/pong/friend-name');
 	});
 
-	// 2. local Game event listener
 	remoteModeBtn.addEventListener('click', () => {
 
-		// Check Connection
 		if (!checkConnection()) return;
 
 		// console.log('🎮 User selected: Remote Game');

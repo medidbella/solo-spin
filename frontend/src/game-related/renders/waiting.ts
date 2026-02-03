@@ -3,24 +3,21 @@ import { withLayout } from './layout';
 import { navigateTo } from '../services/handle_pong_routes';
 import { gameClient } from '../services/game_client';
 
-// 1. Render Function
 export function renderWaitingPage(): string {
 	return withLayout(waitingContent);
 }
 
-// 2. Logic to attach events and customize message
 export function setWaitingPageLogic() {
 	
 	const messageEl = document.getElementById('waitingMessage');
 	const cancelBtn = document.getElementById('cancelWaitBtn');
 
-	// 1. Customize Message based on Game Mode
 	if (messageEl) {
 		messageEl.textContent = "Initializing Game Arena...";
 	}
 
-	// 2. Define the Cancellation Logic
-	let isCancelled = false; // Flag to stop navigation if user cancels
+	let isCancelled = false;
+
 
 	// 3. Cancel Button Logic
 	if (cancelBtn) {
