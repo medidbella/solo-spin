@@ -69,7 +69,6 @@ export async function handleEnable2FA(): Promise<void>
     console.error('Failed to generate 2FA:', error);
     const errorMessage = error.message || 'Failed to generate 2FA. Please try again.';
     container.innerHTML = renderError(errorMessage);
-    //retry the same exact process if the retry btn is pressed
     const retryBtn = document.getElementById('retry-2fa-btn');
     if (retryBtn) {
       retryBtn.addEventListener('click', handleEnable2FA);
@@ -103,7 +102,6 @@ async function handleVerifySubmit(event: Event)
       method: 'POST',
       body: JSON.stringify(payload)
     });
-    // if no exception is thrown here the server-side verification has succeeded 
     const container = document.getElementById(CONTENT_CONTAINER_ID);
     if (container)
       container.innerHTML = renderSuccess();

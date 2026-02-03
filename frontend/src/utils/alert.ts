@@ -1,9 +1,7 @@
 export function showAlert(message: string, type: "error" | "success" = "error") {
-    //removing existing alert
     const existingAlert = document.getElementById("custom-alert");
     if (existingAlert)
         existingAlert.remove();
-    //create alert container (div)
     const alert = document.createElement("div");
     alert.id = "custom-alert";
     alert.innerHTML = 
@@ -24,6 +22,5 @@ export function showAlert(message: string, type: "error" | "success" = "error") 
     `;
     document.body.appendChild(alert)
 
-    //auto remove after 3s
     setTimeout(() => alert.remove(), 2000);
 }

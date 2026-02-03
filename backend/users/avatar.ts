@@ -30,7 +30,7 @@ export function GetRandomAvatarPath():string{
 		default_avatars.push(`avatar_${i}.png`)//there are 6 default avatars
 	const randomIndex = Math.floor(Math.random() * default_avatars.length);
 	const path: string = process.env.AVATARS_STORAGE_PATH! + '/' + default_avatars[randomIndex];	
-	console.log(`selected path: ${path}`);
+	// console.log(`selected path: ${path}`);
 	return path;
 }
 
@@ -126,7 +126,7 @@ export async function updateUserAvatar(req: FastifyRequest, res:FastifyReply)
 		}
 		const secondFile = await req.file();
 		if (secondFile){//sending more than one element
-			console.log("inside")
+			// console.log("inside")
 			fs.unlinkSync(temp_path)
 			secondFile.file.resume(); 
 			throw { code: 'FST_FILES_LIMIT' }; 

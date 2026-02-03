@@ -4,11 +4,9 @@ import type { UserInfo, GeneralSuccessRes, UpdatePasswordRequest } from '../api_
 import { apiFetch } from "../api_integration/api_fetch";
 import { router } from "../main";
 import { avatarUpload } from "./Settings";
-// Import our new 2FA handler
 import { handleEnable2FA } from "../components/TwoFactorSetup/TwoFactorSetupLogic";
 import { showAlert } from "../utils/alert";
 
-// Keep your existing password change function
 export async function changePasswordFormSubmit(ev: Event) {
   ev.preventDefault();
   const user_password = (document.getElementById('user-password') as HTMLInputElement).value.trim();
