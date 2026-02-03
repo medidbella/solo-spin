@@ -93,7 +93,7 @@ dev: ## Start full development stack (App + ELK)
 
 prod: ## Build and deploy production stack (Immutable images, No hot-reload) $(COMPOSE_ELK)
 	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
-	@docker compose $(COMPOSE_BASE)  up -d --build --remove-orphans
+	@docker compose $(COMPOSE_BASE) up -d --build --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 down: ## Stop and remove all containers (App & ELK)
@@ -136,13 +136,12 @@ db-import: ## Import Kibana Dashboards from local file
 clean: ## Danger: clean volumes, images, and certificates
 	@echo "$(RED)[DANGER] Irreversible purge: Volumes and SSL Keys will be deleted.$(RESET)"
 	@docker compose $(COMPOSE_ALL) down -v --rmi local
-	@rm -rf nginx/certs/*
-	@rm -rf elk/certs/*
+	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf elk/certs/* nginx/certs/*'
 	@echo "$(GREEN)[INFO] System purged.$(RESET)"
 
 remove-database: ## Danger: remove backend-database
 	@echo "$(RED)[DANGER] Irreversible purge: Database will be deleted.$(RESET)"
-	@rm -rf backend/data
+	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf backend/data/*.db'
 	@echo "$(GREEN)[INFO] Database purged.$(RESET)"
 
 shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificate
@@ -160,7 +159,7 @@ reset: ## Danger: Deep clean volumes, database, images, and certificates
 	@$(MAKE) re
 	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
 
-hard-reset: ## Danger: Deep clean volumes, database, images, and certificates
+hard-reset: ## Danger: Prune all system , volumes and Deep clean volumes, database, images, and certificates 
 	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
 	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
 	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
