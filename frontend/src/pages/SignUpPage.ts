@@ -177,20 +177,17 @@ export function setupSignupLogic() {
 
     const formData = new FormData(form);
     
-    // CHANGE HERE: Get 'name' directly (backend compatible)
     const name = formData.get('name') as string;
     const username = formData.get('username') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm_password') as string;
 
-    // Check 1: Passwords match
     if (password !== confirmPassword) {
       showAlert("Passwords do not match!", "error"); 
       return;
     }
 
-    // Check 2: Password length
     if (password.length < 8) {
       showAlert("Password must be at least 8 characters", "error");
       return;
@@ -204,12 +201,10 @@ export function setupSignupLogic() {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      //the only case here is 200 Ok the errors from api or something else will catched and proccessed in the catch section
       showAlert("account created successfully", "success");
       history.pushState(null, '', '/home');
       router('/home');
     } catch (error: any) {
-      // checking here the errors that comes from the api itself like username or email already taken 
       if ('statusCode' in error)
       {
         if (error.statusCode === 409) {

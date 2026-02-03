@@ -1,7 +1,6 @@
 import './style.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-// This ensures the singleton is created in memory
 import { gameClient } from "./game-related/services/game_client.ts";
 gameClient as any;
 
@@ -15,7 +14,6 @@ import { renderSignUpPage } from './pages/SignUpPage';
 import { renderSecurity} from './pages/Security';
 import { renderChat, setupchatlogic } from './pages/chat';
 import { renderLeaderBoard } from './pages/leaderBoard';
-// import { renderGamePage } from './pages/game';
 import { renderProfile } from './pages/Profile';
 import { renderProfilesPage, setupProfilesPageLogic } from './pages/profiles';
 import { setupSignupLogic } from './pages/SignUpPage';
@@ -100,7 +98,6 @@ export async function router(path: string): Promise<string>
 			try {
 				const userInfo = await apiFetch<UserInfo>("/api/basic-info")
 				app.innerHTML = renderSecurity(userInfo);
-				// Use the new combined setup function instead of individual listener
 				setupSecurityPageLogic();
 			}
 			catch (error: any) {
@@ -160,7 +157,6 @@ export async function router(path: string): Promise<string>
 			setupHeaderLogic();
 			break;
 
-		 // --- GAME FLOW START ---
 		case path.startsWith("/games/pong"):
 			handlePongRoutes(path, app);
 			break;

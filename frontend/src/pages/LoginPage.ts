@@ -130,7 +130,6 @@ export function setUpLoginLogic() {
     }
     if (!loginForm) return;
 
-    //handel toggle password logic
 
     const togglePasswordButton = document.getElementById('toggle-password');
     const passwordInput = document.getElementById('login-password') as HTMLInputElement;

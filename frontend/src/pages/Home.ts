@@ -129,7 +129,6 @@ export function setupSearchLogic(): void {
             }
              else {
                 showSearchError(searchInput, searchError);
-                // console.error('Search failed:', error);
                 if (input_error) input_error.innerText = "Connection error. Please check your network.";
             }
         }
@@ -144,13 +143,8 @@ export function setupSearchLogic(): void {
 		});
 
 		playBtn.addEventListener('click', () => {
-			console.log("🚀 User clicked Play");
-
-			// 1. Optional: Reset any old game state to be safe
 			gameClient.reset();
 	
-			// 2. Navigate to the Game Page
-			// This triggers the router, which renders renderGamePage()
 			history.pushState(null, '', '/games/pong/game-mode');
 			router('/games/pong/game-mode');
 		});
