@@ -12,6 +12,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
 } from "../api_integration/api_friendship";
+import { showAlert } from "../utils/alert";
 
 type TabType = "friends" | "requests" | "blocked";
 
@@ -182,7 +183,8 @@ async function handleAction(action: string, button: HTMLElement): Promise<void> 
     }
   } catch (error: any) {
     console.error(`Action ${action} failed:`, error);
-    alert(error.message || "Action failed. Please try again.");
+    // alert(error.message || "Action failed. Please try again.");
+    showAlert(error.message || "Action failed. Please try again.")
     button.removeAttribute("disabled");
     button.classList.remove("opacity-50", "cursor-not-allowed");
   }
