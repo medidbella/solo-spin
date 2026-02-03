@@ -103,7 +103,7 @@ class PongSessionsRoom {
     }
 
 	private startGlobalLoop(): void {
-        // console.log("[PongRoom] Global Game Loop Started!");
+        console.log("[PongRoom] Global Game Loop Started!");
         this.localSessionsTickInterval = setInterval(() => {
             this.localSessions.forEach((session: PongSession, sessionId: string) => {
                 if (session.state === 'playing') {
@@ -148,12 +148,11 @@ class PongSessionsRoom {
 					return ;
 
 				if (player.playerState === 'PLAYING') {
-					console.log("  reseting the player ");
 					resetPlayerStatesIfAlreadyExist(playerId);
 				}
 
 				setTimeout(() => {
-					// console.log(" Delete player object ")
+					console.log(" [PongRoom] Delete player object ")
 					onlinePlayersRooom.delete(playerId);
 					availablePlayersRoom.delete(playerId);
 					playingPlayersRoom.delete(playerId);
@@ -163,7 +162,7 @@ class PongSessionsRoom {
 	}
 
 	public stopGlobalLoop(): void {
-        // console.log("[PongRoom] Stopping Global Game Loops...");
+        console.log("[PongRoom] Stopping Global Game Loops...");
 
         if (this.localSessionsTickInterval) {
             clearInterval(this.localSessionsTickInterval);
@@ -180,12 +179,10 @@ class PongSessionsRoom {
             this.WsPingInterval = null;
         }
 
-        // console.log("[PongRoom] All loops stopped.");
+        console.log("[PongRoom] All loops stopped.");
     }
 
 	private async handlesStartGameTimeout(session: PongSession, playerId: string) {
-
-		// console.log("  ===>> Time outEd  <<==");
 
 		session.breaker = getBreaker(session, playerId);
 		session.timeOuted = true;
@@ -202,7 +199,6 @@ class PongSessionsRoom {
 
 		if (session.gameMode == 'remote') {
 			session.playerStarted++;
-			// console.log(`   **************** Started Players: ${session.playerStarted} *********************** `)
 
 			if (session.playerStarted === 1) {
 				session.startGameTimeoutChecker = setTimeout(() => {
@@ -233,12 +229,10 @@ class PongSessionsRoom {
 		if (player2)
 			player2.playerState = 'PLAYING';
 		
-        // console.log(`[PongRoom] Game started: ${sessionId}`);
+        console.log(`[PongRoom] Game started: ${sessionId}`);
     }
 
 	private getJsonGameResult(session: PongSession): any {
-
-		// console.log(`   >>>>>>>>>> Session ends with State: ${session.state} <<<<<<<<<<`);
 
 		let gameResult: GameResult;
 		const p1: PongPlayer = session.players[0];
@@ -327,26 +321,19 @@ class PongSessionsRoom {
 					player2 = getPlayer(session.players[1].playerId);
 
 					if (session.breaker === 'p1') {
-						if (player1 && player1.ws) {
-							// console.log("   Stop message to player 1");
+						if (player1 && player1.ws) 
 							player1.ws.send(JSON.stringify(stopMsg));
-						}
 
-						if (player2 && player2.ws) {
-							// console.log("   Break message to player 2");
+						if (player2 && player2.ws)
 							player2.ws.send(JSON.stringify(breakMsg));
-						}
 					}
 					else if (session.breaker === 'p2') {
-						if (player1 && player1.ws) {
-							// console.log("   Break message to player 1");
+						if (player1 && player1.ws)
 							player1.ws.send(JSON.stringify(breakMsg));
-						}
 							
-						if (player2 && player2.ws) {
-							// console.log("   Stop message to player 2");
+						if (player2 && player2.ws)
 							player2.ws.send(JSON.stringify(stopMsg));
-						}
+
 					}
 				}
 		}
@@ -355,7 +342,6 @@ class PongSessionsRoom {
 	
 		setTimeout(() => {
 			this.removeSession(sessionId, gameMode);
-			// console.log(`[ Remove Session ]: game mode: ${gameMode} || sessionId: ${sessionId}`);
 		}, REMOVESESSIONDELAY);
 	}
 
@@ -364,13 +350,10 @@ class PongSessionsRoom {
 
 	public addToWaitingRoom(player: GamesPlayer) {
 		
-        if (this.waitingPlayersQueue.find(p => p.playerId === player.playerId)) {
-            // console.log("Player already in queue");
+        if (this.waitingPlayersQueue.find(p => p.playerId === player.playerId))
             return null; 
-        }
 
         this.waitingPlayersQueue.push(player);
-        // console.log(`[Queue] Player added. Size: ${this.waitingPlayersQueue.length}`);
 
 		player.playerState = 'WAITING_MATCH';
 	}
@@ -379,7 +362,6 @@ class PongSessionsRoom {
 	public matchMaking(player: GamesPlayer) {
 
 		const size: number = this.waitingPlayersQueue.length;
-        // console.log(`[Queue] Player added. Size: ${size}`);
 
         if (size > 1) {
             const player1 = this.waitingPlayersQueue.shift()!;
@@ -410,7 +392,7 @@ class PongSessionsRoom {
 	public createRemoteSession(player1: PongPlayer): string {
 
 		const newId: string = this.createSession(player1, null, 'remote');
-        // console.log(`[PongRoom] Remote Session Waiting: ${newId}`);
+        console.log(`[PongRoom] Remote Session Waiting: ${newId}`);
 
 		return newId;
 	}

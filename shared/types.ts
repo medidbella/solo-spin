@@ -1,13 +1,12 @@
 
-// 1. Define the possible "Labels" for your ws messages
 export type WSMsgType = 
 	| 'CONNECT' 
 	| 'CONNECT_SUCCESS' 
 	| 'CONNECT_ERROR'
-	| 'SELECT_GAME' // Client -> Server (player tells the server which game to play) 
+	| 'SELECT_GAME'
 	| 'START_GAME'
-	| 'GAME_INPUT'   // Client -> Server (Player did something)
-	| 'GAME_STATE'  // Server -> Client (Update the screen)
+	| 'GAME_INPUT'
+	| 'GAME_STATE'
 	| 'GAME_FINISHED'
 	| 'PAUSE'
 	| 'RESUME'
@@ -15,25 +14,14 @@ export type WSMsgType =
 	| 'BREAK'
 	| 'STOP'
 
-// 2. Define the Games
 export type GameType = 'pong' | 'sudoku';
 export type PongInput = 'UP' | 'DOWN' | 'W' | 'S';
 export type inputPlayer = 'LEFT' | 'RIGHT';
-
-// --- SYSTEM MESSAGES (Handshake) ---
 
 export interface WSConnectMessage {
 	type: 'CONNECT';
 	payload: {};
 }
-
-// export interface WSConnectSuccess {
-//     type: 'CONNECT_SUCCESS';
-//     payload: {
-//         playerId: string;
-//         ready: boolean;
-//     };
-// }
 
 export interface WSConnectError {
 	type: 'CONNECT_ERROR';
@@ -41,24 +29,6 @@ export interface WSConnectError {
 		error: string;
 	};
 }
-
-// --- GAME MESSAGES (The Fun Part) ---
-
-// Selecting a Game
-// export interface WSSelectGameMessage {
-//     type: 'SELECT_GAME';
-//     payload: {
-//         game: GameType;
-//     }
-// }
-
-// export interface WSPongPingMessage {
-//     type: 'PING';
-//     game: 'pong';
-//     payload : {
-//         sessionId: string
-//     }
-// }
 
 export interface WSPongStartGameMessage {
 	type: 'START_GAME';
@@ -92,18 +62,16 @@ export interface WSPongBreakMessage {
 	}
 }
 
-// A. PONG
 export interface WSPongInput {
 	type: 'GAME_INPUT';
 	game: 'pong';
 	payload: {
 		gameId: string;
-		inputPlayer: inputPlayer; // left/right
-		move: PongInput; // Simple directions
+		inputPlayer: inputPlayer;
+		move: PongInput;
 	};
 }
 
-// B. SUDOKU (Placeholder for later)
 export interface WSSudokuInput {
 	type: 'GAME_INPUT';
 	game: 'sudoku';
@@ -114,19 +82,6 @@ export interface WSSudokuInput {
 	};
 }
 
-// 3. The Master Type (The Union)
-// This is what you use in your socket.onmessage function!
-export type ClientMessage = WSConnectMessage 
-							| WSPongStartGameMessage
-							| WSPongInput | WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage | WSPongBreakMessage
-export type ServerMessage = 
-							// WSConnectSuccess |
-							PongSessionData | PongSessionIsReady | PongSessionStop |
-							WSConnectError; // + GameState updates later
-
-
-// --------- Define the possible "Labels" for your http connections --------
-
 export type AvailableGames = 'pong' | 'sudoku';
 export type GameMode = 'local' | 'remote';
 export type PlayMode = 'friend' | 'random';
@@ -134,8 +89,6 @@ export type GameState = 'waiting' | 'ready' | 'playing' | 'PAUSE' | 'finished' |
 export type Side = 'left' | 'right';
 export type Breaker = 'p1' | 'p2' | 'none';
 
-
-// ----- HTTP request ---------
 export interface HttpPongSetupReq { 
 	playerName: string;
 	game: AvailableGames,
@@ -145,7 +98,6 @@ export interface HttpPongSetupReq {
 	player2: string,
 };
 
-// --- HTTP RESPONSES ---
 export interface HttpSetupSuccess {
 	status: 'success' | 'queued';
 	gameSessionId: string;
@@ -158,41 +110,25 @@ export interface HttpSetupError {
 	error: string;
 }
 
-// Union type for the frontend to handle both cases
 export type HttpSetupResponse = HttpSetupSuccess | HttpSetupError;
 
-
-// ----- Client state ---------
 export type PlayerState =
-	'IDLE'                 // Player created, nothing chosen yet
-  | 'GAME_MODE_SELECTED'   // local / remote chosen
-  | 'PLAY_MODE_SELECTED'   // friend / random chosen
-  | 'FRIEND_NAME_SELECTED' // friend name entered
-  | 'WAITING_MATCH'        // waiting for opponent (remote)
-  | 'READY'                // fully configured
-  | 'PLAYING'              // game loop running
-  | 'FINISHED';            // game ended
+	'IDLE'
+  | 'GAME_MODE_SELECTED'
+  | 'PLAY_MODE_SELECTED'
+  | 'FRIEND_NAME_SELECTED'
+  | 'WAITING_MATCH'
+  | 'READY'
+  | 'PLAYING'
+  | 'FINISHED';
 
-
-
-// -------- WS message between the client and the server ----
-// type State = 'waiting' | 'playing' | 'paused' | 'finished';
 export type Winner = 'leftPlayer' | 'rightPlayer' | 'none';
 
 export interface PongSessionData {
-	// sessionId: string;
-	// state: State;
-
 	type: 'GAME_STATE' | 'GAME_FINISHED' | 'BREAK';
 	game: 'pong';
 	payload: PongPayload
 }
-
-// export interface PongBreakSessionData {
-// 	type: 'GAME_FINISHED';
-// 	game: 'pong';
-// 	payload: PongPayload
-// }
 
 export interface PongSessionIsReady {
 	type: 'SESSION_READY';
@@ -210,7 +146,6 @@ export interface PongSessionStop {
 	};
 }
 
-// Define the shape of the data we expect
 export interface PongPayload {
 	leftPlayerName: string;
 	rightPlayerName: string;
@@ -222,3 +157,8 @@ export interface PongPayload {
 	winner: Winner,
 }
 
+export type ClientMessage = WSConnectMessage | WSPongStartGameMessage | WSPongInput |
+							WSSudokuInput | WSPongPauseMessage | WSPongResumeMessage |
+							WSPongBreakMessage
+export type ServerMessage = PongSessionData | PongSessionIsReady | PongSessionStop |
+							WSConnectError;

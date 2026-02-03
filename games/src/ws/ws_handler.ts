@@ -120,7 +120,7 @@ function breakPongGame(playerId: string, parsedMessage: ClientMessage | null, pl
 }
 
 async function wsHandler(connection: SocketStream, req: FastifyRequest) {
-	console.log(' Server: 🔌 New WebSocket connection established');
+	console.log(' [GAMES SERVER]: New WebSocket connection established');
 
 	const socket: WebSocket = connection.socket;
 	let playerId: string | undefined;
@@ -135,14 +135,11 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
         const decoded = req.server.jwt.verify(token) as { sub: string };
         playerId = decoded.sub;
 
-		console.log( `  >>> Is player exist: ${isPlayerExist(playerId)} <<<< `);
-
 		if (isPlayerExist(playerId)) {
 
 			const player: GamesPlayer = getPlayer(playerId);
 			if (player.ws && player.ws.readyState === WebSocket.OPEN) {
-				console.log(`⚠️ Duplicate detected for ${playerId}. Kicking old socket...`);
-				console.log(`   ### player State: ${player.playerState}  ### `);
+				console.log(` [GAMES SERVER]: Duplicate detected for ${playerId}. Kicking old socket...`);
 
 				player.ws.send(JSON.stringify({
 					type: 'ERROR',
@@ -155,10 +152,7 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 						if (session) {
 							session.stop = true;
 							session.breaker = getBreaker(session, playerId);
-							console.log(`  Breaker:   ${session.breaker}   `);
-							// console.log(' ===>>> Debugin end Game <<<====');
 							await pongGameSessionsRoom.endGame(player.pongPlayer.sessiondId, session.gameMode);
-							// console.log(' ===>>> finish end Game <<<====');
 						}
 					}
 				}
@@ -169,13 +163,13 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					
 			player.ws = socket;
 			player.isWsAlive = true;
-			console.log(`✅ Socket updated for player ${playerId}`);
+			console.log(` [GAMES SERVER]: Socket updated for player Id: ${playerId}`);
            	resetPlayerStatesIfAlreadyExist(playerId);
 		}
 
             
-    } catch (err) {
-		// console.log("Invalid Token");
+    } catch (err: any) {
+		console.error(' [GAMES SERVER ERROR]: Invalid Token ', err);
 		socket.close(1008, "Invalid Token");
 		return;
     }
@@ -219,9 +213,7 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 					breakPongGame(playerId!, parsedMessage, null, 'BREAK');
 					break;
 
-
 				default:
-					console.warn(`⚠️ Unknown message type received: ${type}`);
 					if (socket.readyState === socket.OPEN) {
 						socket.send(JSON.stringify({ 
 							type: 'ERROR', 
@@ -231,7 +223,7 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
 			}
 	
 		} catch (error) {
-			console.error("❌ Failed to process message:", error);
+			console.error(" [GAMES SERVER ERRO]: Failed to process message:", error);
 
 			if (socket.readyState === socket.OPEN) {
 				socket.send(JSON.stringify({
@@ -246,17 +238,13 @@ async function wsHandler(connection: SocketStream, req: FastifyRequest) {
         if (playerId && isPlayerExist(playerId)) {
             const player: GamesPlayer = getPlayer(playerId);
 			player.isWsAlive = true;
-
 		}
     });
 
 
 	socket.on('close', () => {
-
-		console.log("  ==> Cathing Socket on Close Event  <== ");
 		if (playerId)
 			pongGameSessionsRoom.startDeletePlayerTimeOut(playerId);
-
 	});
 
 	socket.on('error', (err: any) => {

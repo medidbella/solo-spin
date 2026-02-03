@@ -47,7 +47,6 @@ function setFriendNameLogic() {
 
 		// --- REMOTE SPECIFIC LOGIC ---
         if (mode === 'remote') {
-            // Check: Cannot invite yourself
             if (myName && friendName === myName) {
                 errorMessage.innerText = "You cannot invite yourself.";
                 return;

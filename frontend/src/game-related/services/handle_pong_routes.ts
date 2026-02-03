@@ -1,8 +1,8 @@
 
-import { renderGameModePage, setGameModeLogic } from '../renders/game_mode'; // New: Choose Local/Remote
-import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name'; // New: Enter Friend Name
-import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting'; // New: Waiting Room
-import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play'; // The actual game
+import { renderGameModePage, setGameModeLogic } from '../renders/game_mode';
+import { renderFriendNamePage, setFriendNameLogic } from '../renders/friend_name';
+import { renderWaitingPage, setWaitingPageLogic } from '../renders/waiting';
+import { renderGamePlayPage, setGamePlayPageLogic } from '../renders/game_play';
 import { router } from '../../main';
 import { gameClient } from './game_client';
 import type { PlayerState, GameMode, AvailableGames } from '../../../shared/types';
@@ -105,7 +105,6 @@ export function handlePongRoutes(path: string, app: HTMLElement) {
 			break;
 			
 		case '/games/pong/waiting':
-			// Waiting room
 			innerHTML = renderWaitingPage();
 			if (!innerHTML)
 				return;

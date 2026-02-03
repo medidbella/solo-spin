@@ -22,8 +22,8 @@ export function setWaitingPageLogic() {
 	if (cancelBtn) {
 		cancelBtn.addEventListener('click', () => {
 			isCancelled = true;
-			gameClient.reset(); // Clear data
-			navigateTo('/games/pong/game-mode'); // Or back to setup
+			gameClient.reset();
+			navigateTo('/games/pong/game-mode');
 		});
 	}
 

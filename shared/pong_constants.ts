@@ -1,9 +1,6 @@
 // World rules
 export const CANVAS_WIDTH = 800;
 export const CANVAS_HEIGHT = 600;
-// const TARGET_FPS = 60;
-// export const FRAME_TIME_MS = 1000 / TARGET_FPS;
-
 
 // Paddle rules
 export const PADDLE_WIDTH = 10;
@@ -26,11 +23,10 @@ export const BALL_START_Y = CANVAS_HEIGHT / 2;
 // game rules
 export const WINNING_SCORE = 5;
 export const ROUND_START_DELAY_MS = 1000;
-export const GAME_STATE_UPDATE_INTERVAL_MS = 15 //1000/100
-// export const GAME_STATE_UPDATE_INTERVAL_MS = 1000 //1000/100
+export const GAME_STATE_UPDATE_INTERVAL_MS = 15
 
+// interfals & set timout rules
 export const PINGTIMEOUT = 3000;
 export const STARTGAMETIMEOUT = 15000;
-
 export const REMOVESESSIONDELAY = 10000;
 export const DELETEPLAYERTIMEOUT = 1500;
