@@ -3,7 +3,32 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 
-const fastify = fastify_lib();
+const fastify = fastify_lib({
+  logger: {
+    transport: {
+      targets: [
+        // Target 1: The File (Always JSON for Filebeat/ELK)
+        {
+          target: 'pino/file',
+          level: 'info',
+          options: { 
+            destination: './logs/chat.log', 
+            mkdir: true 
+          }
+        },
+        {
+          target: 'pino-pretty',
+          level: 'info',
+          options: { 
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname' 
+          }
+        }
+      ]
+    }
+  }
+});
 const port = Number(process.env.PORT) || 3000;
 const host = '0.0.0.0';
 const onlineusers = new Map<string, string>();

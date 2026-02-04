@@ -51,16 +51,13 @@ import {
 
 
 const app = Fastify({
-  ajv: {
-    customOptions: {
-      removeAdditional: false
-    }
-  },
   logger: {
     transport: {
       targets: [
+        // Target 1: The File (Always JSON for Filebeat/ELK)
         {
           target: 'pino/file',
+          level: 'info',
           options: { 
             destination: './logs/backend.log', 
             mkdir: true 
@@ -68,6 +65,7 @@ const app = Fastify({
         },
         {
           target: 'pino-pretty',
+          level: 'info',
           options: { 
             colorize: true,
             translateTime: 'HH:MM:ss Z',
@@ -76,7 +74,7 @@ const app = Fastify({
         }
       ]
     }
-  } 
+  }
 });
 
 app.register(fastifyCookie)

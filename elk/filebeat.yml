@@ -10,10 +10,13 @@ filebeat.inputs:
     - /app/logs/backend.log
     - /app/logs/chat.log
     - /app/logs/games.log
+  fields:
+    log_format: json
   parsers:
     - ndjson:
         keys_under_root: true
         overwrite_keys: true
+        add_error_key: true
   
   prospector.scanner.fingerprint.length: 64
 
@@ -26,7 +29,8 @@ filebeat.inputs:
   paths:
     - /app/logs/error.log
     - /app/logs/frontend.log
-  
+  fields:
+    log_format: plain
   prospector.scanner.fingerprint.length: 64
 
 output.logstash:

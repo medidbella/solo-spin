@@ -9,27 +9,29 @@ import { pongGameSessionsRoom } from './src/pong/pong_memory';
 
 const server: FastifyInstance = Fastify( { 
 	logger: {
-	transport: {
-	  targets: [
-		{
-		  target: 'pino/file',
-		  options: { 
-			destination: '../logs/games.log',
-			mkdir: true 
-		  }
-		},
-		{
-		  target: 'pino-pretty',
-		  options: { 
-			colorize: true, 
-			translateTime: "SYS:standard",
-			ignore: 'pid,hostname',
-			singleLine: true
-		  }
+		transport: {
+		  targets: [
+			// Target 1: The File (Always JSON for Filebeat/ELK)
+			{
+			  target: 'pino/file',
+			  level: 'info',
+			  options: { 
+				destination: '../logs/games.log', 
+				mkdir: true 
+			  }
+			},
+			{
+			  target: 'pino-pretty',
+			  level: 'info',
+			  options: { 
+				colorize: true,
+				translateTime: 'HH:MM:ss Z',
+				ignore: 'pid,hostname' 
+			  }
+			}
+		  ]
 		}
-	  ]
-	}
-  } 
+	  }
 });
 
 server.register(cookie);
