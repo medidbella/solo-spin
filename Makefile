@@ -25,7 +25,7 @@ COMPOSE_ALL  := $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV)
 
 # --- ANALYTICS CONFIGURATION ---
 DASH_DIR     := dashboards
-DASH_FILE    := $(DASH_DIR)/dashboard.ndjson
+DASH_FILE    := $(DASHBOARD_FILE_PATH)
 KIBANA_URL   := https://localhost:8443/kibana
 KIBANA_AUTH  := -u elastic:$(ELASTIC_PASSWORD)
 KIBANA_HEAD  := -H "kbn-xsrf:true" -H "Content-Type:application/json"
