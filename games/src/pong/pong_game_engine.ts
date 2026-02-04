@@ -150,10 +150,8 @@ class PongEngine {
 
 	// Speed updating 
     private adjustSpeed(ball: Ball): void {
-        ball.speed += BALL_SPEED_INCREASE;
-
-        if (ball.speed >= BALL_MAX_SPEED) {
-            ball.speed = BALL_START_SPEED;
+        if (ball.speed < BALL_MAX_SPEED) {
+            ball.speed += BALL_SPEED_INCREASE;
         }
 	}
 
@@ -262,6 +260,7 @@ class PongEngine {
             ball.dx = 1;
             ball.x = paddle1.x + PADDLE_WIDTH + ball.radius + 1;
             this.adjustSpeed(ball);
+            // console.log(`  [NEW SPEED]:  ${ball.speed}`);
 		}
 
 		// Check Right Paddle (Player 2)
@@ -273,7 +272,7 @@ class PongEngine {
             ball.dx = -1;
             ball.x = paddle2.x - ball.radius - 1;
             this.adjustSpeed(ball);
-			
+            // console.log(`  [NEW SPEED]:  ${ball.speed}`);
 		}
     }
 

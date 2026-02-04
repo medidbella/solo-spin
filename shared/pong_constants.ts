@@ -13,9 +13,9 @@ export const PADDLE_START_X_ON_RIGHT = CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WID
 
 // Ball rules
 export const BALL_RADIUS = 8;
-export const BALL_START_SPEED = 3;
-export const BALL_MAX_SPEED = 9
-export const BALL_SPEED_INCREASE = 0.25; // Ball gets faster after every hit;
+export const BALL_START_SPEED = 4;
+export const BALL_MAX_SPEED = 11
+export const BALL_SPEED_INCREASE = 0.5; // Ball gets faster after every hit;
 export const BALL_START_X = CANVAS_WIDTH / 2;
 export const BALL_START_Y = CANVAS_HEIGHT / 2;
 
