@@ -77,7 +77,6 @@ services:
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
     command: /bin/sh /setup-es.sh
 
-  
   kibana:
     depends_on:
       es01:
@@ -112,7 +111,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
-  
+
   setup-kibana:
     image: curlimages/curl:latest
     depends_on:
@@ -167,7 +166,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-  
+
   filebeat:
     depends_on:
       logstash:

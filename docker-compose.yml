@@ -6,14 +6,11 @@ volumes:
   logstashdata01:
     driver: local
 
-
 networks:
   elastic:
     driver: bridge
 
-
 services:
- 
   nginx:
     build:
       context: ./nginx
