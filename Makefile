@@ -76,6 +76,11 @@ init: ## First-time setup: Configures .env, permissions, and certificates
 # LIFECYCLE MANAGEMENT
 # ==============================================================================
 
+prod: ## Build and deploy production stack (Immutable images, No hot-reload) 
+	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build --remove-orphans
+	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
+
 dev-app:   ## Start development stack WITHOUT ELK (App only)
 	@echo "$(YELLOW)[INFO] Starting App without ELK...$(RESET)"
 	@docker compose $(COMPOSE_BASE) $(COMPOSE_DEV) up -d --remove-orphans
@@ -91,10 +96,6 @@ dev: ## Start full development stack (App + ELK)
 	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-prod: ## Build and deploy production stack (Immutable images, No hot-reload) 
-	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
-	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build --remove-orphans
-	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 down: ## Stop and remove all containers (App & ELK)
 	@echo "$(RED)[WARN] Terminating services...$(RESET)"
@@ -105,9 +106,9 @@ down: ## Stop and remove all containers (App & ELK)
 # OBSERVABILITY & DIAGNOSTICS
 # ==============================================================================
 
-logs: ## Stream logs from all active services
+logs: ## Stream logs (Usage: make logs s=backend)
 	@echo "$(CYAN)[INFO] Streaming system logs...$(RESET)"
-	@docker compose $(COMPOSE_ALL) logs -f --tail=100
+	@docker compose $(COMPOSE_ALL) logs -f --tail=100 $(s)
 
 ps: ## Show status of all services
 	@docker compose $(COMPOSE_ALL) ps
@@ -130,50 +131,28 @@ db-import: ## Import Kibana Dashboards from local file
 
 
 # ==============================================================================
-# RESET OPTIONS
+# DESTRUCTIVE OPERATIONS
 # ==============================================================================
 
-clean: ## Danger: clean volumes, images, and certificates
-	@echo "$(RED)[DANGER] Irreversible purge: Volumes and SSL Keys will be deleted.$(RESET)"
-	@docker volume rm $(docker volume ls) || true
-	@docker compose $(COMPOSE_ALL) down -v --rmi local
-	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf elk/certs/* nginx/certs/*'
-	@echo "$(GREEN)[INFO] System purged.$(RESET)"
+clean: ## Remove containers, networks, and volumes (Project only)
+	@echo "$(RED)[DANGER] Removing project containers and volumes...$(RESET)"
+	@docker compose $(COMPOSE_ALL) down -v --remove-orphans --rmi local
+	@echo "$(GREEN)[INFO] Project cleaned.$(RESET)"
 
-remove-database: ## Danger: remove backend-database
-	@echo "$(RED)[DANGER] Irreversible purge: Database will be deleted.$(RESET)"
-	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf backend/data/*.db'
-	@echo "$(GREEN)[INFO] Database purged.$(RESET)"
+fclean: clean ## Deep clean: Remove Database files + SSL Certs
+	@echo "$(RED)[DANGER] Deleting Database files and SSL Certs...$(RESET)"
+	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf backend/data/*.db elk/certs/* nginx/certs/*'
+	@echo "$(GREEN)[INFO] Deep clean complete.$(RESET)"
 
-shutdown : clean remove-database ## Danger: quick delete  volumes, database, images, and certificate
+re: clean prod ## Restart production (Rebuilds + Cleans volumes)
 
-re: down clean prod ## Danger: quick refresh (volumes delete is included)
+reset: ## Interactive: Hard Reset everything (Volumes, DB, Images)
+	@echo "$(RED)[DANGER] HARD RESET: This will delete ALL data, databases, and SSL keys.$(RESET)"
+	@read -p "Are you sure? [y/N] " ans && [ "$${ans:-N}" = "y" ]
+	@$(MAKE) fclean
+	@echo "$(YELLOW)[INFO] Pruning unused system data...$(RESET)"
+	@docker system prune -f
+	@$(MAKE) prod
+	@echo "$(GREEN)[INFO] System Reset & Restarted.$(RESET)"
 
-reset: ## Danger: Deep clean volumes, database, images, and certificates
-	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
-	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
-	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
-	@# 2. If we passed the check, now we trigger the other targets manually
-	@echo "$(YELLOW)[INFO] Stopping containers first...$(RESET)"
-	@docker compose down  # Safety: Stop containers before deleting files
-	@$(MAKE) remove-database
-	@$(MAKE) re
-	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
-
-hard-reset: ## Danger: Prune all system , volumes and Deep clean volumes, database, images, and certificates 
-	@echo "$(RED)[DANGER] Hard-reset means: Volumes, Database, and SSL Keys will be deleted.$(RESET)"
-	@# 1. Prompt the user. If they don't say 'y', the command fails and stops here.
-	@read -p "Confirm destructive action? [y/N] " ans && [ "$${ans:-N}" = "y" ]
-	@# 2. If we passed the check, now we trigger the other targets manually
-	@echo "$(YELLOW)[INFO] Stopping containers first...$(RESET)"
-	@docker compose down  # Safety: Stop containers before deleting files
-	@$(MAKE) remove-database
-	@docker system prune
-	@docker volume prune
-	@$(MAKE) re
-	@echo "$(GREEN)[INFO] System Hard Reset Complete.$(RESET)"
-
-
-
-
-.PHONY: help dev prod down clean logs ps db-gen db-push db-studio db-export db-import
+.PHONY: help init dev-app dev-app-build dev prod down logs ps db-export db-import clean fclean re reset
