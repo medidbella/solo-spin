@@ -16,23 +16,6 @@ services:
       timeout: 5s
       retries: 120
 
-  setup-stack:
-    depends_on:
-      es01:
-        condition: service_healthy
-    image: curlimages/curl:latest
-    networks:
-      - elastic
-    volumes:
-      - ./elk/certs:/config/certs
-      - ./scripts/setup-stack.sh:/scripts/setup-stack.sh
-      - ./dashboards:/dashboards
-    user: "root"
-    environment:
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
-    command: /bin/sh /scripts/setup-stack.sh
-
   es01:
     depends_on:
       setup:
@@ -78,6 +61,23 @@ services:
       timeout: 10s
       retries: 120
 
+  setup-es:
+    image: curlimages/curl:latest
+    depends_on:
+      es01:
+        condition: service_healthy
+    networks:
+      - elastic
+    volumes:
+      - ./elk/certs:/config/certs
+      - ./scripts/setup-es.sh:/setup-es.sh
+    user: "root"
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+    command: /bin/sh /setup-es.sh
+
+  
   kibana:
     depends_on:
       es01:
@@ -112,6 +112,27 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+  
+  setup-kibana:
+    image: curlimages/curl:latest
+    depends_on:
+      setup-es:
+        condition: service_completed_successfully
+      kibana:
+        condition: service_healthy
+    networks:
+      - elastic
+    volumes:
+      - ./elk/certs:/config/certs
+      - ./scripts/setup-kibana.sh:/setup-kibana.sh
+      - ./dashboards:/dashboards
+    user: "root"
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD}
+      - KIBANA_URL=http://kibana:${KIBANA_PORT}/kibana
+      - DASHBOARD_FILE_PATH=${DASHBOARD_FILE_PATH}
+    command: /bin/sh /setup-kibana.sh
 
   logstash:
     depends_on:
@@ -164,5 +185,5 @@ services:
 
   nginx:
     depends_on:
-      kibana:
-        condition: service_healthy
+      setup-kibana:
+        condition: service_completed_successfully

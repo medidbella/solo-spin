@@ -91,9 +91,9 @@ dev: ## Start full development stack (App + ELK)
 	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) $(COMPOSE_DEV) up -d --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
-prod: ## Build and deploy production stack (Immutable images, No hot-reload) $(COMPOSE_ELK)
+prod: ## Build and deploy production stack (Immutable images, No hot-reload) 
 	@echo "$(CYAN)[INFO] Deploying Production...$(RESET)"
-	@docker compose $(COMPOSE_BASE) up -d --build --remove-orphans
+	@docker compose $(COMPOSE_BASE) $(COMPOSE_ELK) up -d --build --remove-orphans
 	@echo "$(GREEN)[SUCCESS] Endpoint active: https://localhost:8443$(RESET)"
 
 down: ## Stop and remove all containers (App & ELK)
@@ -135,6 +135,7 @@ db-import: ## Import Kibana Dashboards from local file
 
 clean: ## Danger: clean volumes, images, and certificates
 	@echo "$(RED)[DANGER] Irreversible purge: Volumes and SSL Keys will be deleted.$(RESET)"
+	@docker volume rm $(docker volume ls) || true
 	@docker compose $(COMPOSE_ALL) down -v --rmi local
 	@docker run --rm -v $(PWD):/app -w /app alpine sh -c 'rm -rf elk/certs/* nginx/certs/*'
 	@echo "$(GREEN)[INFO] System purged.$(RESET)"
